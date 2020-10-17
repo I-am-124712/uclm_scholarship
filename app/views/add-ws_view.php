@@ -16,25 +16,25 @@
                 <label id="form-label" style="padding-bottom:5px">ID Number 
                     <input spellcheck="false" class="textbox" id="idnumber" type="text" name="idnumber">
                     <div id="err-msg-idnum" 
-                         style="position:relative;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
+                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
                         <?=Messages::dump('err_idnum')?></div>
                 </label>
                 <label id="form-label" style="padding-bottom:5px">Last Name 
                     <input spellcheck="false" class="textbox" id="lname" type="text" name="lname">
                     <div id="err-msg-idnum" 
-                         style="position:relative;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
+                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
                          <?=Messages::dump('err_lname')?></div>
                 </label>
                 <label id="form-label" style="padding-bottom:5px">First Name 
                     <input spellcheck="false" class="textbox" id="fname" type="text" name="fname">
                     <div id="err-msg-idnum" 
-                         style="position:relative;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
+                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
                          <?=Messages::dump('err_fname')?></div>
                 </label>
                 <label id="form-label" style="padding-bottom:5px">Date of Hire 
                     <input class="textbox" id="date_of_hire" type="date" name="date_of_hire">
                     <div id="err-msg-idnum" 
-                         style="position:relative;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
+                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
                          <?=Messages::dump('err_date')?></div>
                 </label>
             </form>

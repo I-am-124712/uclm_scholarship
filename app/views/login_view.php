@@ -13,12 +13,12 @@
                     <input class="textbox" type="password" name="password" id="password">
                 <div class="container">
                     <button class="button-solid round" id="form-button" type="submit" name="login" value="true">Login</button>
+                    <button class="button-flashing round" id="form-button-transparent" onclick="window.location.href='/uclm_scholarship/login/guest';">Enter as Guest</button>
+                    <div id="message-pane">
+                        <?= isset($_SESSION['prompt'])? $_SESSION['prompt']:Messages::dump('prompt'); ?>
+                    </div>
                 </div>
             </form>
-            <button class="button-flashing round" id="form-button-transparent" onclick="window.location.href='/uclm_scholarship/login/guest';">Enter as Guest</button>
-            <div id="message-pane">
-                <?= isset($_SESSION['prompt'])? $_SESSION['prompt']:Messages::dump('prompt'); ?>
-            </div>
         </div>
     </div>
 </div>
