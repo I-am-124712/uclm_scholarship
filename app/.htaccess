@@ -1,0 +1,2 @@
+Options -Indexes
+php_value session.auto_start 1
