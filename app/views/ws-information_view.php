@@ -16,7 +16,7 @@
 <?php require './app/views/user_view.php';  ?>
 
 <div class="app-dash-panel">
-    <div class="form-flat">
+    <div class="form-flat" id="info-form">
         <div style="margin:10px">
             <form action="/uclm_scholarship/dash/ws" method="post">
                 <input hidden type="text" name="department" 
@@ -54,14 +54,16 @@
                     <input class="textbox-transparent" type="date" name="date_of_hire">
                     <label id="form-label2" style="color:black">Course</label>
                     <input class="textbox-transparent" type="text" name="course">
+                    <div id="form-label2" style="color:black;padding-top:10px;margin-bottom:0px">Assign as WS DTR In-Charge</div>
+                    <input type="checkbox" name="inCharge" value="true" style="margin-top: 20px;margin-bottom:0px">
                 </form>
             </div>
         </div>
-        <div style="margin-top:0px;padding-top:0px">
-            <button class="button-solid" id="form-button-green">Submit</button>
+        <div style="margin-top:0px;padding-top:0px;text-align:center">
+            <button class="button-solid" id="form-button-green">Edit Information</button>
         </div>
     </div>
-    <div class="form-flat" style="width:55%">
+    <div class="form-flat" id="sched-form">
 
     </div>
 </div>

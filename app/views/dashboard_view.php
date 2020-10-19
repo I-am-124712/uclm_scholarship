@@ -91,31 +91,33 @@
     <div style="width:inherit;padding:20px;border-radius:20px;border:1px solid gray;font-size:25px">
         <b>DASHBOARD</b>
     </div>
-    <div style="width:100%; height:fit-content;">
+    <div style="width:auto; height:fit-content;">
         <!-- For dash button top panel -->
-        <div style="padding-bottom:30px;border:1px solid gray;border-radius:20px;margin-top:10px;margin-bottom:20px;padding:10px">
+        <div class="form-flat" id="dash-btn-flat">
             <button class="button-dashboard">
-                <div class="label-dash-btn">Number of Working Scholars</div>
+                <div class="label-dash-btn">Number of WS</div>
                 <div class="sub-dash-btn"><b><?=isset($args['no_of_ws'])? $args['no_of_ws']:''?> WS</b></div>
             </button>
             <button class="button-dashboard">
-                <div class="label-dash-btn">Newly Hired Working Scholars</div>
+                <div class="label-dash-btn">Newly Hired WS</div>
                 <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> WS</b></div>
             </button>
             <button class="button-dashboard">
-                <div class="label-dash-btn">Newly Hired Working Scholars</div>
-                <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> WS</b></div>
+                <div class="label-dash-btn">WS Notifications</div>
+                <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> Notifications</b></div>
             </button>
             <button class="button-dashboard">
-                <div class="label-dash-btn">Newly Hired Working Scholars</div>
-                <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> WS</b></div>
+                <div class="label-dash-btn">Messages</div>
+                <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> Messages</b></div>
             </button>
         </div>
-        <div class="chart-div">
-            <div id="chart-panel" style="height:100%"></div>
-        </div>
-        <div class="chart-div">
-            <div id="chart-panel-2" style="height:100%"></div>
+        <div class="form-flat" id="chart-flat">
+            <div class="chart-div">
+                <div id="chart-panel" style="height:100%"></div>
+            </div>
+            <div class="chart-div">
+                <div id="chart-panel-2" style="height:100%"></div>
+            </div>
         </div>
 
         <div class="list-div">
