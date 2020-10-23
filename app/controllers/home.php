@@ -9,6 +9,7 @@ class Home extends Controller {
             $_SESSION['user_privilege'] = 4;
             $_SESSION['user_photo'] = '/uclm_scholarship/public/sources/users/user_default.png';
             header('Location: /uclm_scholarship/dash');
+            return;
         }
 
 

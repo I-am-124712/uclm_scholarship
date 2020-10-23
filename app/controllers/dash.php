@@ -120,6 +120,7 @@ class Dash extends Controller {
             'idnumber' => $idnumber
         ])
         ->go()[0];
+
         $dept_assigned = $this->model('Departments')
         ->ready()
         ->find()
@@ -128,6 +129,14 @@ class Dash extends Controller {
         ])
         ->go()[0];
         
+        $regular_sched = $this->model('Schedule')
+        ->ready()
+        ->find([
+            
+        ])
+        ->where()
+        ->go();
+
         return $this->view('ws-information',['ws' => $selected_ws, 'department' => $dept_assigned]);
     }
 

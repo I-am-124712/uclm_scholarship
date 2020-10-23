@@ -5,6 +5,7 @@
 
 *{
     font-family: CenturyTuna;
+    /* font-family: "Times New Roman"; */
     /* font-weight: normal; */
     margin: unset;
     padding: unset;
@@ -136,19 +137,19 @@ select{
 /* Button that flashes*/
 .button-flashing{
     background-color: inherit;
-    border: 0px;
+    border: none;
     color: white;
-    display: flow-root;
+    /* display: flow-root; */
     font-size: 14px;
     padding-left: 18px;
     padding-right: 18px;
     /* padding-top: 5px;
     padding-bottom: 5px; */
     text-decoration: unset;
-    text-align: center;
+    /* text-align: center; */
     transition-duration: 0.4s;
     width: 100%;
-    height: inherit;
+    height: 100%;
 }
 .button-flashing#app-sidebar-btn{
     height: 40px;
@@ -250,11 +251,28 @@ select{
 .button-solid.round{
     border-radius: 10px;
 }
+.button-solid.round.toggle{
+    background-color: inherit;
+    border-radius: 30px;
+    color: black;
+    margin-left: 5px;
+    margin-right: 5px;
+    flex: 0 1 calc(16.5%);
+    padding: 0px 5px;
+}
+
 .button-solid.round#back-button{
     background-color: rgb(0, 64, 184);
     color: white;
 }
 
+.tabbed-panel{
+    border: 1px solid gray;
+    border-radius: 20px;
+    width: 100%;
+    height: auto;
+    margin: 10px 5px 5px 5px;
+}
 
 
 
@@ -273,6 +291,26 @@ select{
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
+
+/* Tab Buttons for tabbed panel view */
+
+.button-tab{
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    margin: 5px 5px 0px 5px;
+    width: 150px;
+    border: 0px;
+    background-color: inherit;
+    color: black;
+    cursor: pointer;
+    padding: 5px;
+    transition-duration: 0.3s;
+}
+.button-tab:hover{
+    background-color: rgb(0, 64, 184);
+    color: white;
+}
+
 
 
 /* For Button label */
@@ -294,8 +332,23 @@ select{
     display: flex;
     flex-flow: row wrap;
 }
-.form-flat#dash-btn-flat{
-    
+
+.form-flat#sched-panel{
+    width: 100%;
+    height: auto;
+    padding-top: 0px;
+}
+
+.form-flat#days-panel{
+    position: relative;
+    display: flex;
+    float: none;
+    flex-flow: row;
+    width: inherit;
+    height: 30px;
+    padding: 5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .form-flat#info-form{
@@ -312,7 +365,7 @@ select{
 .form-flat#sched-form{
     border-radius: 20px;
     border: 1px solid gray;
-    width:50%;
+    width:55%;
     height: auto;
     float: left;
     margin: 10px;
@@ -399,18 +452,20 @@ select{
     padding-bottom: 5px;
     text-align: center;
     /* background-color: rgb(207, 207, 207); */
-    border-radius: 10px;
+    border-radius: 30px;
     /* float: right; */
 }
 .textbox-transparent {
     /* position: absolute; */
+    background-color: inherit;
     border : 1px solid black;
     font-size: 14px;
     width : 100%;
     height: 30px;
-    text-align: left;
+    float: none;
+    text-align: center;
     border-radius: 20px;
-    padding-left: 10px;
+    /* padding-left: 10px; */
 }
 
 table, td, th, tr {
@@ -476,13 +531,38 @@ table, td, th, tr {
     background-color: inherit;
 }
 .table-flat-data {
-    background-color: inherit;
-    border-bottom: 1px solid white;
+    background-color: rgb(0, 64, 184);
+    color: white;
+    border-top: 1px solid white;
     height: 45px;
     text-align: center;
     /* align-content: center; */
-    background-color: rgb(0, 64, 184);
 }
+.table-flat-data.transparent{
+    background-color: inherit;
+    border-bottom: 1px solid black;
+    color: black;
+}
+
+
+.table-flat-data.left{
+    border-left: 1px solid black;
+}
+.table-flat-data.right{
+    border-right: 1px solid black;
+}
+.table-flat-data.solo{
+    border: 1px solid black;
+}
+
+
+
+.table-flat-data#schedule{
+    cursor: pointer;
+    text-align: left;
+}
+
+
 #departments-row{
     width: 250px;
     height: 50px;
@@ -515,10 +595,12 @@ th#idnumber,#wsName,#wsDepartment{
     float: left;
 }
 .combo-dropbox{
+    width: 100%;
     border: 0px;
-    background-color: rgb(170, 170, 170);
-    border-radius: 5px;
+    background-color: rgb(214, 214, 214);
+    border-radius: 30px;
     padding-top: 3px;
+    padding-left: 5px;
     padding-bottom: 3px;
 }
 
@@ -728,15 +810,18 @@ th#idnumber,#wsName,#wsDepartment{
     /* float: left; */
     /* width: 50%; */
     /* position: relative; */
+    margin: 5px;
     width: 100%;
     height: max-content;
-    overflow: visible;
+    /* overflow: visible; */
 }
 #action-button-delete{
     /* float: left; */
     /* width: 50%; */
     /* position: relative; */
-    padding-top: 10px;
+    margin-top: 10px;
+    color: inherit;
+    /* padding-top: 10px; */
     width: 100%;
     height: max-content;
 }
@@ -896,7 +981,7 @@ th#idnumber,#wsName,#wsDepartment{
     position: relative;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    padding: 30px;
+    padding: 30px 30px 0px 30px;
 }
 #header {
     float: left;
@@ -1070,7 +1155,8 @@ th#idnumber,#wsName,#wsDepartment{
     .form-flat#chart-flat{
         display: block;
     }
-    .form-flat#info-form{
+    .form-flat#info-form,
+    .form-flat#sched-form{
         border-radius: 20px;
         border: 1px solid gray;
         width: auto;

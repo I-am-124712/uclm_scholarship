@@ -5,8 +5,10 @@ final class User extends Model{}
 final class UserPrivilege extends Model{}
 final class Departments extends Model{}
 final class WS extends Model{}
+final class Schedule extends Model{}
 final class Records extends Model{}
 final class Overtime extends Model{}
+
 /* Special Finder class for Complex Queries */
 final class Finder extends Model {
 
