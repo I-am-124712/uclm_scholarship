@@ -122,14 +122,29 @@ class Working_scholars extends Controller{
     }
 
     public function update(){
-        $previous_idnumber = isset($_POST['selected-id'])? $_POST['selected-id']:'';
-        $idnumber = isset($_POST['idnumber'])? $_POST['idnumber']:'';
-        $lname = isset($_POST['lname'])? $_POST['lname']:'';
-        $fname = isset($_POST['fname'])? $_POST['fname']:'';
-        $date_of_hire = isset($_POST['date_of_hire'])? $_POST['date_of_hire']:'';
+        session_start();
+        $err_count = 0;
+        $success = false;
 
-        // echo $idnumber.'<br>'.$lname.'<br>'.$fname.'<br>'.$date_of_hire;
+        $department = $_POST['department']+0;
+        $previous_idnumber = isset($_POST['selected-id'])? $_POST['selected-id']:'NONE';
+        $idnumber = isset($_POST['idnumber'])? $_POST['idnumber']:'NONE';
+        $lname = isset($_POST['lname'])? $_POST['lname']:'NONE';
+        $fname = isset($_POST['fname'])? $_POST['fname']:'NONE';
+        $course = isset($_POST['course'])? $_POST['course']:'NONE';
+        $date_of_hire = isset($_POST['date_of_hire'])? $_POST['date_of_hire']:'NONE';
 
+        // Select department
+        $dept = $this->model('Departments')
+        ->ready()
+        ->find()
+        ->where([
+            'deptId' => $department
+        ])
+        ->go()[0];
+
+
+        // re-format the date to comply with SQL Server Date format
         $break_date = explode("-",$date_of_hire);
 
         if(!empty($break_date) || $break_date !== null)
@@ -137,40 +152,75 @@ class Working_scholars extends Controller{
                 $date_of_hire = $break_date[1].'-'.$break_date[2].'-'.$break_date[0];
             }
         
-
-
         //// we have to select first one data for comparison in our UPDATE's WHERE clause.
         $ws_match = $this->model('WS')
         ->ready()
         ->find()
         ->where([
-            'idnumber' => $previous_idnumber         /// we'll only check for ID Number because it's unique already
+            'idnumber' => $previous_idnumber         /// we'll only check for ID Number
         ])
         ->go()[0];
-
-        // var_export($ws_match);
 
         if($ws_match === null){
             echo 'Debug: no match detected. No UPDATE to perform';
             return;
         }
 
-        $this->model('WS')
-        ->ready()
-        ->update([
-            'idnumber' => $idnumber,
-            'wsName' => $lname.', '.$fname,
-            'dateOfHire' => $date_of_hire
-        ])
-        ->where([
-            'idnumber' => $ws_match->get_fields()['idnumber']
-        ])
-        ->go();
+
+        // Have to check whether newly supplied idnumber is a duplicate. 
+        // Do this only if the supplied ID Number is different from the original ID Number
+        // I will find a better solution soon
+        if($idnumber !== $previous_idnumber){
+            $ws_duplicate = $this->model('WS')
+            ->ready()
+            ->find()
+            ->where([
+                'idnumber' => $idnumber
+            ])
+            ->go();
+
+            
+            if(!empty($ws_duplicate)){
+                $err_count++;
+                Messages::push(['err_idnum'=>'Found duplicate ID Number', 'edit-status'=>'EDIT FAILED']);
+            }
+        }
+
+        // proceed to update if nothing wrong is found
+        if($err_count <= 0){
+            $this->model('WS')
+            ->ready()
+            ->update([
+                'idnumber' => $idnumber,
+                'wsName' => $lname.', '.$fname,
+                'dateOfHire' => $date_of_hire,
+                'course' => $course
+            ])
+            ->where([
+                'idnumber' => $ws_match->get_fields()['idnumber']
+            ])
+            ->go();
+
+            // reselect matching item to view updated data
+            $ws_match = $this->model('WS')
+            ->ready()
+            ->find()
+            ->where([
+                'idnumber' => $idnumber
+            ])
+            ->go()[0];
+            
+            $success = true;
+
+            Messages::push(['edit-status'=>'EDIT SUCCESSFUL']);
+        }
+        
+        return $this->view('ws-information',['ws' => $ws_match, 'department' => $dept, 'success' => $success]);
     }
 
 
 
-    public function register_as_users(){
+    private function register_as_users(){
 
         $working_scholars = $this->model('WS')
         ->ready()

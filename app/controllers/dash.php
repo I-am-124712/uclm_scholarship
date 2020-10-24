@@ -137,7 +137,7 @@ class Dash extends Controller {
         ->where()
         ->go();
 
-        return $this->view('ws-information',['ws' => $selected_ws, 'department' => $dept_assigned]);
+        return $this->view('ws-information',['ws' => $selected_ws, 'department' => $dept_assigned, 'success' => false]);
     }
 
     public function add_ws($deptId){

@@ -260,6 +260,21 @@ select{
     flex: 0 1 calc(16.5%);
     padding: 0px 5px;
 }
+.button-solid.green{
+    background-color: rgb(0, 94, 0);
+    border-radius: 20px;
+    color: white;
+    font-size: 16px;
+    position: relative;
+    top: 5%;
+    left: 15%;
+    right: 15%;
+    width: 70%;
+    height: 30px;
+}
+.button-solid.green:hover{
+    background-color: rgb(0, 158, 0);
+}
 
 .button-solid.round#back-button{
     background-color: rgb(0, 64, 184);
@@ -310,7 +325,10 @@ select{
     background-color: rgb(0, 64, 184);
     color: white;
 }
-
+.button-tab:active{
+    background-color: rgb(0, 64, 184);
+    color: white;
+}
 
 
 /* For Button label */
@@ -386,6 +404,19 @@ select{
     position: relative;
     border-radius: inherit;
     background-size: cover;
+}
+
+
+
+
+/* For disabled buttons */
+.button-solid:disabled,
+.button-solid.round:disabled,
+.button-solid.green:disabled,
+.button-tab:disabled{
+    background-color: #dddddd;
+    color: #aaaaaa;
+    cursor: default;
 }
 
 
@@ -697,9 +728,9 @@ th#idnumber,#wsName,#wsDepartment{
 .app-sidebar-panel{
     display: block;
     overflow: hidden;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     float: left;
-    width: 250px;
+    width: 200px;
     height:100%;
     background-color: rgb(20,20,20);
     transition-duration: 0.3s;
@@ -716,14 +747,14 @@ th#idnumber,#wsName,#wsDepartment{
 .user-panel{
     background-color: rgb(40,40,40);
     width: inherit;
-    height: 250px;
+    height: 200px;
     padding: 20px;
 }
 .user-icon{
     background-color: rgb(70,70,70);
     border-radius: 100%;
     width: 100%;
-    height: 210px;
+    height: 160px;
 }
 .user-photo{
     width: inherit;
@@ -739,6 +770,17 @@ th#idnumber,#wsName,#wsDepartment{
     height: fit-content;
     padding-top: 10px;
 }
+.user-side-buttons{
+    position: relative;
+    float: left;
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+}
+
+
+
+
 
 .sort-button{
     float:left;
@@ -807,21 +849,13 @@ th#idnumber,#wsName,#wsDepartment{
     background-color: rgba(100, 100, 100, 128);
 }
 #action-button-info{
-    /* float: left; */
-    /* width: 50%; */
-    /* position: relative; */
     margin: 5px;
     width: 100%;
     height: max-content;
-    /* overflow: visible; */
 }
 #action-button-delete{
-    /* float: left; */
-    /* width: 50%; */
-    /* position: relative; */
     margin-top: 10px;
     color: inherit;
-    /* padding-top: 10px; */
     width: 100%;
     height: max-content;
 }
@@ -829,6 +863,43 @@ th#idnumber,#wsName,#wsDepartment{
     background-color: inherit;
     color: rgb(245, 112, 112);
 }
+
+#action-button-info-icon{
+    float:left; 
+    border-radius:100%;
+    background-image:url('/uclm_scholarship/public/sources/icons/iconEdit.png');
+    background-position: center;
+    background-size:20px;
+    background-repeat: no-repeat;
+    padding: 0px;
+    margin: 0px;
+    width: 35px;
+    height:35px
+}
+
+#action-button-delete-icon{
+    float:left; 
+    border-radius:100%;
+    margin: 0px;
+    padding: 0px;
+    background-image:url('/uclm_scholarship/public/sources/icons/iconDelete.png');
+    background-position: center;
+    background-size:25px;
+    background-repeat: no-repeat;
+    width: 35px;
+    height:35px
+}
+#action-button-delete-icon:hover{
+    background-color:inherit;
+    background-image:url('/uclm_scholarship/public/sources/icons/iconDeleteHover.png');
+}
+
+
+
+
+
+
+
 #actioncell{
     width: 25%;
 }
@@ -919,21 +990,6 @@ th#idnumber,#wsName,#wsDepartment{
     width: 70%;
     height: 40px;
 }
-#form-button-green{
-    background-color: rgb(0, 94, 0);
-    border-radius: 20px;
-    color: white;
-    font-size: 16px;
-    position: relative;
-    top: 5%;
-    left: 15%;
-    right: 15%;
-    width: 70%;
-    height: 30px;
-}
-#form-button-green:hover{
-    background-color: rgb(0, 158, 0);
-}
 #form-button-transparent{
     font-size: 18px;
     position: relative;
@@ -948,6 +1004,20 @@ th#idnumber,#wsName,#wsDepartment{
     background-color: inherit;
     color: rgb(255, 115, 0)
 }
+
+/* For disabled buttons */
+#form-button:disabled,
+#form-button-green:disabled,
+#form-button-transparent:disabled{
+    background-color: #dddddd;
+    color: #aaaaaa;
+    cursor: default;
+}
+
+
+
+
+
 #form-label {
     float: left;
     background-color: rgba(0,0,0,0);

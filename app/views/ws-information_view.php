@@ -21,35 +21,16 @@
 
 ?>
 
-<script type="text/javascript">
-    let isActive = {
-        "m": false,
-        "tu": false,
-        "w": false,
-        "tu": false,
-        "f": false,
-        "s": false,
-    };
-
-    function highlight(id){
-        isActive[id] = !isActive[id];
-        console.log(id+" : "+isActive[id]);
-
-        if(isActive[id]){
-            document.getElementById(id).style.backgroundColor = "rgb(52, 133, 255)";
-            document.getElementById(id).style.color = "white";
-        }   
-        else {
-            document.getElementById(id).style.backgroundColor = "inherit";
-            document.getElementById(id).style.color = "black";
-        }
-    }
-</script>
 
 <?php require './app/views/user_view.php';  ?>
 
 <div class="app-dash-panel">
     <div class="form-flat" id="info-form">
+        <div style="float:right;
+                    color: green;
+                    margin: 20px 20px 0px 0px">
+            <?=Messages::dump('edit-status')?>
+        </div>
         <div style="margin:10px">
             <form action="/uclm_scholarship/dash/ws" method="post">
                 <input hidden type="text" name="department" 
@@ -76,13 +57,16 @@
                 <b>EDIT INFORMATION</b>
             </div>
             <div class="form-panel2">
-                <form action="" method="">
+                <form id="information" action="" method="">
+                    <input hidden type="text" name="department" 
+                            value=<?=isset($args['department'])? $args['department']->get_fields()['deptId']:''?>>
                     <label id="form-label2" style="color:black">
                         ID Number
                         <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">
                             <?=Messages::dump('err_idnum')?>
                         </span>
                     </label>
+                    <input type="text" name="selected-id" value=<?=$idnumber?> hidden>
                     <input class="textbox-transparent" type="text" name="idnumber" value=<?=$idnumber?>>
                     <label id="form-label2" style="color:black">
                         Last Name
@@ -111,7 +95,9 @@
             </div>
         </div>
         <div style="margin-top:0px;padding-top:0px;text-align:center">
-            <button class="button-solid" id="form-button-green">Edit Information</button>
+            <button id="save-edit" type="button" class="button-solid green">
+                <?=$args['success'] ? 'Saved':'Edit Information'?>
+            </button>
         </div>
     </div>
     <div class="form-flat" id="sched-form">
@@ -119,7 +105,7 @@
             <b>DUTY SCHEDULE</b>
         </div>
         <div class="tab-panel" style="margin:0px 0px 0px 15px">
-            <button class="button-tab">Regular Days</button>
+            <button class="button-tab" active>Regular Days</button>
             <button class="button-tab">Specific Day</button>
         </div>
         <div class="form-flat" id="sched-panel" style="margin-top:0px; width:100%">
@@ -141,7 +127,7 @@
                     <input type="time" name="tout" id="tout" class="textbox-transparent" 
                     style="float:left;margin:5px;width:300px" value="09:00:00">
                 </form>
-                    <button class="button-solid" id="form-button-green">Save Schedule</button>
+                    <button class="button-solid green" id="save-sched">Save Schedule</button>
             </div>
         </div>
         <div class="form-flat" style="width:100%;height:30px;padding:5px;margin:0px">
@@ -155,7 +141,7 @@
             </div>
             <button class="button-solid round" 
             style="width:20%; float:right; margin-left:auto; margin-right:auto">
-                Load
+                Refresh
             </button>
         </div>
         <div class="tabbed-panel">
@@ -166,19 +152,25 @@
             </div>
             <div class="form-flat" style="margin: 0px 10px 10px 10px; height:150px; overflow-y:auto">
                 <table class="table-flat">
-                    <?php for($i=0; $i<10; ++$i) {?>
+                    <?php 
+                    $days = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
+                    for($i=0; $i<10; ++$i) {?>
                         <tr>
                             <td class="table-flat-data transparent" id="schedule">
-                                SCHEDULE HERE
-                                <div style="width:30%; float:right; margin-right:5px">
-                                    <button class="button-solid round" id="action-button-info" 
-                                            style="float:left; width:calc(50% - 10px)">
-                                        Edit
-                                    </button>
-                                    <button class="button-flashing round" id="action-button-delete" 
-                                            style="width:calc(50% - 10px)">
-                                        Delete
-                                    </button>
+                                <div style="float:left;
+                                            margin-top: auto;
+                                            margin-bottom: auto;
+                                            width:70%;">
+                                    <div style="font-size:18px;">
+                                        8:00 am - 12:00 pm
+                                    </div>
+                                    <div style="font-size:12px;color: rgb(50,50,255)">
+                                        <?= $days[$i%6];?>
+                                    </div>
+                                </div>
+                                <div style="width:15%; float:right; margin-bottom:5px">
+                                    <button class="button-solid round" id="action-button-info-icon"></button>
+                                    <button class="button-flashing round" id="action-button-delete-icon"></button>
                                 </div>
                             </td>
                         </tr>
@@ -189,4 +181,63 @@
     </div>
 </div>
 
+<script type="text/javascript">
+    let isActive = {
+        "m": false,
+        "tu": false,
+        "w": false,
+        "tu": false,
+        "f": false,
+        "s": false,
+    };
+
+    function highlight(id){
+        isActive[id] = !isActive[id];
+        console.log(id+" : "+isActive[id]);
+
+        if(isActive[id]){
+            document.getElementById(id).style.backgroundColor = "rgb(52, 133, 255)";
+            document.getElementById(id).style.color = "white";
+        }   
+        else {
+            document.getElementById(id).style.backgroundColor = "inherit";
+            document.getElementById(id).style.color = "black";
+        }
+    }
+
+    $(function(){
+        /// FOR EDIT INFORMATION BUTTON ///
+        var domObj;
+
+
+        $("#save-edit").click(function(){
+            let args = $("#information").serialize();
+            let domParser = new DOMParser();
+
+            // buffered page. we'll use this to query the edit form
+            // and replace it in our current document without
+            // reloading the page
+
+            response = $.post({
+                url: "/uclm_scholarship/working_scholars/update",
+                data: args,
+                dataType: 'html',
+                async : false
+            }).responseText;
+
+            domObj = domParser.parseFromString(response,'text/html');
+
+            infoForm = domObj.getElementById("info-form");
+            $("#info-form").empty();
+            $("#info-form").replaceWith(infoForm);
+            $('#save-edit').delay(3000).fadeIn(500,function(){
+                $(this).text('Edit Information');
+            });
+            // $('#save-edit').delay(3000);
+        });
+    });
+
+
+
+</script>
 <?php require './app/views/popups_view.php'; ?>
