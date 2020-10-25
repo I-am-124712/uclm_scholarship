@@ -13,12 +13,12 @@
     }
 
     $idnumber = $args['ws']->get_fields()['idnumber'];
-    $lname = explode(', ',$args['ws']->get_fields()['wsName'])[0];
-    $fname = explode(', ',$args['ws']->get_fields()['wsName'])[1];
+    $lname = utf8_encode(explode(", ",$args['ws']->get_fields()['wsName'])[0]);
+    $fname = utf8_encode(explode(", ",$args['ws']->get_fields()['wsName'])[1]);
     $course = $args['ws']->get_fields()['course'];
     $date_of_hire = date_format($args['ws']->get_fields()['dateOfHire'],'Y-m-d');
 
-
+    $user_privilege = $args['user']->get_fields()['user_privilege']+0;
 ?>
 
 
@@ -26,77 +26,81 @@
 
 <div class="app-dash-panel">
     <div class="form-flat" id="info-form">
-        <div style="float:right;
-                    color: green;
-                    margin: 20px 20px 0px 0px">
-            <?=Messages::dump('edit-status')?>
-        </div>
-        <div style="margin:10px">
-            <form action="/uclm_scholarship/dash/ws" method="post">
-                <input hidden type="text" name="department" 
-                        value=<?=isset($args['department'])? $args['department']->get_fields()['deptId']:''?>>
-                <button class="button-solid round" id="back-button" type="submit">
-                    Back to Previous
-                </button><br>
-            </form>
-        </div>
-        <div style="margin:10px">
-            <div class="photo-panel">
-                <div id="ws-photo" style="background-image: url('/uclm_scholarship/public/sources/users/user_default.png')"></div>
+        <div id="ws-information">
+            <div style="float:right;
+                        color: green;
+                        margin: 20px 20px 0px 0px">
+                <?=Messages::dump('edit-status')?>
             </div>
-            <div class="info-panel">
-                <ul class="info-words">
-                    <li class="info-lines"><?=$args['ws']->get_fields()['idnumber']?></li>
-                    <li class="info-lines"><?=$args['ws']->get_fields()['wsName']?></li>
-                    <li class="info-lines"><?=strtoupper($args['department']->get_fields()['departmentName'])?></li>
-                </ul>
-            </div>
-        </div>
-        <div class="edit-panel">
-            <div style="color:rgb(255,115,0);font-size:20px">
-                <b>EDIT INFORMATION</b>
-            </div>
-            <div class="form-panel2">
-                <form id="information" action="" method="">
+            <div style="margin:10px">
+                <form action="/uclm_scholarship/dash/ws" method="post">
                     <input hidden type="text" name="department" 
                             value=<?=isset($args['department'])? $args['department']->get_fields()['deptId']:''?>>
-                    <label id="form-label2" style="color:black">
-                        ID Number
-                        <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">
-                            <?=Messages::dump('err_idnum')?>
-                        </span>
-                    </label>
-                    <input type="text" name="selected-id" value=<?=$idnumber?> hidden>
-                    <input class="textbox-transparent" type="text" name="idnumber" value=<?=$idnumber?>>
-                    <label id="form-label2" style="color:black">
-                        Last Name
-                    </label>
-                    <input class="textbox-transparent" type="text" name="lname" value=<?=$lname?>>
-                    <label id="form-label2" style="color:black">
-                        First Name
-                    </label>
-                    <input class="textbox-transparent" type="text" name="fname" value=<?=$fname?>>
-                    <label id="form-label2" style="color:black">
-                        Date of Hire
-                        <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">
-                            <?=Messages::dump('err_date')?>
-                        </span>
-                    </label>
-                    <input class="textbox-transparent" type="date" name="date_of_hire" value=<?=$date_of_hire?>>
-                    <label id="form-label2" style="color:black">
-                        Course
-                    </label>
-                    <input class="textbox-transparent" type="text" name="course" value=<?=$course?>>
-                    <div id="form-label2" style="color:black;padding-top:10px;margin-bottom:0px">
-                        Assign as WS DTR In-Charge
-                    </div>
-                    <input type="checkbox" name="inCharge" value="true" style="margin-top: 20px;margin-bottom:0px">
+                    <button class="button-solid round" id="back-button" type="submit">
+                        Back to Previous
+                    </button><br>
                 </form>
+            </div>
+            <div style="margin:10px">
+                <div class="photo-panel">
+                    <div id="ws-photo" style="background-image: url('/uclm_scholarship/public/sources/users/user_default.png')"></div>
+                </div>
+                <div class="info-panel">
+                    <ul class="info-words">
+                        <li class="info-lines"><?=$args['ws']->get_fields()['idnumber']?></li>
+                        <li class="info-lines"><?=$lname.', '.$fname?></li>
+                        <li class="info-lines"><?=strtoupper($args['department']->get_fields()['departmentName'])?></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="edit-panel">
+                <div style="color:rgb(255,115,0);font-size:20px">
+                    <b>EDIT INFORMATION</b>
+                </div>
+                <div class="form-panel2">
+                    <form id="information" action="" method="">
+                        <input hidden type="text" name="department" 
+                                value=<?=isset($args['department'])? $args['department']->get_fields()['deptId']:''?>>
+                        <label id="form-label2" style="color:black">
+                            ID Number
+                            <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">
+                                <?=Messages::dump('err_idnum')?>
+                            </span>
+                        </label>
+                        <input type="text" id="selected-id" name="selected-id" value=<?=$idnumber?> hidden>
+                        <input class="textbox-transparent" type="text" name="idnumber" value=<?=$idnumber?>>
+                        <label id="form-label2" style="color:black">
+                            Last Name
+                        </label>
+                        <input class="textbox-transparent" type="text" name="lname" value="<?=$lname?>">
+                        <label id="form-label2" style="color:black">
+                            First Name
+                        </label>
+                        <input class="textbox-transparent" type="text" name="fname" value="<?=$fname?>">
+                        <label id="form-label2" style="color:black">
+                            Date of Hire
+                            <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">
+                                <?=Messages::dump('err_date')?>
+                            </span>
+                        </label>
+                        <input class="textbox-transparent" type="date" name="date_of_hire" value=<?=$date_of_hire?>>
+                        <label id="form-label2" style="color:black">
+                            Course
+                        </label>
+                        <input class="textbox-transparent" type="text" name="course" value="<?=$course?>">
+                        <?php if($_SESSION['user_privilege'] == 999 || $_SESSION['user_privilege'] == 1) { ?>
+                            <div id="form-label2" style="color:black;padding-top:10px;margin-bottom:0px">
+                                Assign as WS DTR In-Charge
+                            </div>
+                            <input type="checkbox" name="inCharge" <?=($user_privilege===2)? 'checked':''?> style="margin-top: 20px;margin-bottom:0px">
+                        <?php } ?>
+                    </form>
+                </div>
             </div>
         </div>
         <div style="margin-top:0px;padding-top:0px;text-align:center">
             <button id="save-edit" type="button" class="button-solid green">
-                <?=$args['success'] ? 'Saved':'Edit Information'?>
+                Edit Information
             </button>
         </div>
     </div>
@@ -104,22 +108,31 @@
         <div style="color:rgb(255,115,0); text-align: left; width:100%; margin:10px 0px 10px 10px; font-size: 20px">
             <b>DUTY SCHEDULE</b>
         </div>
-        <div class="tab-panel" style="margin:0px 0px 0px 15px">
-            <button class="button-tab" active>Regular Days</button>
-            <button class="button-tab">Specific Day</button>
+        <div class="tab-panel" id="sched-type" style="margin:0px 0px 0px 15px">
+            <button class="button-tab" id="sched-type">Regular Days</button>
+            <button class="button-tab" id="sched-type">Specific Day</button>
         </div>
         <div class="form-flat" id="sched-panel" style="margin-top:0px; width:100%">
-            <div class="form-flat" style="margin:none;border:0px;width:100%">
-                Days
-                <div class="form-flat" id="days-panel">
-                    <button class="button-solid round toggle" id="m" onclick="highlight(this.id)">M</button>
-                    <button class="button-solid round toggle" id="tu" onclick="highlight(this.id)">Tu</button>
-                    <button class="button-solid round toggle" id="w" onclick="highlight(this.id)">W</button>
-                    <button class="button-solid round toggle" id="th" onclick="highlight(this.id)">Th</button>
-                    <button class="button-solid round toggle" id="f" onclick="highlight(this.id)">F</button>
-                    <button class="button-solid round toggle" id="s" onclick="highlight(this.id)">S</button>
+            <div class="form-flat" style="margin-top:10px;padding:0px;border:0px;width:100%">
+                <div class="form-flat" style="width: 100%">
+                    <b><div id="day-label" style="margin-left:15px">SELECT DAYS</div></b>
+                    <div class="form-flat" id="days-panel">
+                        <button class="button-solid round-toggle" id="day-of-week" name="m">M</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="tu">Tu</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="w">W</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="th">Th</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="f">F</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="s">S</button>
+                    </div>
+                    <div class="form-flat" id="days-panel" style="display:auto; width:inherit; margin-left: auto; margin-right: auto">
+                        <input type="date" name="spc-date" id="spc-date" class="textbox-transparent" 
+                        style="float: none;
+                                margin-left:auto;
+                                margin-right:auto;
+                                width:calc(100%-30px)">
+                    </div>
                 </div>
-                <form action="GET" style="width:450px;margin-top:20px;margin-left:auto;margin-right:auto">
+                <form action="GET" style="width:450px;margin-top:0px;margin-left:auto;margin-right:auto">
                     <label for="tin" id="form-label2" style="color:black;width:80px">Time-In</label>
                     <input type="time" name="tin" id="tin" class="textbox-transparent" 
                     style="float:left;margin:5px;width:300px" value="08:00:00">
@@ -135,7 +148,7 @@
                 <label for="semester">School Year</label>
             </div>
             <div style="margin:5px auto 5px auto; width:50%;">
-                <select class="combo-dropbox" name="sy" id="sy">
+                <select class="combo-dropbox" name="school-year" id="school-year">
                     <option value="2019-2020">2019-2020</option>
                 </select>
             </div>
@@ -145,16 +158,23 @@
             </button>
         </div>
         <div class="tabbed-panel">
-            <div class="tab-panel" style="margin: 0px 0px 0px 20px">
-                <button class="button-tab">1st Semester</button>
-                <button class="button-tab">2nd Semester</button>
-                <button class="button-tab">Summer</button>
+            <div class="tab-panel" id="sched-sem" style="margin: 0px 0px 0px 20px">
+                <button class="button-tab" id="semester">1st Semester</button>
+                <button class="button-tab" id="semester">2nd Semester</button>
+                <button class="button-tab" id="semester">Summer</button>
             </div>
-            <div class="form-flat" style="margin: 0px 10px 10px 10px; height:150px; overflow-y:auto">
-                <table class="table-flat">
+            <div class="form-flat" id="schedules" style="margin: 0px 10px 10px 10px; height:150px; overflow-y:auto">
+                <table class="table-flat" id="sched-data">
+                    <!-- Table row here -->
                     <?php 
-                    $days = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
-                    for($i=0; $i<10; ++$i) {?>
+                    if(isset($args['schedule']) && !empty($args['schedule'])){
+                        foreach($args['schedule'] as $sched) {
+                            $time_sched = date_format($sched->get_fields()['tin'],'h:i a')
+                                        .' - '
+                                        .date_format($sched->get_fields()['tout'],'h:i a');
+                            $day_of_sched = $sched->get_fields()['schedDay'];
+                            $total_hours = $sched->get_fields()['totalHours'];
+                    ?>
                         <tr>
                             <td class="table-flat-data transparent" id="schedule">
                                 <div style="float:left;
@@ -162,19 +182,21 @@
                                             margin-bottom: auto;
                                             width:70%;">
                                     <div style="font-size:18px;">
-                                        8:00 am - 12:00 pm
+                                        <?= $time_sched?>
                                     </div>
                                     <div style="font-size:12px;color: rgb(50,50,255)">
-                                        <?= $days[$i%6];?>
+                                        <?= $total_hours.($total_hours > 1? ' Hours - ':' Hour - ').$day_of_sched?>
                                     </div>
                                 </div>
-                                <div style="width:15%; float:right; margin-bottom:5px">
+                                <div style="float:right; margin-bottom:5px">
                                     <button class="button-solid round" id="action-button-info-icon"></button>
                                     <button class="button-flashing round" id="action-button-delete-icon"></button>
                                 </div>
                             </td>
                         </tr>
-                    <?php } ?>
+                    <?php } 
+                        }
+                    ?>
                 </table>
             </div>
         </div>
@@ -182,37 +204,84 @@
 </div>
 
 <script type="text/javascript">
-    let isActive = {
-        "m": false,
-        "tu": false,
-        "w": false,
-        "tu": false,
-        "f": false,
-        "s": false,
-    };
 
-    function highlight(id){
-        isActive[id] = !isActive[id];
-        console.log(id+" : "+isActive[id]);
-
-        if(isActive[id]){
-            document.getElementById(id).style.backgroundColor = "rgb(52, 133, 255)";
-            document.getElementById(id).style.color = "white";
-        }   
-        else {
-            document.getElementById(id).style.backgroundColor = "inherit";
-            document.getElementById(id).style.color = "black";
-        }
-    }
 
     $(function(){
-        /// FOR EDIT INFORMATION BUTTON ///
-        var domObj;
+
+        let domObj = null;
+        let domParser = new DOMParser();
+        let schedTypeNames = ["REG","SPC"];
+
+        const loadSched = function(){
+            schedType = "schedType=" + schedTypeNames[$(".button-tab.active#sched-type").index()];
+            semester = 'semester=' + ($(".button-tab.active#semester").index() + 1);
+            schoolYear = $("#school-year").serialize();
+            idnumber = $('#selected-id').serialize();
+            args = schedType + "&" + semester + '&' + schoolYear + '&' + idnumber;
+            url = "/uclm_scholarship/working_scholars/view_schedules";
+
+            response = $.post({
+                url : url,
+                data: args,
+                dataType: 'html',
+                async: false
+            }).responseText;
+
+            domObj = domParser.parseFromString(response,'text/html');
+            table = domObj.getElementById("sched-data");
+        
+            $("table#sched-data").replaceWith(table);
+        };
+
+        const scheduleType = function(){
+            let label = ["SELECT DAYS","ENTER A SPECIFIC DATE"];
+            source = $(".button-tab.active#sched-type");
+            $("#day-label").text(label[source.index()]);
+            $(".form-flat").children(".form-flat#days-panel").hide();
+            $(".form-flat").children(".form-flat#days-panel").eq(source.index()).show();
+        };
 
 
+
+        /// Default selected tabs and items ///
+        $("#sched-type").children(".button-tab").eq(0).addClass('active');
+        $("#sched-sem").children(".button-tab").eq(0).addClass('active');
+        
+        /// load 1st Sem Schedule automatically
+        scheduleType();
+        loadSched();
+
+        /// click a tab button
+        $(".button-tab").click(function(){
+            $(this).siblings(".button-tab").removeClass("active");
+            $(this).addClass("active");
+        });
+
+        /// load records based on selected school year and semester;
+        $(".button-tab#semester").click(function(){
+            loadSched();
+        });
+
+        /// choose what type of schedule to save
+        $(".button-tab#sched-type").click(function(){
+            scheduleType();
+            loadSched();
+        });
+
+        /// for Day of Week toggle buttons
+        const dayClicked = [false,false,false,false,false,false];
+        $(".button-solid.round-toggle#day-of-week").click(function(){
+            dayClicked[$(this).index()] = !dayClicked[$(this).index()];
+
+            if(dayClicked[$(this).index()])
+                $(this).addClass("active");
+            else
+                $(this).removeClass("active");
+        });
+
+        /// For WS Edit Information ///
         $("#save-edit").click(function(){
             let args = $("#information").serialize();
-            let domParser = new DOMParser();
 
             // buffered page. we'll use this to query the edit form
             // and replace it in our current document without
@@ -227,14 +296,95 @@
 
             domObj = domParser.parseFromString(response,'text/html');
 
-            infoForm = domObj.getElementById("info-form");
-            $("#info-form").empty();
-            $("#info-form").replaceWith(infoForm);
-            $('#save-edit').delay(3000).fadeIn(500,function(){
+            infoForm = domObj.getElementById("ws-information");
+
+
+            $("div#ws-information").empty();
+            $("div#ws-information").replaceWith(infoForm);
+            $(this).text('Saved');
+            $(this).delay(3000).fadeIn(500,function(){
                 $(this).text('Edit Information');
             });
-            // $('#save-edit').delay(3000);
+
         });
+
+        /* This area is for saving the schedule. We will find a better solution I swear */
+        const saveSched = function(){
+            schedTypeName = schedTypeNames[$(".button-tab.active#sched-type").index()]
+            schedType = "schedType=" + schedTypeName;
+            schoolYear = $("select#school-year").serialize();
+            semester = "semester=" + ($(".button-tab.active#semester").index()+1);
+            idnumber = $("#selected-id").serialize();
+            tin = $("input#tin").serialize();
+            tout = $("input#tout").serialize();
+
+            switch(schedTypeName){
+                // Regular Schedule
+                case "REG": 
+                    // what we do is loop through every active day-of-week Element and add these schedules
+
+                    selectedDays = $(".form-flat#days-panel").children("#day-of-week");
+                    selectedDays.each(function(){
+                        if($(this).hasClass("active")){
+                            // console.log("Selected day: " + $(this).text());
+                            schedDay = "schedDay=" + $(this).text();
+
+                            params = schedType + "&"
+                                    + schoolYear + "&"
+                                    + semester + "&"
+                                    + idnumber + "&"
+                                    + schedDay + "&"
+                                    + tin + "&"
+                                    + tout + "&";
+                            // console.log(params);
+
+                            response = $.post({
+                                url: '/uclm_scholarship/working_scholars/add_schedule',
+                                dataType: 'html',
+                                data: params,
+                                async: false
+                            }).responseText;
+
+                        }
+                    });
+                    loadSched();
+                    break;
+
+                // Specific Schedule
+                case "SPC":
+                    date = new Date($("input#spc-date").val());
+                    schedDay = "schedDay=" + date.toLocaleDateString();
+
+                    console.log(schedDay);
+
+                    params = schedType + "&"
+                            + schoolYear + "&"
+                            + semester + "&"
+                            + idnumber + "&"
+                            + schedDay + "&"
+                            + tin + "&"
+                            + tout + "&";
+                    console.log(params);
+
+                    response = $.post({
+                        url: '/uclm_scholarship/working_scholars/add_schedule',
+                        dataType: 'html',
+                        data: params,
+                        async: false
+                    }).responseText;
+                    console.log(response);
+
+
+                    loadSched();
+                    break;
+                default:
+                    
+            }
+        };  
+
+        $('button#save-sched').click(saveSched);
+
+
     });
 
 

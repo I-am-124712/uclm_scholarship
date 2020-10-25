@@ -113,6 +113,8 @@ class Dash extends Controller {
 
         if($idnumber === '')
             return;
+
+        /// retrieve Working Scholar's data
         $selected_ws = $this->model('WS')
         ->ready()
         ->find()
@@ -121,6 +123,7 @@ class Dash extends Controller {
         ])
         ->go()[0];
 
+        /// we will need the department's name
         $dept_assigned = $this->model('Departments')
         ->ready()
         ->find()
@@ -129,15 +132,21 @@ class Dash extends Controller {
         ])
         ->go()[0];
         
-        $regular_sched = $this->model('Schedule')
+        /// we will also need the working scholar's user account
+        $ws_user = $this->model('User')
         ->ready()
-        ->find([
-            
+        ->find()
+        ->where([
+            'user_id' => 'ws'.$idnumber
         ])
-        ->where()
-        ->go();
+        ->go()[0];
 
-        return $this->view('ws-information',['ws' => $selected_ws, 'department' => $dept_assigned, 'success' => false]);
+        return $this->view('ws-information',[
+            'ws' => $selected_ws, 
+            'user' => $ws_user,
+            'department' => $dept_assigned, 
+            'success' => false
+        ]);
     }
 
     public function add_ws($deptId){

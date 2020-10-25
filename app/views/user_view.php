@@ -3,7 +3,7 @@
 <!-- <body onload="loadDash()"> -->
 <div class="app-main">
     <div class="app-header">
-        <button class="button-flashing round" id="hamburger1" onclick="e()">≡</button>
+        <button class="button-flashing round" id="hamburger1">≡</button>
         <div style="margin:5px;font-size:20px;margin-left:10px;float:left">
             <b>UCLM WORKING SCHOLARS APP</b>
         </div>

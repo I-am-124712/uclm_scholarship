@@ -105,8 +105,6 @@ class Model {
     }
 
     public final function where($args = []){
-        
-
         if(!empty($args)){
             $logic = isset($args['logic'])? ' '.$args['logic'].' ':' AND ';
             $this->query_string .= ' WHERE ';
@@ -121,7 +119,7 @@ class Model {
             $this->query_string = rtrim($this->query_string,$logic);
         }
         
-        $this->prepare_query_statement($this->params);
+        $this->prepare_query_statement();
         return $this;
     }
 
@@ -145,7 +143,6 @@ class Model {
             return;
 
         $this->query_string .= 'UPDATE ['.get_class($this).'] ';
-        $this->params = array();
         $set = 'SET ';
 
         foreach($args as $k => $v){
@@ -156,16 +153,15 @@ class Model {
 
         $this->query_string .= $set;
 
-        $this->prepare_query_statement($this->params);
+        $this->prepare_query_statement();
         return $this;
     }
 
 
 
-    protected function prepare_query_statement($params = []){
-        if(!empty($params))
-            $this->prepared_statement = sqlsrv_prepare($this->connectionResource, $this->query_string, $params);
-        $this->query = sqlsrv_query($this->connectionResource, $this->query_string, $params);
+    protected function prepare_query_statement(){
+        $this->prepared_statement = sqlsrv_prepare($this->connectionResource, $this->query_string, $this->params);
+        $this->query = sqlsrv_query($this->connectionResource, $this->query_string, $this->params);
     }
 
     // Performs the query to the Database and closes the connection. This method

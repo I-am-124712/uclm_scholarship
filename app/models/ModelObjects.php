@@ -13,12 +13,15 @@ final class Overtime extends Model{}
 final class Finder extends Model {
 
     public final function select($cols){
+        $this->query_string .= 'SELECT ';
         if(!empty($cols)){
-            $this->query_string .= 'SELECT ';
             foreach($cols as $column){
                 $this->query_string .= $column.',';
             }
             $this->query_string = rtrim($this->query_string,',');
+        }
+        else{
+            $this->query_string .= '*';
         }
         $this->prepare_query_statement();
         return $this;
@@ -72,10 +75,13 @@ final class Finder extends Model {
             return;
         $columns='';
         foreach($cols as $column){
+            // array_push($this->params,$column);
             $columns .= $column.',';
         }
         $columns = rtrim($columns,',');
         $this->query_string .= ' GROUP BY '.$columns;
+        
+        $this->prepare_query_statement();
         return $this;
     }
 
