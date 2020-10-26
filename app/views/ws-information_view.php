@@ -17,7 +17,8 @@
     $fname = utf8_encode(explode(", ",$args['ws']->get_fields()['wsName'])[1]);
     $course = $args['ws']->get_fields()['course'];
     $date_of_hire = date_format($args['ws']->get_fields()['dateOfHire'],'Y-m-d');
-
+    $department_id = isset($args['department'])? $args['department']->get_fields()['deptId']:'';
+    $department_name = strtoupper($args['department']->get_fields()['departmentName']);
     $user_privilege = $args['user']->get_fields()['user_privilege']+0;
 ?>
 
@@ -35,7 +36,7 @@
             <div style="margin:10px">
                 <form action="/uclm_scholarship/dash/ws" method="post">
                     <input hidden type="text" name="department" 
-                            value=<?=isset($args['department'])? $args['department']->get_fields()['deptId']:''?>>
+                            value=<?=$department_id?>>
                     <button class="button-solid round" id="back-button" type="submit">
                         Back to Previous
                     </button><br>
@@ -49,7 +50,7 @@
                     <ul class="info-words">
                         <li class="info-lines"><?=$args['ws']->get_fields()['idnumber']?></li>
                         <li class="info-lines"><?=$lname.', '.$fname?></li>
-                        <li class="info-lines"><?=strtoupper($args['department']->get_fields()['departmentName'])?></li>
+                        <li class="info-lines"><?=$department_name?></li>
                     </ul>
                 </div>
             </div>
@@ -88,12 +89,16 @@
                             Course
                         </label>
                         <input class="textbox-transparent" type="text" name="course" value="<?=$course?>">
-                        <?php if($_SESSION['user_privilege'] == 999 || $_SESSION['user_privilege'] == 1) { ?>
+                        <?php if($_SESSION['user_privilege'] == 999 || $_SESSION['user_privilege'] == 1) { 
+                                if($department_name === "SCHOLARSHIP OFFICE"){
+                            ?>
                             <div id="form-label2" style="color:black;padding-top:10px;margin-bottom:0px">
                                 Assign as WS DTR In-Charge
                             </div>
                             <input type="checkbox" name="inCharge" <?=($user_privilege===2)? 'checked':''?> style="margin-top: 20px;margin-bottom:0px">
-                        <?php } ?>
+                        <?php } 
+                            }
+                        ?>
                     </form>
                 </div>
             </div>
@@ -215,9 +220,9 @@
 <script type="text/javascript">
 
 
+    const domParser = new DOMParser();
+    const schedTypeNames = ["REG","SPC"];
     let domObj = null;
-    let domParser = new DOMParser();
-    let schedTypeNames = ["REG","SPC"];
 
     const loadSched = function(){
         schedType = "schedType=" + schedTypeNames[$(".button-tab.active#sched-type").index()];
