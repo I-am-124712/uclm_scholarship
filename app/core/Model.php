@@ -68,6 +68,18 @@ class Model {
         return $this;
     }
 
+    public final function from($table_or_tables = []){
+        $this->query_string .= ' FROM ';
+        if(!empty($table_or_tables)){
+            foreach($table_or_tables as $table_name){
+                $this->query_string .= $table_name.',';
+            }
+            $this->query_string = rtrim($this->query_string,',');
+        }
+        $this->prepare_query_statement();
+        return $this;
+    }
+
 
     /**
      * Searches for an entry in the database based on this current Model,
@@ -125,6 +137,7 @@ class Model {
 
     public final function delete(){
         $this->query_string .= 'DELETE FROM ['.get_class($this).'] ';
+        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -133,6 +146,7 @@ class Model {
 
     public function order_by($column, $order){
         $this->query_string .= ' ORDER BY '.$column.' '.$order.' ';
+        $this->prepare_query_statement();
         return $this;
     }
 

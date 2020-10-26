@@ -27,17 +27,6 @@ final class Finder extends Model {
         return $this;
     }
 
-    public final function from($table_or_tables = []){
-        $this->query_string .= ' FROM ';
-        if(!empty($table_or_tables)){
-            foreach($table_or_tables as $table_name){
-                $this->query_string .= $table_name.',';
-            }
-            $this->query_string = rtrim($this->query_string,',');
-        }
-        $this->prepare_query_statement();
-        return $this;
-    }
 
     public final function join($args = []){
         $table = '';

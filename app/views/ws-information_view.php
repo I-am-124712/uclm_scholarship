@@ -23,13 +23,13 @@
 
 
 <?php require './app/views/user_view.php';  ?>
-
 <div class="app-dash-panel">
     <div class="form-flat" id="info-form">
         <div id="ws-information">
             <div style="float:right;
                         color: green;
-                        margin: 20px 20px 0px 0px">
+                        margin: 20px 20px 0px 0px"
+                    id="edit-status">
                 <?=Messages::dump('edit-status')?>
             </div>
             <div style="margin:10px">
@@ -127,6 +127,7 @@
                     <div class="form-flat" id="days-panel" style="display:auto; width:inherit; margin-left: auto; margin-right: auto">
                         <input type="date" name="spc-date" id="spc-date" class="textbox-transparent" 
                         style="float: none;
+                                border: 0px;
                                 margin-left:auto;
                                 margin-right:auto;
                                 width:calc(100%-30px)">
@@ -163,12 +164,14 @@
                 <button class="button-tab" id="semester">2nd Semester</button>
                 <button class="button-tab" id="semester">Summer</button>
             </div>
+            <div id="schedule-index" hidden><?="AMEN"?></div>
             <div class="form-flat" id="schedules" style="margin: 0px 10px 10px 10px; height:150px; overflow-y:auto">
                 <table class="table-flat" id="sched-data">
                     <!-- Table row here -->
                     <?php 
                     if(isset($args['schedule']) && !empty($args['schedule'])){
                         foreach($args['schedule'] as $sched) {
+                            $scheduleId = $sched->get_fields()['schedule_id'];
                             $time_sched = date_format($sched->get_fields()['tin'],'h:i a')
                                         .' - '
                                         .date_format($sched->get_fields()['tout'],'h:i a');
@@ -189,8 +192,14 @@
                                     </div>
                                 </div>
                                 <div style="float:right; margin-bottom:5px">
-                                    <button class="button-solid round" id="action-button-info-icon"></button>
-                                    <button class="button-flashing round" id="action-button-delete-icon"></button>
+                                    <button class="button-solid round" 
+                                            id="action-button-info-icon" 
+                                            value=<?=$scheduleId?>
+                                            onclick=""></button>
+                                    <button class="button-flashing round" 
+                                            id="action-button-delete-icon" 
+                                            value=<?=$scheduleId?>
+                                            onclick="deleteSchedule(this.value)"></button>
                                 </div>
                             </td>
                         </tr>
@@ -206,40 +215,157 @@
 <script type="text/javascript">
 
 
-    $(function(){
+    let domObj = null;
+    let domParser = new DOMParser();
+    let schedTypeNames = ["REG","SPC"];
 
-        let domObj = null;
-        let domParser = new DOMParser();
-        let schedTypeNames = ["REG","SPC"];
+    const loadSched = function(){
+        schedType = "schedType=" + schedTypeNames[$(".button-tab.active#sched-type").index()];
+        semester = 'semester=' + ($(".button-tab.active#semester").index() + 1);
+        schoolYear = $("#school-year").serialize();
+        idnumber = $('#selected-id').serialize();
+        args = schedType + "&" + semester + '&' + schoolYear + '&' + idnumber;
+        url = "/uclm_scholarship/working_scholars/view_schedules";
 
-        const loadSched = function(){
-            schedType = "schedType=" + schedTypeNames[$(".button-tab.active#sched-type").index()];
-            semester = 'semester=' + ($(".button-tab.active#semester").index() + 1);
-            schoolYear = $("#school-year").serialize();
-            idnumber = $('#selected-id').serialize();
-            args = schedType + "&" + semester + '&' + schoolYear + '&' + idnumber;
-            url = "/uclm_scholarship/working_scholars/view_schedules";
+        response = $.post({
+            url : url,
+            data: args,
+            dataType: 'html',
+            async: false
+        }).responseText;
 
-            response = $.post({
-                url : url,
-                data: args,
-                dataType: 'html',
-                async: false
-            }).responseText;
+        domObj = domParser.parseFromString(response,'text/html');
+        table = domObj.getElementById("sched-data");
+    
+        $("table#sched-data").replaceWith(table);
+    };
 
-            domObj = domParser.parseFromString(response,'text/html');
-            table = domObj.getElementById("sched-data");
+    /* Edit a selected Schedule through a modal popup window */
+
+
+
+
+
+    /* Delete a selected Schedule */
+    const deleteSchedule = (schedId)=>{
+        if(confirm('Are you sure you want to delete this saved schedule?')){
+            console.log("Imo mama delete");
+            scheduleId = "scheduleId="+schedId;
+            $.ajax({
+                url: '/uclm_scholarship/working_scholars/delete_schedule',
+                type: 'post',
+                data: scheduleId,
+                success: function(res){
+                    console.log(res);
+                }
+            });
+            loadSched();
+        }
+    };
+
+    const scheduleType = function(){
+        let label = ["SELECT DAYS","ENTER A SPECIFIC DATE"];
+        source = $(".button-tab.active#sched-type");
+        $("#day-label").text(label[source.index()]);
+        $(".form-flat").children(".form-flat#days-panel").hide();
+        $(".form-flat").children(".form-flat#days-panel").eq(source.index()).show();
+    };
+
+
+    /* This area is for saving the schedule. We will find a better solution I swear */
+    const saveSched = function(){
         
-            $("table#sched-data").replaceWith(table);
-        };
+        
+        $.ajax({
+            type: 'GET',
+            url: '/uclm_scholarship/working_scholars/schedule_index',
+            dataType: 'JSON',
+            success: function(data){
+                var schedTypeName = schedTypeNames[$(".button-tab.active#sched-type").index()]
+                var schedType = "schedType=" + schedTypeName;
+                var schoolYear = $("select#school-year").serialize();
+                var semester = "semester=" + ($(".button-tab.active#semester").index()+1);
+                var idnumber = $("#selected-id").serialize();
+                var tin = $("input#tin").serialize();
+                var tout = $("input#tout").serialize();
+                var scheduleId = "schedule_id=" + (data.schedId+1);
 
-        const scheduleType = function(){
-            let label = ["SELECT DAYS","ENTER A SPECIFIC DATE"];
-            source = $(".button-tab.active#sched-type");
-            $("#day-label").text(label[source.index()]);
-            $(".form-flat").children(".form-flat#days-panel").hide();
-            $(".form-flat").children(".form-flat#days-panel").eq(source.index()).show();
-        };
+                console.log(scheduleId);
+                switch(schedTypeName){
+                    // Regular Schedule
+                    case "REG": 
+                        // what we do is loop through every active day-of-week Element and add these schedules
+                        selectedDays = $(".form-flat#days-panel").children("#day-of-week");
+                        selectedDays.each(function(){
+                            if($(this).hasClass("active")){
+                                // console.log("Selected day: " + $(this).text());
+                                schedDay = "schedDay=" + $(this).text();
+
+                                params = scheduleId + "&"
+                                        + schedType + "&"
+                                        + schoolYear + "&"
+                                        + semester + "&"
+                                        + idnumber + "&"
+                                        + schedDay + "&"
+                                        + tin + "&"
+                                        + tout + "&";
+                                // console.log(params);
+
+                                response = $.post({
+                                    url: '/uclm_scholarship/working_scholars/add_schedule',
+                                    dataType: 'html',
+                                    data: params,
+                                    async: false
+                                }).responseText;
+
+                            }
+                        });
+                        loadSched();
+                        break;
+
+                    // Specific Schedule
+                    case "SPC":
+                        date = new Date($("input#spc-date").val());
+                        schedDay = "schedDay=" + date.toLocaleDateString();
+
+                        console.log(schedDay);
+
+                        params = scheduleId + "&"
+                                + schedType + "&"
+                                + schoolYear + "&"
+                                + semester + "&"
+                                + idnumber + "&"
+                                + schedDay + "&"
+                                + tin + "&"
+                                + tout + "&";
+                        console.log(params);
+
+                        response = $.post({
+                            url: '/uclm_scholarship/working_scholars/add_schedule',
+                            dataType: 'html',
+                            data: params,
+                            async: false
+                        }).responseText;
+                        console.log(response);
+
+
+                        loadSched();
+                        break;
+                    default:
+                        
+                }
+
+            },
+            error: function(e){
+                console.log(e.responseText);
+            }
+        });
+    };  
+
+
+
+
+    $(function(){
 
 
 
@@ -293,6 +419,7 @@
                 dataType: 'html',
                 async : false
             }).responseText;
+            // console.log(response);
 
             domObj = domParser.parseFromString(response,'text/html');
 
@@ -305,84 +432,13 @@
             $(this).delay(3000).fadeIn(500,function(){
                 $(this).text('Edit Information');
             });
+            $("#edit-status").delay(3000).fadeOut(500);
 
         });
-
-        /* This area is for saving the schedule. We will find a better solution I swear */
-        const saveSched = function(){
-            schedTypeName = schedTypeNames[$(".button-tab.active#sched-type").index()]
-            schedType = "schedType=" + schedTypeName;
-            schoolYear = $("select#school-year").serialize();
-            semester = "semester=" + ($(".button-tab.active#semester").index()+1);
-            idnumber = $("#selected-id").serialize();
-            tin = $("input#tin").serialize();
-            tout = $("input#tout").serialize();
-
-            switch(schedTypeName){
-                // Regular Schedule
-                case "REG": 
-                    // what we do is loop through every active day-of-week Element and add these schedules
-
-                    selectedDays = $(".form-flat#days-panel").children("#day-of-week");
-                    selectedDays.each(function(){
-                        if($(this).hasClass("active")){
-                            // console.log("Selected day: " + $(this).text());
-                            schedDay = "schedDay=" + $(this).text();
-
-                            params = schedType + "&"
-                                    + schoolYear + "&"
-                                    + semester + "&"
-                                    + idnumber + "&"
-                                    + schedDay + "&"
-                                    + tin + "&"
-                                    + tout + "&";
-                            // console.log(params);
-
-                            response = $.post({
-                                url: '/uclm_scholarship/working_scholars/add_schedule',
-                                dataType: 'html',
-                                data: params,
-                                async: false
-                            }).responseText;
-
-                        }
-                    });
-                    loadSched();
-                    break;
-
-                // Specific Schedule
-                case "SPC":
-                    date = new Date($("input#spc-date").val());
-                    schedDay = "schedDay=" + date.toLocaleDateString();
-
-                    console.log(schedDay);
-
-                    params = schedType + "&"
-                            + schoolYear + "&"
-                            + semester + "&"
-                            + idnumber + "&"
-                            + schedDay + "&"
-                            + tin + "&"
-                            + tout + "&";
-                    console.log(params);
-
-                    response = $.post({
-                        url: '/uclm_scholarship/working_scholars/add_schedule',
-                        dataType: 'html',
-                        data: params,
-                        async: false
-                    }).responseText;
-                    console.log(response);
-
-
-                    loadSched();
-                    break;
-                default:
-                    
-            }
-        };  
-
         $('button#save-sched').click(saveSched);
+
+
+
 
 
     });

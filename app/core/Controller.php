@@ -11,6 +11,7 @@ class Controller {
 
     public function view($view,$args=[]){
         // include './index.html';
+        require_once 'index.html';
         require_once './app/views/'.$view.'_view.php';
     }
 

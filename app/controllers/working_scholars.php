@@ -136,16 +136,21 @@ class Working_scholars extends Controller{
         $department = isset($_POST['department']) ? $_POST['department']+0:1;
         $previous_idnumber = isset($_POST['selected-id'])? $_POST['selected-id']:'NONE';
         $idnumber = isset($_POST['idnumber'])? $_POST['idnumber']:'NONE';
-        $lname = isset($_POST['lname'])? $_POST['lname']:'NONE';
-        $fname = isset($_POST['fname'])? $_POST['fname']:'NONE';
+        $lname = utf8_decode(isset($_POST['lname'])? $_POST['lname']:'NONE');
+        $fname = utf8_decode(isset($_POST['fname'])? $_POST['fname']:'NONE');
         $course = isset($_POST['course'])? $_POST['course']:'NONE';
         $date_of_hire = isset($_POST['date_of_hire'])? $_POST['date_of_hire']:'NONE';
         $is_dtr_in_charge = isset($_POST['inCharge'])? $_POST['inCharge']:'off';
         
         $user_privilege = $is_dtr_in_charge==='on'? 2:3;
 
-        echo $is_dtr_in_charge;
+        // re-format the date to comply with SQL Server Date format
+        $break_date = explode("-",$date_of_hire);
 
+        if(!empty($break_date) || $break_date !== null)
+            if($break_date !== []){
+                $date_of_hire = $break_date[1].'-'.$break_date[2].'-'.$break_date[0];
+            }
 
         // Select department
         $dept = $this->model('Departments')
@@ -156,14 +161,15 @@ class Working_scholars extends Controller{
         ])
         ->go()[0];
 
+        // Select default matching user
+        $match_user = $this->model('User')
+        ->ready()
+        ->find()
+        ->where([
+            'user_id' => 'ws'.$previous_idnumber
+        ])
+        ->go()[0];
 
-        // re-format the date to comply with SQL Server Date format
-        $break_date = explode("-",$date_of_hire);
-
-        if(!empty($break_date) || $break_date !== null)
-            if($break_date !== []){
-                $date_of_hire = $break_date[1].'-'.$break_date[2].'-'.$break_date[0];
-            }
         
         //// we have to select first one data for comparison in our UPDATE's WHERE clause.
         $ws_match = $this->model('WS')
@@ -216,14 +222,15 @@ class Working_scholars extends Controller{
             ])
             ->go();
             
-            /// update Working Scholar's user account and select match as well...
+            /// update Working Scholar's user account and re-select match as well...
             $this->model('User')
             ->ready()
             ->update([
+                'user_id' => 'ws'.$idnumber,
                 'user_privilege' => $user_privilege
             ])   
             ->where([
-                'user_id' => 'ws'.$idnumber
+                'user_id' => 'ws'.$previous_idnumber
             ])
             ->go();
 
@@ -259,7 +266,7 @@ class Working_scholars extends Controller{
 
 
 
-    public function register_as_users(){
+    private function register_as_users(){
 
 
         $working_scholars = $this->model('WS')
@@ -340,6 +347,7 @@ class Working_scholars extends Controller{
         $schedule = $this->model('Finder')
         ->ready()
         ->select([
+            'schedule_id',
             "STRING_AGG(schedDay,', ') within group(ORDER BY("
             ." CASE schedDay "
             ."WHEN 'M' THEN 1 "
@@ -362,7 +370,7 @@ class Working_scholars extends Controller{
             'schoolYear' => $schoolYear,
             'semester' => $semester+0
         ])
-        ->group(['tin', 'tout','totalHours'])
+        ->group(['schedule_id','tin', 'tout','totalHours'])
         ->go();
 
         // var_export($schedule);
@@ -380,6 +388,7 @@ class Working_scholars extends Controller{
         session_start();
         $this->trap_no_user_session();
 
+        $schedule_id = isset($_POST['schedule_id'])? $_POST['schedule_id']:"";
         $idnumber = isset($_POST['selected-id'])? $_POST['selected-id']:"";
         $schedType = isset($_POST['schedType'])? $_POST['schedType']:"";
         $schoolYear = isset($_POST['school-year'])? $_POST['school-year']:"";
@@ -388,19 +397,11 @@ class Working_scholars extends Controller{
         $tin = isset($_POST['tin'])? $_POST['tin']:"";
         $tout = isset($_POST['tout'])? $_POST['tout']:"";
         $total = $this->differenceInHours($tin,$tout);
-
-        echo "ID Number: ".$idnumber."<br>";
-        echo "Schedule Type: ".$schedType."<br>";
-        echo "School Year: ".$schoolYear."<br>";
-        echo "Semester: ".$semester."<br>";
-        echo "Schedule Day: ".$schedDay."<br>";
-        echo "Schedule Time: ".$tin.'-'.$tout."<br>";
-        echo "Total Hours: ".$total."<br>";
-
         
         $this->model("Schedule")
         ->ready()
         ->create([
+            "schedule_id" => $schedule_id,
             "idnumber" => $idnumber,
             'scheduleType' => $schedType,
             'schoolYear' => $schoolYear,
@@ -412,10 +413,8 @@ class Working_scholars extends Controller{
         ])
         ->insert()
         ->go();
-
-
-
     }
+
     private function differenceInHours($startdate,$enddate){
         $starttimestamp = strtotime($startdate);
         $endtimestamp = strtotime($enddate);
@@ -423,6 +422,44 @@ class Working_scholars extends Controller{
         return $difference;
     }
 
+    public function delete_schedule(){
+        $schedule_id = isset($_POST['scheduleId'])? $_POST['scheduleId']:"";
+        echo $schedule_id;
+
+        if($schedule_id === '')
+            return;
+
+        $this->model("Schedule")
+        ->ready()
+        ->delete()
+        ->where([
+            'schedule_id' => $schedule_id
+        ])
+        ->go();
+    }
 
 
+
+    public function schedule_index(){
+
+        $sched_id = array("schedId"=>0);
+        $schedule_index = 
+                $this
+                ->model('Finder')
+                ->ready()
+                ->select([
+                    'DISTINCT TOP 1 schedule_id'
+                ])
+                ->from([
+                    'Schedule'
+                ])
+                ->order_by("schedule_id",'DESC')
+                ->go();
+
+        if(!empty($schedule_index)){
+            $sched_index = $schedule_index[0];
+            $sched_id['schedId'] = $sched_index->get_fields()['schedule_id'];
+        }
+        echo (json_encode($sched_id));
+    }
 }
