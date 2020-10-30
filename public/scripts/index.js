@@ -26,52 +26,18 @@ function clearTargetHTML(targetTag){
 }
 
 
-/// Testing purposes only. 
-function squirt(args){
-    let serial = '/uclm_scholarship/working_scholars/add?'+($("form").serialize());
-    alert(args)
-    if(args == undefined)
-        return;
-    let vals = JSON.parse(args);
-    if(vals['ok'])
-        alert("Yeah");
-
-    httpRequestExternal('GET',serial);
-    alert(serial);
-}
-
-
-
 
 function loadDash(){
     appAction = document.getElementById("_appAction");
     httpRequestExternal('GET','/uclm_scholarship/dash?_appAction=' + _appAction,'dashboard-panel',true);
 }
 
-function addWorkingScholars(departmentID){
-    // departmentID = document.getElementById('deptComboBox').value;
-    if(departmentID === "0"){
-        alert("Select a department first");
-        return;
-    }
-    appAction = document.getElementById("_appAction");
-    httpRequestExternal('GET','/uclm_scholarship/dash/add_ws/'+departmentID + '?_appAction=' + _appAction, "for-popups");
-}
 
 function loadWSInfo(idnumber){
     appAction = document.getElementById("_appAction");
     httpRequestExternal('GET','/uclm_scholarship/dash/ws_information/'+idnumber + '?_appAction=' + _appAction, "for-popups");
 }
 
-function save_ws(){
-    let serial = $('form').serialize();
-    // alert('/uclm_scholarship/working_scholars/add?'+serial);
-
-    httpRequestExternal('GET','/uclm_scholarship/working_scholars/add?'+serial,'for-popups');
-    setTimeout(()=>{
-        httpRequestExternal('GET','/uclm_scholarship/dash/ws_view_only','dashboard-panel');
-    },60);    
-}
 
 function deleteWorkingScholar(idnumber){
     if(confirm('Are you sure you want to delete this WS?')){
@@ -139,4 +105,3 @@ function tableSort(tableId, col){
         }
     }
 }
-

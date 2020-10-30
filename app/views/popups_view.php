@@ -1,1 +1,2 @@
-<div id="for-popups">
+<div id="for-popups" hidden>
+

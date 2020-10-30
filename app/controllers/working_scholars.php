@@ -3,6 +3,27 @@
 class Working_scholars extends Controller{
 
     public function index(){}
+    
+    public function add_ws($deptId){
+        session_start();
+        $this->trap_no_user_session();
+
+        if($deptId == 0){?>
+            <div>Select a Department first before adding a Working Scholar
+            <button onclick="clearTargetHTML('for-popups')">OK</button></div>
+<?php
+            return;
+        }
+        $matched_department = $this->model('Departments')
+        ->ready()
+        ->find()
+        ->where([
+            'deptId' => $deptId
+        ])
+        ->go()[0];
+
+        return $this->view('add-ws',$matched_department);
+    }
 
     public function add(){
         session_start();
@@ -97,6 +118,7 @@ class Working_scholars extends Controller{
 
         }
     }
+    
 
     public function delete(){
         session_start();
@@ -421,6 +443,7 @@ class Working_scholars extends Controller{
         $difference = abs($endtimestamp - $starttimestamp)/3600;
         return $difference;
     }
+     
 
     public function delete_schedule(){
         $schedule_id = isset($_POST['scheduleId'])? $_POST['scheduleId']:"";

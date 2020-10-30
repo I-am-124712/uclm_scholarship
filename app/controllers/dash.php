@@ -149,30 +149,6 @@ class Dash extends Controller {
         ]);
     }
 
-    public function add_ws($deptId){
-        session_start();
-        $this->trap_no_user_session();
-
-        if($deptId == 0){?>
-            <div>Select a Department first before adding a Working Scholar
-            <button onclick="clearTargetHTML('for-popups')">OK</button></div>
-<?php
-            return;
-        }
-        $matched_department = $this->model('Departments')
-        ->ready()
-        ->find()
-        ->where([
-            'deptId' => $deptId
-        ])
-        ->go()[0];
-
-        return $this->view('add-ws',$matched_department);
-    }
-
-
-
-
     /// dashboard data and statistics chu2x loading here aron chuy tan-awn
     private function load_dashboard_data(){
 

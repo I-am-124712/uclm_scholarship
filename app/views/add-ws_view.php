@@ -1,5 +1,5 @@
 
-<div class="modal-overlay">
+<div class="modal-overlay" id="modal-overlay-add-ws">
     <div class="modal-panel" id="panel-add-ws"> 
         <h1 class="modal-header"><b>Add Working Scholar</b></h1>
         <div id="form-panel" style="padding-left:30px;padding-right:30px;padding-bottom:10px;padding-top:20px">
@@ -37,6 +37,9 @@
                          style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
                          <?=Messages::dump('err_date')?></div>
                 </label>
+                <label id="form-label" style="padding-bottom:5px">Course 
+                    <input spellcheck="false" class="textbox" id="course" type="text" name="fname">
+                </label>
             </form>
             <div class="container">
                 <button class="button-solid round" 
@@ -48,8 +51,14 @@
                 <button class="button-flashing round" 
                         id="form-button-transparent" 
                         style="height:40px"
-                        onclick="clearTargetHTML('for-popups')">
+                        onclick="closeModal()">
                     Cancel
                 </button>
             </div>
         </div>
+
+<script>
+    const closeModal = ()=>{
+        $("#for-popups").text("");
+    };
+</script>

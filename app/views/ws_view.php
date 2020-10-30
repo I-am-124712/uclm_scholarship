@@ -1,17 +1,17 @@
 
-    <?php
-        $allowed_edit = false;
-        if(isset($_SESSION['user_id']) && isset($_SESSION['user_privilege'])){
-            if($_SESSION['user_privilege'] == 999 ||
-                $_SESSION['user_privilege'] == 1 ||
-                $_SESSION['user_privilege'] == 2) 
-                $allowed_edit = true;
-        }
-        else {
-            echo "Trying to access data without logging in.";
-            return;
-        }
-    ?>
+<?php
+    $allowed_edit = false;
+    if(isset($_SESSION['user_id']) && isset($_SESSION['user_privilege'])){
+        if($_SESSION['user_privilege'] == 999 ||
+            $_SESSION['user_privilege'] == 1 ||
+            $_SESSION['user_privilege'] == 2) 
+            $allowed_edit = true;
+    }
+    else {
+        echo "Trying to access data without logging in.";
+        return;
+    }
+?>
 
 <div> 
     <div>
@@ -62,3 +62,19 @@
         </table>
     </div>
 </div>
+
+
+<script>
+    const addWorkingScholars = (departmentId)=>{
+        $.ajax({
+            type: "GET",
+            url: "/uclm_scholarship/working_scholars/add_ws/"+departmentId,
+            dataType: "html",
+            success: function(res){
+                
+                $("div#for-popups").removeAttr("hidden");
+                $("div#for-popups").append(res);
+            }
+        });
+    }
+</script>

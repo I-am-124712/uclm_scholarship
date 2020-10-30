@@ -492,6 +492,19 @@ select{
     border-radius: 30px;
     /* float: right; */
 }
+
+.textbox#idnumber,
+.textbox#lname,
+.textbox#fname,
+.textbox#date_of_hire,
+.textbox#course{
+    height: 25px;
+}
+
+
+
+
+
 .textbox-transparent {
     /* position: absolute; */
     background-color: inherit;

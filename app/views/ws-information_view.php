@@ -110,7 +110,7 @@
         </div>
     </div>
     <div class="form-flat" id="sched-form">
-        <div style="color:rgb(255,115,0); text-align: left; width:100%; margin:10px 0px 10px 10px; font-size: 20px">
+        <div id="sched-form-label" style="color:rgb(255,115,0); text-align: left; width:100%; margin:10px 0px 10px 10px; font-size: 20px">
             <b>DUTY SCHEDULE</b>
         </div>
         <div class="tab-panel" id="sched-type" style="margin:0px 0px 0px 15px">
@@ -200,7 +200,7 @@
                                     <button class="button-solid round" 
                                             id="action-button-info-icon" 
                                             value=<?=$scheduleId?>
-                                            onclick=""></button>
+                                            onclick="editSchedule(this.value)"></button>
                                     <button class="button-flashing round" 
                                             id="action-button-delete-icon" 
                                             value=<?=$scheduleId?>
@@ -216,9 +216,9 @@
         </div>
     </div>
 </div>
+<?php require './app/views/popups_view.php'; ?>
 
 <script type="text/javascript">
-
 
     const domParser = new DOMParser();
     const schedTypeNames = ["REG","SPC"];
@@ -246,9 +246,48 @@
     };
 
     /* Edit a selected Schedule through a modal popup window */
+    const editSchedule = (schedId)=>{
+        $(function(){
+            console.log("Currently Editing: (" + schedId + ");");
+            $(".modal-panel").attr("id", "edit-sched");
+            $("#edit-sched").css({
+                "background-color": "rgb(0, 64, 184)",
+                "color" : "white",
+                "width" : "650px",
+                "height": "400px",
+                "border-radius": "20px",
+                "margin" : "10px",
+                "padding": "0px"
+            });
+
+            /// I will take the Duty Schedule form from this page for the edit...
+            var $schedForm = $(".form-flat#sched-panel").clone();
+            var $schedFormLabel = $("#sched-form-label").clone();
+
+            /// ...edit the style...
+            $schedForm.css({
+                "width" : "auto",
+                "height" : "inherit",
+                "color" : "white",
+                "padding" : "0px",
+                "margin" : "0px",
+                "border" : "0px"
+            });
 
 
+            /// ...and copy it inside the modal panel...
+            $("#edit-sched").append($schedForm);
+            $("#edit-sched").children().each(function(){
+                $(this).css({
+                    "color" : "white"
+                })
+            })
 
+            /// ...then show it
+            $("div#for-popups").removeAttr("hidden");
+            
+        });
+    };
 
 
     /* Delete a selected Schedule */
@@ -268,6 +307,9 @@
         }
     };
 
+
+
+    /* Switch the controls between WeekDay Selector and Date Picker */
     const scheduleType = function(){
         let label = ["SELECT DAYS","ENTER A SPECIFIC DATE"];
         source = $(".button-tab.active#sched-type");
@@ -372,8 +414,6 @@
 
     $(function(){
 
-
-
         /// Default selected tabs and items ///
         $("#sched-type").children(".button-tab").eq(0).addClass('active');
         $("#sched-sem").children(".button-tab").eq(0).addClass('active');
@@ -442,13 +482,5 @@
         });
         $('button#save-sched').click(saveSched);
 
-
-
-
-
     });
-
-
-
 </script>
-<?php require './app/views/popups_view.php'; ?>
