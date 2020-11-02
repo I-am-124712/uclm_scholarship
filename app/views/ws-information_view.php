@@ -159,7 +159,8 @@
                 </select>
             </div>
             <button class="button-solid round" 
-            style="width:20%; float:right; margin-left:auto; margin-right:auto">
+            style="width:20%; float:right; margin-left:auto; margin-right:auto"
+            onclick="loadSched()">
                 Refresh
             </button>
         </div>

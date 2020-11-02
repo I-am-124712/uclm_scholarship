@@ -51,15 +51,3 @@ class Messages {
                     Messages::$message[$arg] : '';
     }
 }
-Messages::push([
-    'ok' => 'Okay'
-]);
-// Messages::push([
-//     'ok' => 'Okay',
-//     'err_idnum' => 'Wrong ID Number',
-//     'err_lname' => 'First Name Not Allowed',
-//     'err_fname' => 'Last Name Not Allowed',
-//     'err_date' => 'Date Not Allowed'
-// ]);
-
-// var_export(json_encode(Messages::dump()));

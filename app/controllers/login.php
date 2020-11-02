@@ -1,7 +1,7 @@
 <?php
 class Login extends Controller {
 
-    private $salt = '7ba85c1ef9b655e2';
+    // private $salt = '7ba85c1ef9b655e2';
 
     public function index($params = ''){
 
@@ -40,7 +40,7 @@ class Login extends Controller {
                 ->find()
                 ->where([
                     'username' => $username,
-                    'password' => md5($this->salt.$password)
+                    'password' => md5(SALT.$password)
                 ])
                 ->go();
                 

@@ -63,7 +63,6 @@ class Model {
         
         $this->query_string .= $fields.' '.$value_binders;
 
-        ?><script> console.log(<?='"'.$this->query_string.'"';?>); </script> <?php
         $this->prepared_statement = sqlsrv_prepare($this->connectionResource, $this->query_string, $this->params);
         return $this;
     }

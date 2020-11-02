@@ -26,7 +26,6 @@ function clearTargetHTML(targetTag){
 }
 
 
-
 function loadDash(){
     appAction = document.getElementById("_appAction");
     httpRequestExternal('GET','/uclm_scholarship/dash?_appAction=' + _appAction,'dashboard-panel',true);

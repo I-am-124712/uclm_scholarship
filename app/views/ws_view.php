@@ -66,15 +66,52 @@
 
 <script>
     const addWorkingScholars = (departmentId)=>{
-        $.ajax({
-            type: "GET",
-            url: "/uclm_scholarship/working_scholars/add_ws/"+departmentId,
-            dataType: "html",
-            success: function(res){
-                
-                $("div#for-popups").removeAttr("hidden");
-                $("div#for-popups").append(res);
+        url = "/uclm_scholarship/working_scholars/add_ws/"+departmentId;
+        form = $("#for-popups").load(url+" .modal-overlay");
+        $("#for-popups").removeAttr("hidden");
+        console.log(form);
+    }
+    const closeModal = ()=>{
+        $("#for-popups").text("");
+    };
+
+    const save = ()=>{
+        url = "/uclm_scholarship/working_scholars/add";
+        params = $('form').serialize();
+        console.log(params);
+
+        // callback constants
+        const success = (data)=>{
+            console.log(data);
+
+            $("#err-msg-idnum").text(data.err_idnum);
+            $("#err-msg-lname").text(data.err_lname);
+            $("#err-msg-fname").text(data.err_fname);
+            $("#err-msg-course").text(data.err_course);
+
+            if(data.success){
+                console.log(data.success);
+                closeModal();
+                console.log("Next line I think causes the bug...");
+                setTimeout(() => {
+                    console.log("Waiting...");
+                    location.href = '/uclm_scholarship/dash/ws';
+                }, 100);
             }
+        };
+        const err = (data)=>{
+            console.log(data);
+        };
+
+        // Time to add WS here.
+        $.post({
+            url: url,
+            async: true,
+            data: params,
+            dataType: 'JSON',
+            success: success,
+            error : err
         });
+
     }
 </script>

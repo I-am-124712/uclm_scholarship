@@ -1115,7 +1115,7 @@ th#idnumber,#wsName,#wsDepartment{
     margin-bottom: 20px;
 }
 #panel-add-ws{
-    width: 480px;
+    width: 450px;
     height: 500px;
     background-color: rgb(0, 64, 184);
 }

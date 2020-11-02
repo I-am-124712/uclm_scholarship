@@ -29,14 +29,15 @@ class Working_scholars extends Controller{
         session_start();
         $this->trap_no_user_session();
 
-        if(empty($_GET))
+        if(empty($_POST))
             return;
 
-        $deptAssigned = $_GET['deptId'];
-        $idnumber = isset($_GET['idnumber'])? $_GET['idnumber']:'';
-        $lname = isset($_GET['lname'])? $_GET['lname']:'';
-        $fname = isset($_GET['fname'])? $_GET['fname']:'';
-        $date_of_hire = isset($_GET['date_of_hire'])? $_GET['date_of_hire']:'';
+        $deptAssigned = isset($_POST['deptId'])? $_POST['deptId']:'0';
+        $idnumber = isset($_POST['idnumber'])? $_POST['idnumber']:'';
+        $lname = isset($_POST['lname'])? $_POST['lname']:'';
+        $fname = isset($_POST['fname'])? $_POST['fname']:'';
+        $date_of_hire = isset($_POST['date_of_hire'])? $_POST['date_of_hire']:'';
+        $course = isset($_POST['course'])? $_POST['course']:'';
 
         $break_date = explode("-",$date_of_hire);
         if($date_of_hire !== ''){
@@ -50,12 +51,12 @@ class Working_scholars extends Controller{
             'idnumber' => $idnumber,
             'wsName' => ($lname.', '.$fname),
             'depAssigned' => $deptAssigned+0,
-            'dateOfHire' => $date_of_hire
+            'dateOfHire' => $date_of_hire,
+            'course' => $course
         ];
 
 
         $err_count = 0;
-
 
         /// First check for valid input. 
         /// discovered October 12, 2020 (Happy Birthday, Batsheba Inihao!)
@@ -82,41 +83,54 @@ class Working_scholars extends Controller{
             foreach($all_ws as $ws){
                 if($ws->get_fields()['idnumber'] === $idnumber){
                     $err_count++;
-                    Messages::push([
-                        'err_idnum' => 'Found Working Scholar with similar ID Number'
+                    Messages::update([
+                        'err_idnum' => 'Duplicate WS with similar ID Number'
                     ]);
                     break;
                 }
                 if($ws->get_fields()['wsName'] === ($lname.', '.$fname)){
                     $err_count++;
                     Messages::push([
-                        'err_lname' => 'Found Working Scholar with similar Last Name',
-                        'err_fname' => 'Found Working Scholar with similar First Name'
+                        'err_lname' => 'Duplicate WS with similar Last Name',
+                        'err_fname' => 'Duplicate WS with similar First Name'
                     ]);
                 }
             }
         }
         
-        if($err_count > 0){
-            $matched_department = $this->model('Departments')
-            ->ready()
-            ->find()
-            ->where([
-                'deptId' => $deptAssigned
-            ])
-            ->go()[0];
-            return $this->view('add-ws',$matched_department);
-        }
-        else{
+        // We will now insert the data if no errors were found upon all validations.
+        if($err_count < 1){
 
-            // TADA! Insert time.
+            // we'll add them to the WS database...
             $this->model('WS')
             ->ready()
             ->create($ws_data)
             ->insert()
             ->go();
 
+            // and register them as users as well.
+            $this->model('User')
+            ->ready()
+            ->create([
+                'user_id' => 'ws'.$idnumber,
+                'username' => 'WS-'.$idnumber,
+                'password' => md5(SALT.strtoupper($lname)),
+                'user_lname' => $lname,
+                'user_fname' => $fname,
+                'user_privilege' => 3
+            ])
+            ->insert()
+            ->go();
+
+            // let us notify client that request is successful.
+            Messages::push([
+                "success" => "Successfully added Working Scholar"
+            ]);
         }
+
+        // we will return this page as JSONified string for all messages according to the response.
+        echo json_encode(Messages::dump());
+
     }
     
 

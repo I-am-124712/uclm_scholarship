@@ -7,45 +7,61 @@
                 <p>
                     <center class="label" id="dep-assigned">
                         Department : 
-                        <uli class="label" id="label-deptname" style="font-size:24px">
+                        <uli class="label" id="label-deptname" style="font-size:20px">
                             <b><?=isset($args)? $args->get_fields()['departmentName']:''?></b>
                         </uli>
                     </center>
                 </p>
                 <input hidden id="deptId" name="deptId" type="text" value="<?=$args->get_fields()['deptId']?>">
                 <label id="form-label" style="padding-bottom:5px">ID Number 
-                    <input spellcheck="false" class="textbox" id="idnumber" type="text" name="idnumber">
                     <div id="err-msg-idnum" 
-                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
-                        <?=Messages::dump('err_idnum')?></div>
+                         style="float:right;
+                                font-size: 15px;
+                                width:fit-content;
+                                height:15px;
+                                border-radius:20px;
+                                color:rgb(255,100,100)"></div>
+                    <input spellcheck="false" class="textbox" id="idnumber" type="text" name="idnumber">
                 </label>
                 <label id="form-label" style="padding-bottom:5px">Last Name 
+                    <div id="err-msg-lname" 
+                         style="float:right;
+                                font-size: 15px;
+                                width:fit-content;
+                                height:15px;
+                                border-radius:20px;
+                                color:rgb(255,100,100)"></div>
                     <input spellcheck="false" class="textbox" id="lname" type="text" name="lname">
-                    <div id="err-msg-idnum" 
-                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
-                         <?=Messages::dump('err_lname')?></div>
                 </label>
                 <label id="form-label" style="padding-bottom:5px">First Name 
+                    <div id="err-msg-fname" 
+                         style="float:right;
+                                font-size: 15px;
+                                width:fit-content;
+                                height:15px;
+                                border-radius:20px;
+                                color:rgb(255,100,100)"></div>
                     <input spellcheck="false" class="textbox" id="fname" type="text" name="fname">
-                    <div id="err-msg-idnum" 
-                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
-                         <?=Messages::dump('err_fname')?></div>
                 </label>
                 <label id="form-label" style="padding-bottom:5px">Date of Hire 
+                    <div id="err-msg-datehired" 
+                         style="float:right;
+                                font-size: 15px;
+                                width:fit-content;
+                                height:15px;
+                                border-radius:20px;
+                                color:rgb(255,100,100)"></div>
                     <input class="textbox" id="date_of_hire" type="date" name="date_of_hire">
-                    <div id="err-msg-idnum" 
-                         style="float:left;width:fit-content;height:20px;border-radius:20px;color:rgb(255,100,100)">
-                         <?=Messages::dump('err_date')?></div>
                 </label>
                 <label id="form-label" style="padding-bottom:5px">Course 
-                    <input spellcheck="false" class="textbox" id="course" type="text" name="fname">
+                    <input spellcheck="false" class="textbox" id="course" type="text" name="course">
                 </label>
             </form>
             <div class="container">
                 <button class="button-solid round" 
                         id="form-button" 
                         style="height:40px"
-                        onclick="save_ws()">
+                        onclick="save()">
                     Save
                 </button>
                 <button class="button-flashing round" 
@@ -56,9 +72,3 @@
                 </button>
             </div>
         </div>
-
-<script>
-    const closeModal = ()=>{
-        $("#for-popups").text("");
-    };
-</script>

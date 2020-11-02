@@ -1,7 +1,7 @@
 <?php
 class Register extends Controller {
 
-    private $salt = '7ba85c1ef9b655e2';
+    // private $salt = '7ba85c1ef9b655e2';
 
     public function index(){
         if(isset($_POST['register']) && $_POST['register'] === 'true'){
@@ -15,7 +15,7 @@ class Register extends Controller {
             $user_fields = [
                 'user_id' => $user_id,
                 'username' => $username,
-                'password' => md5($this->salt.$password),
+                'password' => md5(SALT.$password),
                 'user_privilege' => $user_privilege + 0,
                 'user_lname' => $user_lname,
                 'user_fname' => $user_fname,
