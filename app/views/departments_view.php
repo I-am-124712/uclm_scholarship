@@ -1,35 +1,119 @@
 <?php require './app/views/user_view.php'; ?>
 
 <div class="app-dash-panel" id="dashboard-panel">
-    <div style="color:rgb(255,115,0);font-size:20px;padding-left:25px;padding-top:5px;padding-bottom:5px">
-            <b>SELECT A DEPARTMENT</b>
+    <div class="form-flat" style="width:500px;height:auto; float:left;">
+        <div style="color:rgb(255,115,0);font-size:20px;padding-left:25px;padding-top:5px;padding-bottom:5px">
+                <b>SELECT A DEPARTMENT</b>
         </div>
-    <div style="width:fit-content;height:inherit; overflow-y:scroll;">
-        <table class="table-flat" style="border-collapse:separate; width: 500px">
-                <?php  
-                if(isset($args))
-                    foreach($args as $dept){
-                ?>
-                <form action="/uclm_scholarship/dash/ws" method="POST">
-                    <tr>
-                        <td>
-                            <button class="button-solid round" id="clickable-table-row" 
-                            action="submit" 
-                            name="department"
-                            value="<?=$dept->get_fields()['deptId']?>">
-                                
-                                <div style="text-align:left;font-size:20px;width:inherit">
-                                    <b><?=$dept->get_fields()['departmentName']?></b>
-                                </div>
-                                <div style="text-align:left;font-size:15px;color:rgb(255, 130, 20);">
-                                    <b><?=$dept->get_fields()['wsCount']?> Working Scholars</b>
-                                </div>
-                            </button>
-                        </td>
-                    </tr>
-                </form>
-                <?php } ?>
-        </table>
+        <div class="form-flat" id="for-list-container">
+            <div style="width:100%">
+                <span>Search</span>
+                <input class="textbox-transparent" type="text" name="search" id="search">
+                <button class="button-solid round" id="search-btn">Go</button>
+            </div>
+            <div class="form-flat" id="for-list"></div>
+        </div>
+    </div>
+    <div class="form-flat" id="for-ws-view" style="width:50%; height: inherit; float:left; margin:10px">
     </div>
 </div>
 <?php require './app/views/popups_view.php'; ?>
+
+<script>
+    $(function(){
+        // take all the information we need for the Departments
+        const paginateDepartments = ()=>{
+            let jsonArray = JSON.parse('<?= str_replace("'","\'",json_encode($args)) ?>');
+            for(let i=0; i< jsonArray.length; ++i){
+                console.log(
+                    jsonArray[i].deptId + ".] " + 
+                    jsonArray[i].departmentName
+                );
+            }
+
+            $("#for-list").append('<ul id="departments-list"></ul>');
+            $("#search").css({
+                "width" : "50%",
+                "height" : "25px",
+                "margin" : "5px"
+            })
+            $("#search-btn").css({
+                "float" : "right",
+                "width" : "150px",
+                "margin-top" : "5px"
+            })
+            $("div#for-list-container").css({
+                "width" : "100%",
+                "height": "inherit",
+                "float" : "left",
+                "margin": "10px",
+                "padding": "10px"
+            })
+            $("div#for-list").css({
+                "width" : "100%",
+                "float" : "left"
+            })
+            $("ul#departments-list").css({
+                "width" : "100%",
+                "float" : "left"
+            })
+            let len = jsonArray.length;
+            for(let i=0; i< len; ++i){
+
+                let deptId = jsonArray[i].deptId;
+                let departmentName = jsonArray[i].departmentName;
+                let wsCount = jsonArray[i].wsCount;
+                console.log(departmentName);
+                
+                $("#departments-list").append('<li onclick="location.href = \'/uclm_scholarship/dash/ws?allow_edit&department=\' '
+                                                + '+ this.value" value=' + deptId 
+                                                + ' id="' + deptId
+                                                + '"></li>');
+                                    
+                // add the content
+                $("li#"+deptId).append('<div id="deptname-'+deptId+'"></div>');
+                $("li#"+deptId).append('<div id="wsCount-'+deptId+'"></div>');
+
+                // add mouseEnter and mouseLeave handler. We need to partially show
+                // the Working Scholars beside the departments list.
+                $('li#'+deptId).mouseenter(function(){
+                    deptId = $(this).attr("id");
+                    url = '/uclm_scholarship/dash/ws_view_only?';
+                    params = 'department=' + deptId;
+                    $("div#for-ws-view").load(url+params + " div#ws-table-panel");
+                }).mouseleave(function(){
+                    $("div#ws-table-panel").delay(1000).fadeOut(100,function(){
+                        $("div#for-ws-view").text('');
+                    });
+                });
+
+                // add text
+                $("div#deptname-" + deptId).text(departmentName);
+                $("div#wsCount-" + deptId).text(wsCount + " Working Scholars");
+
+                $("li").css({
+                    'list-style': 'none'
+                })
+                $("li").addClass("button-outline");
+
+                $("div#deptname-" + deptId).css({
+                    "color" : "rgb(255, 150, 0)",
+                    "font-size" : "inherit",
+                    "float" : "left",
+                    "margin" : "5px"
+                });
+                $("div#wsCount-" + deptId).css({
+                    "color" : "white",
+                    "font-size" : "15px",
+                    "float" : "right",
+                    "margin" : "5px"
+                })
+            }
+            $("#departments-list").JPaging({
+                visiblePageSize : 5
+            });
+        };
+        paginateDepartments();
+
+    })
+</script>

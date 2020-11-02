@@ -31,7 +31,7 @@ class Dash extends Controller {
         ->select([
             'Departments.deptId',
             'Departments.departmentName',
-            'count(WS.depAssigned) as \'wsCount\''
+            "count(WS.depAssigned) as 'wsCount'"
         ])
         ->from([
             'Departments'
@@ -56,9 +56,17 @@ class Dash extends Controller {
             'count(WS.depAssigned) >= 0'
         ])
         ->go();
+        
+        $department_details = [];
+        foreach($departments as $department){
+            array_push($department_details,[
+                "deptId" => $department->get_fields()['deptId'],
+                "departmentName" => $department->get_fields()['departmentName'],
+                "wsCount" => $department->get_fields()['wsCount'],
+            ]);
+        }
 
-
-        return $this->view('departments',$departments);
+        return $this->view('departments',$department_details);
     }
 
     public function ws(){
@@ -79,7 +87,7 @@ class Dash extends Controller {
         if(session_status() !== PHP_SESSION_ACTIVE)
             session_start();
 
-        $deptId = isset($_POST['department'])? $_POST['department']:
+        $deptId = isset($_GET['department'])? $_GET['department']:
                             (isset($_SESSION['department'])? $_SESSION['department']:0);
         $_SESSION['department'] = $deptId;
 
@@ -102,7 +110,8 @@ class Dash extends Controller {
 
         return $this->view('ws',[
             'ws' => $working_scholars,
-            'depAssigned' => $deptId
+            'depAssigned' => $deptId,
+            'allow_edit' => isset($_GET['allow_edit'])
         ]);
     }
 

@@ -3,6 +3,39 @@
     src: url("/uclm_scholarship/public/fonts/GOTHIC.TTF");
 }
 
+/* 
+    Style for Pagination Controls
+    RETRIEVED FROM Paging.js 
+    written by: adnan-sahin
+*/
+#paging {
+  padding: 0 20px 20px 20px;
+  font-size: 13px;
+  margin-top: 10px;
+}
+#paging a {
+  color: #000;
+  padding: 8px 12px;
+  margin-right: 5px;
+  text-decoration: none;
+  transition-duration: 0.3s;
+  border-radius: 10px;
+}
+#paging a.aktif {
+  background: rgb(255, 115, 0) !important;
+  color: #fff;
+}
+#paging a:hover {
+    background-color: rgb(30, 98, 223);
+    color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+
+
 *{
     font-family: CenturyTuna;
     /* font-family: "Times New Roman"; */
@@ -163,12 +196,10 @@ select{
 
 .button-solid#clickable-table-row{
     background-color: rgb(0, 64, 184);
-    width: 550px;
-    height: 80px;
+    width: inherit;
+    height: 40px;
     border-spacing: 10px;    
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 30px;
+    /* border-radius: 10px; */
 }
 
 .button-solid#clickable-table-row:hover{
@@ -311,6 +342,26 @@ select{
 .button-solid.half-round{
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+}
+
+/* Flat outline button*/
+
+.button-outline{
+    border: 1px solid gray;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: normal;
+    width: 100%;
+    height: 36px;
+    color: white;
+    background-color: rgb(0, 64, 184);
+    cursor: pointer;
+    transition-duration: 0.2s;
+}
+.button-outline:hover{
+    font-size: 20px;
+    font-weight: bolder;
+    background-color: rgb(43, 117, 255);
 }
 
 /* Tab Buttons for tabbed panel view */
@@ -584,7 +635,7 @@ table, td, th, tr {
     background-color: rgb(0, 64, 184);
     color: white;
     border-top: 1px solid white;
-    height: 45px;
+    height: 20px;
     text-align: center;
     /* align-content: center; */
 }

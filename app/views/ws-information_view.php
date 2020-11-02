@@ -34,7 +34,7 @@
                 <?=Messages::dump('edit-status')?>
             </div>
             <div style="margin:10px">
-                <form action="/uclm_scholarship/dash/ws" method="post">
+                <form action="/uclm_scholarship/dash/ws?allow_edit" method="post">
                     <input hidden type="text" name="department" 
                             value=<?=$department_id?>>
                     <button class="button-solid round" id="back-button" type="submit">
@@ -346,7 +346,6 @@
                         selectedDays = $(".form-flat#days-panel").children("#day-of-week");
                         selectedDays.each(function(){
                             if($(this).hasClass("active")){
-                                // console.log("Selected day: " + $(this).text());
                                 schedDay = "schedDay=" + $(this).text();
 
                                 params = scheduleId + "&"
@@ -357,7 +356,6 @@
                                         + schedDay + "&"
                                         + tin + "&"
                                         + tout + "&";
-                                // console.log(params);
 
                                 response = $.post({
                                     url: '/uclm_scholarship/working_scholars/add_schedule',
