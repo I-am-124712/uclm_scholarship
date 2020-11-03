@@ -140,11 +140,17 @@ class Model {
         return $this;
     }
 
+    /// ORDER BY SQL Statement
+    public function order_by($args = []){
+        if(empty($args))
+            return;
 
-
-
-    public function order_by($column, $order){
-        $this->query_string .= ' ORDER BY '.$column.' '.$order.' ';
+        $this->query_string .= ' ORDER BY ';
+        foreach($args as $k => $v){
+            $this->query_string .=  $k.' '.$v.',';
+        }
+        $this->query_string = rtrim($this->query_string,',');
+        
         $this->prepare_query_statement();
         return $this;
     }

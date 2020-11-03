@@ -4,15 +4,13 @@ class Working_scholars extends Controller{
 
     public function index(){}
     
+    /// this initiates the Adding process, not the adding process itself.
     public function add_ws($deptId){
         session_start();
         $this->trap_no_user_session();
 
-        if($deptId == 0){?>
-            <div>Select a Department first before adding a Working Scholar
-            <button onclick="clearTargetHTML('for-popups')">OK</button></div>
-<?php
-            return;
+        if($deptId == 0){
+            echo json_encode(['errSelectDepartment'=>'No Department selected.']);
         }
         $matched_department = $this->model('Departments')
         ->ready()
@@ -394,7 +392,6 @@ class Working_scholars extends Controller{
             ."WHEN 'S' THEN 6 "
             ."END )) "
             ."as [schedDay]",
-            // 'schedDay',
             'tin',
             'tout',
             'totalHours'
@@ -407,6 +404,9 @@ class Working_scholars extends Controller{
             'semester' => $semester+0
         ])
         ->group(['schedule_id','tin', 'tout','totalHours'])
+        ->order_by([
+            'schedule_id' => 'ASC'
+        ])
         ->go();
 
         // var_export($schedule);
@@ -433,7 +433,8 @@ class Working_scholars extends Controller{
         $tin = isset($_POST['tin'])? $_POST['tin']:"";
         $tout = isset($_POST['tout'])? $_POST['tout']:"";
         $total = $this->differenceInHours($tin,$tout);
-        
+
+
         $this->model("Schedule")
         ->ready()
         ->create([
@@ -490,7 +491,9 @@ class Working_scholars extends Controller{
                 ->from([
                     'Schedule'
                 ])
-                ->order_by("schedule_id",'DESC')
+                ->order_by([
+                    "schedule_id" => 'DESC'
+                ])
                 ->go();
 
         if(!empty($schedule_index)){

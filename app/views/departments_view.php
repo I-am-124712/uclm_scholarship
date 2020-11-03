@@ -14,7 +14,11 @@
             <div class="form-flat" id="for-list"></div>
         </div>
     </div>
-    <div class="form-flat" id="for-ws-view" style="width:50%; height: inherit; float:left; margin:10px">
+    <div id="for-ws-view" style="width:50%; 
+                                height: auto;
+                                float:left;
+                                margin:10px;
+                                padding: 0px">
     </div>
 </div>
 <?php require './app/views/popups_view.php'; ?>
@@ -82,7 +86,7 @@
                     params = 'department=' + deptId;
                     $("div#for-ws-view").load(url+params + " div#ws-table-panel");
                 }).mouseleave(function(){
-                    $("div#ws-table-panel").delay(1000).fadeOut(100,function(){
+                    $("div#ws-table-panel").delay(5000).fadeOut(100,function(){
                         $("div#for-ws-view").text('');
                     });
                 });

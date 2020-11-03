@@ -105,7 +105,9 @@ class Dash extends Controller {
         ->where([
             'depAssigned' => $deptId
         ])
-        ->order_by('wsName', 'ASC')
+        ->order_by([
+            'wsName' => 'ASC'
+        ])
         ->go();
 
         return $this->view('ws',[

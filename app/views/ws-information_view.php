@@ -110,8 +110,23 @@
         </div>
     </div>
     <div class="form-flat" id="sched-form">
-        <div id="sched-form-label" style="color:rgb(255,115,0); text-align: left; width:100%; margin:10px 0px 10px 10px; font-size: 20px">
+        <div id="sched-form-label" style="color:rgb(255,115,0);
+                                          text-align: left;
+                                          float: left;
+                                          width:100%;
+                                          margin:10px 0px 10px 10px;
+                                          font-size: 20px">
             <b>DUTY SCHEDULE</b>
+            <!-- For displaying a prompt saying user is currently in Edit Mode -->
+            <span id="is-edit-mode" 
+                style="color:rgb(0,100,0);
+                        float: right;
+                        text-align: right;
+                        width: auto;
+                        height: auto;
+                        margin-right: 10px;
+                        font-size: 15px">
+            </span>
         </div>
         <div class="tab-panel" id="sched-type" style="margin:0px 0px 0px 15px">
             <button class="button-tab" id="sched-type">Regular Days</button>
@@ -122,12 +137,12 @@
                 <div class="form-flat" style="width: 100%">
                     <b><div id="day-label" style="margin-left:15px">SELECT DAYS</div></b>
                     <div class="form-flat" id="days-panel">
-                        <button class="button-solid round-toggle" id="day-of-week" name="m">M</button>
-                        <button class="button-solid round-toggle" id="day-of-week" name="tu">Tu</button>
-                        <button class="button-solid round-toggle" id="day-of-week" name="w">W</button>
-                        <button class="button-solid round-toggle" id="day-of-week" name="th">Th</button>
-                        <button class="button-solid round-toggle" id="day-of-week" name="f">F</button>
-                        <button class="button-solid round-toggle" id="day-of-week" name="s">S</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="m" value="M">M</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="tu" value="Tu">Tu</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="w" value="W">W</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="th" value="Th">Th</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="f" value="F">F</button>
+                        <button class="button-solid round-toggle" id="day-of-week" name="s" value="S">S</button>
                     </div>
                     <div class="form-flat" id="days-panel" style="display:auto; width:inherit; margin-left: auto; margin-right: auto">
                         <input type="date" name="spc-date" id="spc-date" class="textbox-transparent" 
@@ -146,7 +161,7 @@
                     <input type="time" name="tout" id="tout" class="textbox-transparent" 
                     style="float:left;margin:5px;width:300px" value="09:00:00">
                 </form>
-                    <button class="button-solid green" id="save-sched">Save Schedule</button>
+                <button class="button-solid green" id="save-sched">Save Schedule</button>
             </div>
         </div>
         <div class="form-flat" style="width:100%;height:30px;padding:5px;margin:0px">
@@ -170,7 +185,6 @@
                 <button class="button-tab" id="semester">2nd Semester</button>
                 <button class="button-tab" id="semester">Summer</button>
             </div>
-            <div id="schedule-index" hidden><?="AMEN"?></div>
             <div class="form-flat" id="schedules" style="margin: 0px 10px 10px 10px; height:150px; overflow-y:auto">
                 <table class="table-flat" id="sched-data">
                     <!-- Table row here -->
@@ -190,10 +204,10 @@
                                             margin-top: auto;
                                             margin-bottom: auto;
                                             width:70%;">
-                                    <div style="font-size:18px;">
+                                    <div id="time-<?=$scheduleId?>" style="font-size:18px;" value=<?=$scheduleId?>>
                                         <?= $time_sched?>
                                     </div>
-                                    <div style="font-size:12px;color: rgb(50,50,255)">
+                                    <div id="day-<?=$scheduleId?>" style="font-size:12px;color: rgb(50,50,255)">
                                         <?= $total_hours.($total_hours > 1? ' Hours - ':' Hour - ').$day_of_sched?>
                                     </div>
                                 </div>
@@ -201,11 +215,11 @@
                                     <button class="button-solid round" 
                                             id="action-button-info-icon" 
                                             value=<?=$scheduleId?>
-                                            onclick="editSchedule(this.value)"></button>
+                                            onclick="editSchedule($(this))"></button>
                                     <button class="button-flashing round" 
                                             id="action-button-delete-icon" 
                                             value=<?=$scheduleId?>
-                                            onclick="deleteSchedule(this.value)"></button>
+                                            onclick="confirmDelete(this.value)"></button>
                                 </div>
                             </td>
                         </tr>
@@ -217,14 +231,30 @@
         </div>
     </div>
 </div>
-<?php require './app/views/popups_view.php'; ?>
 
 <script type="text/javascript">
 
     const domParser = new DOMParser();
     const schedTypeNames = ["REG","SPC"];
     let domObj = null;
+    let isEditScheduleMode = false;
+    let schedTypeName = "REG";
+    let selectedScheduleId = -1;
 
+    // clears the selected Days toggle buttons. Used for initializing the page
+    const clearDaysToggleButtons = _=>
+    { 
+        $(".form-flat#days-panel")
+        .children("#day-of-week")
+        .each(function(){
+            $(this).removeClass("active");
+        });
+        $("#tin").val("08:00");
+        $("#tout").val("09:00");
+        selectedScheduleId = -1;
+    }
+
+    // loads the schedules in the Schedule panel
     const loadSched = function(){
         schedType = "schedType=" + schedTypeNames[$(".button-tab.active#sched-type").index()];
         semester = 'semester=' + ($(".button-tab.active#semester").index() + 1);
@@ -240,78 +270,139 @@
             async: false
         }).responseText;
 
+
         domObj = domParser.parseFromString(response,'text/html');
         table = domObj.getElementById("sched-data");
     
         $("table#sched-data").replaceWith(table);
     };
 
-    /* Edit a selected Schedule through a modal popup window */
-    const editSchedule = (schedId)=>{
+    /* Edit Schedule */
+    const editSchedule = ($src)=>{
         $(function(){
-            console.log("Currently Editing: (" + schedId + ");");
-            $(".modal-panel").attr("id", "edit-sched");
-            $("#edit-sched").css({
-                "background-color": "rgb(0, 64, 184)",
-                "color" : "white",
-                "width" : "650px",
-                "height": "400px",
-                "border-radius": "20px",
-                "margin" : "10px",
-                "padding": "0px"
-            });
-
-            /// I will take the Duty Schedule form from this page for the edit...
-            var $schedForm = $(".form-flat#sched-panel").clone();
-            var $schedFormLabel = $("#sched-form-label").clone();
-
-            /// ...edit the style...
-            $schedForm.css({
-                "width" : "auto",
-                "height" : "inherit",
-                "color" : "white",
-                "padding" : "0px",
-                "margin" : "0px",
-                "border" : "0px"
-            });
+            // clean (reset) all Days toggle button first...
+            clearDaysToggleButtons();
 
 
-            /// ...and copy it inside the modal panel...
-            $("#edit-sched").append($schedForm);
-            $("#edit-sched").children().each(function(){
-                $(this).css({
-                    "color" : "white"
-                })
-            })
+            if(!isEditScheduleMode){
+                isEditScheduleMode = true;
+            }
+            $("#is-edit-mode").text("Edit Mode");
+            scheduleId = $src.val();
+            selectedScheduleId = scheduleId;
 
-            /// ...then show it
-            $("div#for-popups").removeAttr("hidden");
-            
+            // we will create a function for formatting our time string
+            // to comply with the format required for the Time input fields.
+            // Note that this is not usable for general cases of formatted
+            // Time strings and only accepts Time strings with format "hh:mm am|pm".
+            // Put short, just for the purpose of this functionality.
+            //
+            // Here's a smiley 😂
+            const formatTime = (timeString)=>{
+                let timeParts = timeString.replace(" ",":").split(':');
+                let formattedString = '';
+                for(let i=0; i<2; ++i){
+                    timeParts[i] = parseInt(timeParts[i]);
+                }
+                let hour, minute;
+
+                switch(timeParts[2]){
+                    case "am":
+                    case "AM":
+                    case "aM":
+                    case "Am":
+                        hour = (timeParts[0] < 10) ? "0" + timeParts[0] : "" + timeParts[0];
+                        minute = (timeParts[1] < 10) ? "0" + timeParts[1] : "" + timeParts[1];
+                        break;
+                    case "pm":
+                    case "PM":
+                    case "pM":
+                    case "Pm":
+                        hour = timeParts[0]==12? "" + 12 : "" + (12 + timeParts[0]);
+                        minute = (timeParts[1] < 10) ? "0" + timeParts[1] : "" + timeParts[1];
+                        break;
+                }
+                formattedString = hour + ":" + minute + ":00";
+                console.log(formattedString);
+
+                return formattedString;
+            }
+            // Similar to the function above, we will make yet another local formatter
+            // this time for the Date string. Just to comply with the date format required
+            // by the HTML input element. Luckily this came out shorter than the time formatter.
+            // Again, another smiley 😅
+            const formatDate = dateString => {
+                let dateParts = dateString.split("/");
+                let month = (parseInt(dateParts[0]) < 10 ? "0"+dateParts[0]:dateParts[0]);
+                let day = (parseInt(dateParts[1]) < 10 ? "0"+dateParts[1]:dateParts[1]);
+                let year = dateParts[2];
+
+                return year + "-" + month + "-" + day;
+            }
+
+            // we will then prepare our form for edit.
+            // Start by extracting the Times-in and -out
+            // from the calling Edit Button's parent row...
+            let timeSched = $src.parents().find("div#time-" + scheduleId).text().trim().split(' - ');
+            let timeIn = formatTime(timeSched[0]);
+            let timeOut = formatTime(timeSched[1]);
+            let schedDay = $src.parents().find("div#day-" + scheduleId).text().trim().split(' - ')[1];
+
+            console.log('Time-in: ' + timeIn);
+            console.log('Time-out: ' + timeOut);
+            console.log('Sched Day(s): ' + schedDay);
+
+
+            // then set the Time-in and Time-out fields with the selected value...
+            $("input#tin").val(timeIn);
+            $("input#tout").val(timeOut);
+
+            switch(schedTypeName){
+                case "REG": // For Regular Schedules
+                    let days = schedDay.split(', ');
+                    console.log(days);
+
+                    // activate all Days toggle button that matches the selected schedule's days...
+                    if(days.length > 0){
+                        for(let i=0; i<days.length; ++i){
+                            $("#day-of-week[value=" + days[i] + "]").addClass("active");
+                        }
+                    }
+                    break;
+                case "SPC": // For Specific Schedules
+
+                    // we simply have to update the Specific Date input field to
+                    // the date of the selected schedule.
+                    $("input#spc-date").val(formatDate(schedDay));
+                    // console.log(formatDate(schedDay));
+                    break;
+                default:
+                    return;
+            }
         });
     };
 
 
     /* Delete a selected Schedule */
     const deleteSchedule = (schedId)=>{
-        if(confirm('Are you sure you want to delete this saved schedule?')){
-            console.log("Imo mama delete");
-            scheduleId = "scheduleId="+schedId;
-            $.ajax({
-                url: '/uclm_scholarship/working_scholars/delete_schedule',
-                type: 'post',
-                data: scheduleId,
-                success: function(res){
-                    console.log(res);
-                }
-            });
-            loadSched();
-        }
+        scheduleId = "scheduleId="+schedId;
+        $.ajax({
+            url: '/uclm_scholarship/working_scholars/delete_schedule',
+            type: 'post',
+            data: scheduleId,
+            success: function(res){
+                console.log(res);
+            }
+        });
+        loadSched();
     };
 
-
+    /* confirmative Deletion function */
+    const confirmDelete = schedId =>
+        confirm("Are you sure you want to delete this Schedule?")? deleteSchedule(schedId):"";
 
     /* Switch the controls between WeekDay Selector and Date Picker */
-    const scheduleType = function(){
+    const scheduleType = ()=>{
         let label = ["SELECT DAYS","ENTER A SPECIFIC DATE"];
         source = $(".button-tab.active#sched-type");
         $("#day-label").text(label[source.index()]);
@@ -320,33 +411,48 @@
     };
 
 
-    /* This area is for saving the schedule. We will find a better solution I swear */
+    // This area is for saving the schedule. We will find a better solution I swear.
+    //
+    // Edit as of November 3, 2020:
+    //      This will be the main process for adding a schedule,
+    // and will be used for editing it as well. Basically, an "Edit Schedule" action
+    // is supposed to be an UPDATE SQL statement, instead it will be a combination 
+    // of DELETE and INSERT. The reason being the aggregated schedule days for Regular 
+    // Schedules sharing similar times-in and -out but with different Schedule Day(s)  
+    // (eg. MWF 8AM-12PM, these schedules share the same sched_id and has to be deleted  
+    // entirely because we shouldn't have two or more records that share the same  
+    // sched_id but with different times-in and -out).
+    //
     const saveSched = function(){
-        
         
         $.ajax({
             type: 'GET',
             url: '/uclm_scholarship/working_scholars/schedule_index',
             dataType: 'JSON',
             success: function(data){
-                var schedTypeName = schedTypeNames[$(".button-tab.active#sched-type").index()]
+                // var schedTypeName = schedTypeNames[$(".button-tab.active#sched-type").index()];
                 var schedType = "schedType=" + schedTypeName;
                 var schoolYear = $("select#school-year").serialize();
                 var semester = "semester=" + ($(".button-tab.active#semester").index()+1);
                 var idnumber = $("#selected-id").serialize();
                 var tin = $("input#tin").serialize();
                 var tout = $("input#tout").serialize();
-                var scheduleId = "schedule_id=" + (data.schedId+1);
+                var scheduleId = "schedule_id=" + (selectedScheduleId == -1? (data.schedId+1):selectedScheduleId);
 
-                console.log(scheduleId);
+                // We are in Edit mode? Delete the record first before saving.
+                if(isEditScheduleMode)
+                    deleteSchedule(selectedScheduleId);
+
                 switch(schedTypeName){
                     // Regular Schedule
                     case "REG": 
                         // what we do is loop through every active day-of-week Element and add these schedules
-                        selectedDays = $(".form-flat#days-panel").children("#day-of-week");
-                        selectedDays.each(function(){
+                        $(".form-flat#days-panel")
+                        .children("#day-of-week")
+                        .each(function(){
                             if($(this).hasClass("active")){
                                 schedDay = "schedDay=" + $(this).text();
+                                console.log(schedDay);
 
                                 params = scheduleId + "&"
                                         + schedType + "&"
@@ -355,7 +461,8 @@
                                         + idnumber + "&"
                                         + schedDay + "&"
                                         + tin + "&"
-                                        + tout + "&";
+                                        + tout;
+                                console.log(params);
 
                                 response = $.post({
                                     url: '/uclm_scholarship/working_scholars/add_schedule',
@@ -363,7 +470,6 @@
                                     data: params,
                                     async: false
                                 }).responseText;
-
                             }
                         });
                         loadSched();
@@ -383,7 +489,7 @@
                                 + idnumber + "&"
                                 + schedDay + "&"
                                 + tin + "&"
-                                + tout + "&";
+                                + tout;
                         console.log(params);
 
                         response = $.post({
@@ -409,8 +515,6 @@
     };  
 
 
-
-
     $(function(){
 
         /// Default selected tabs and items ///
@@ -421,21 +525,39 @@
         scheduleType();
         loadSched();
 
-        /// click a tab button
+        /// click a tab button. In this page, we make sure that the user
+        /// will confirm changes when editing schedules before leaving...
         $(".button-tab").click(function(){
-            $(this).siblings(".button-tab").removeClass("active");
-            $(this).addClass("active");
+            if(isEditScheduleMode){
+                if(confirm("Are you sure you want to leave Edit mode? Changes will not be saved.")){
+                    isEditScheduleMode = false;
+                    $(this).siblings(".button-tab").removeClass("active");
+                    $(this).addClass("active");
+                    clearDaysToggleButtons();
+                }
+            }
+            else{
+                $(this).siblings(".button-tab").removeClass("active");
+                $(this).addClass("active");
+            }
         });
 
         /// load records based on selected school year and semester;
         $(".button-tab#semester").click(function(){
-            loadSched();
+            if(!isEditScheduleMode){
+                $("#is-edit-mode").text("");
+                loadSched();
+            }
         });
 
         /// choose what type of schedule to save
         $(".button-tab#sched-type").click(function(){
-            scheduleType();
-            loadSched();
+            if(!isEditScheduleMode){
+                schedTypeName = schedTypeNames[$(this).index()];
+                $("#is-edit-mode").text("");
+                scheduleType();
+                loadSched();
+            }
         });
 
         /// for Day of Week toggle buttons
