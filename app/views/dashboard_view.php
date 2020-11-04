@@ -82,12 +82,6 @@
 
 <div class="app-dash-panel" id="dashboard-panel">
 
-    <!-- <div>
-        <button>
-            <div>Working Scholars with Overtime</div>
-            <div><b><?//=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> WSs</b></div>
-        </button>
-    </div> -->
     <div style="width:inherit;padding:20px;border-radius:20px;border:1px solid gray;font-size:25px">
         <b>DASHBOARD</b>
     </div>

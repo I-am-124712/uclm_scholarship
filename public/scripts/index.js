@@ -46,6 +46,7 @@ function deleteWorkingScholar(idnumber){
     }
 }
 
+
 function editWSInformation(){
     let serial = $('form').serialize();
 

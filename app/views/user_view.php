@@ -8,3 +8,10 @@
         </div>
     </div>
     <div class="app-sidebar-panel" id="sidebar"><?php require 'sidebar.php'; ?></div>
+
+<script>
+    $("#hamburger1").click(function(){
+
+        $(".app-sidebar-panel").toggle();
+    });
+</script>

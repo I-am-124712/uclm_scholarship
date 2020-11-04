@@ -7,13 +7,13 @@
                     UCLM WORKING SCHOLARS APP</h1>
             <h1 class="modal-subheader" id="label-deptname">LOGIN</h1>
             <form id="ws-info-form" action=<?= $_GET['url']?> method="POST">
-                    <label id="form-label" for="username">Username</label><br>
-                    <input class="textbox" type="text" name="username" id="username">
-                    <label id="form-label" for="password">Password</label><br>
-                    <input class="textbox" type="password" name="password" id="password">
+                <label id="form-label" for="username">Username</label><br>
+                <input class="textbox" type="text" name="username" id="username">
+                <label id="form-label" for="password">Password</label><br>
+                <input class="textbox" type="password" name="password" id="password">
                 <div class="container">
                     <button class="button-solid round" id="form-button" type="submit" name="login" value="true">Login</button>
-                    <button class="button-flashing round" id="form-button-transparent" onclick="location.href='/uclm_scholarship/login';">Enter as Guest</button>
+                    <button class="button-flashing round" id="form-button-transparent" onclick="location.href='/uclm_scholarship/home';">Enter as Guest</button>
                     <div id="message-pane">
                         <?= isset($_SESSION['prompt'])? $_SESSION['prompt']:Messages::dump('prompt'); ?>
                     </div>

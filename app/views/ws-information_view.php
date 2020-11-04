@@ -241,6 +241,8 @@
     let schedTypeName = "REG";
     let selectedScheduleId = -1;
 
+
+
     // clears the selected Days toggle buttons. Used for initializing the page
     const clearDaysToggleButtons = _=>
     { 
@@ -251,7 +253,17 @@
         });
         $("#tin").val("08:00");
         $("#tout").val("09:00");
+        $("#spc-date").val(null);
         selectedScheduleId = -1;
+    }
+
+    // Exit Edit Mode
+    const exitEditMode = src =>{
+        isEditScheduleMode = false;
+        src.siblings(".button-tab").removeClass("active");
+        src.addClass("active");
+        $("#is-edit-mode").text("");
+        clearDaysToggleButtons();
     }
 
     // loads the schedules in the Schedule panel
@@ -323,7 +335,6 @@
                         break;
                 }
                 formattedString = hour + ":" + minute + ":00";
-                console.log(formattedString);
 
                 return formattedString;
             }
@@ -348,10 +359,6 @@
             let timeOut = formatTime(timeSched[1]);
             let schedDay = $src.parents().find("div#day-" + scheduleId).text().trim().split(' - ')[1];
 
-            console.log('Time-in: ' + timeIn);
-            console.log('Time-out: ' + timeOut);
-            console.log('Sched Day(s): ' + schedDay);
-
 
             // then set the Time-in and Time-out fields with the selected value...
             $("input#tin").val(timeIn);
@@ -360,7 +367,6 @@
             switch(schedTypeName){
                 case "REG": // For Regular Schedules
                     let days = schedDay.split(', ');
-                    console.log(days);
 
                     // activate all Days toggle button that matches the selected schedule's days...
                     if(days.length > 0){
@@ -373,8 +379,8 @@
 
                     // we simply have to update the Specific Date input field to
                     // the date of the selected schedule.
+                    
                     $("input#spc-date").val(formatDate(schedDay));
-                    // console.log(formatDate(schedDay));
                     break;
                 default:
                     return;
@@ -452,7 +458,6 @@
                         .each(function(){
                             if($(this).hasClass("active")){
                                 schedDay = "schedDay=" + $(this).text();
-                                console.log(schedDay);
 
                                 params = scheduleId + "&"
                                         + schedType + "&"
@@ -462,7 +467,6 @@
                                         + schedDay + "&"
                                         + tin + "&"
                                         + tout;
-                                console.log(params);
 
                                 response = $.post({
                                     url: '/uclm_scholarship/working_scholars/add_schedule',
@@ -480,8 +484,6 @@
                         date = new Date($("input#spc-date").val());
                         schedDay = "schedDay=" + date.toLocaleDateString();
 
-                        console.log(schedDay);
-
                         params = scheduleId + "&"
                                 + schedType + "&"
                                 + schoolYear + "&"
@@ -490,7 +492,6 @@
                                 + schedDay + "&"
                                 + tin + "&"
                                 + tout;
-                        console.log(params);
 
                         response = $.post({
                             url: '/uclm_scholarship/working_scholars/add_schedule',
@@ -498,7 +499,6 @@
                             data: params,
                             async: false
                         }).responseText;
-                        console.log(response);
 
 
                         loadSched();
@@ -506,6 +506,10 @@
                     default:
                         
                 }
+
+                // Exit Edit mode if we are editing. We don't want to continually
+                // edit the Schedule entry once we're done editing.
+                _ = isEditScheduleMode? exitEditMode($(this)):'';
 
             },
             error: function(e){
@@ -530,10 +534,7 @@
         $(".button-tab").click(function(){
             if(isEditScheduleMode){
                 if(confirm("Are you sure you want to leave Edit mode? Changes will not be saved.")){
-                    isEditScheduleMode = false;
-                    $(this).siblings(".button-tab").removeClass("active");
-                    $(this).addClass("active");
-                    clearDaysToggleButtons();
+                    exitEditMode($(this));
                 }
             }
             else{
@@ -545,7 +546,6 @@
         /// load records based on selected school year and semester;
         $(".button-tab#semester").click(function(){
             if(!isEditScheduleMode){
-                $("#is-edit-mode").text("");
                 loadSched();
             }
         });
@@ -561,14 +561,10 @@
         });
 
         /// for Day of Week toggle buttons
-        const dayClicked = [false,false,false,false,false,false];
         $(".button-solid.round-toggle#day-of-week").click(function(){
-            dayClicked[$(this).index()] = !dayClicked[$(this).index()];
-
-            if(dayClicked[$(this).index()])
-                $(this).addClass("active");
-            else
-                $(this).removeClass("active");
+            _ = $(this).hasClass("active")? 
+                        $(this).removeClass("active"):
+                        $(this).addClass("active");
         });
 
         /// For WS Edit Information ///

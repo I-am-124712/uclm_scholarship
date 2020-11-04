@@ -2,7 +2,7 @@
 
 <div class="app-dash-panel" id="dashboard-panel">
     <div class="form-flat" style="width:500px;height:auto; float:left;">
-        <div style="color:rgb(255,115,0);font-size:20px;padding-left:25px;padding-top:5px;padding-bottom:5px">
+        <div style="color:rgb(255,115,0);font-size:30px;padding-left:25px;padding-top:5px;padding-bottom:5px">
                 <b>SELECT A DEPARTMENT</b>
         </div>
         <div class="form-flat" id="for-list-container">
@@ -28,12 +28,6 @@
         // take all the information we need for the Departments
         const paginateDepartments = ()=>{
             let jsonArray = JSON.parse('<?= str_replace("'","\'",json_encode($args)) ?>');
-            for(let i=0; i< jsonArray.length; ++i){
-                console.log(
-                    jsonArray[i].deptId + ".] " + 
-                    jsonArray[i].departmentName
-                );
-            }
 
             $("#for-list").append('<ul id="departments-list"></ul>');
             $("#search").css({
@@ -67,7 +61,6 @@
                 let deptId = jsonArray[i].deptId;
                 let departmentName = jsonArray[i].departmentName;
                 let wsCount = jsonArray[i].wsCount;
-                console.log(departmentName);
                 
                 $("#departments-list").append('<li onclick="location.href = \'/uclm_scholarship/dash/ws?allow_edit&department=\' '
                                                 + '+ this.value" value=' + deptId 
@@ -95,10 +88,10 @@
                 $("div#deptname-" + deptId).text(departmentName);
                 $("div#wsCount-" + deptId).text(wsCount + " Working Scholars");
 
-                $("li").css({
+                $("li#"+deptId).css({
                     'list-style': 'none'
                 })
-                $("li").addClass("button-outline");
+                $("li#"+deptId).addClass("button-outline");
 
                 $("div#deptname-" + deptId).css({
                     "color" : "rgb(255, 150, 0)",

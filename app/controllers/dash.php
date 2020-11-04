@@ -25,6 +25,11 @@ class Dash extends Controller {
     public function departments(){
         session_start();
         $this->trap_no_user_session();
+        
+        // Block Users with User Privilege = 3 (WS)
+        if($_SESSION['user_privilege']==3){
+            header('Location: /uclm_scholarship/home');
+        }
             
         $departments = $this->model('Finder')
         ->ready()
@@ -72,15 +77,13 @@ class Dash extends Controller {
     public function ws(){
         session_start();
         $this->trap_no_user_session();
-        require './app/views/user_view.php'; ?>
+        
+        // Block Users with User Privilege = 3 (WS)
+        if($_SESSION['user_privilege']==3){
+            header('Location: /uclm_scholarship/home');
+        }
 
-        <div class="app-dash-panel" id="dashboard-panel">
-<?php
         $this->ws_view_only();
-?>
-        </div>
-        <?php require './app/views/popups_view.php'; ?>
-<?php
     }
 
     public function ws_view_only(){
@@ -91,14 +94,6 @@ class Dash extends Controller {
                             (isset($_SESSION['department'])? $_SESSION['department']:0);
         $_SESSION['department'] = $deptId;
 
-        if($deptId == 0){?>
-            <div>
-                Select a Department first. 
-                <button onclick="clearTargetHTML('dashboard-panel')">OK</button>
-            </div>
-<?php
-            return;
-        }
         $working_scholars = $this->model('WS')
         ->ready()
         ->find()
@@ -121,6 +116,11 @@ class Dash extends Controller {
 
         session_start();
         $this->trap_no_user_session();
+        
+        // Block Users with User Privilege = 3 (WS)
+        if($_SESSION['user_privilege']==3){
+            header('Location: /uclm_scholarship/home');
+        }
 
         if($idnumber === '')
             return;
