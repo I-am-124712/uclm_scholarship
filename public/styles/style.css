@@ -602,7 +602,7 @@ table, td, th, tr {
     border-top-left-radius: 10px;
 }
 .table-flat-header.round-top-right{
-    border-top-right-radius: 10px;
+    border-top-right-radius: 20px;
 }
 .table-flat-header.round-top{
     border-top-left-radius: 10px;
@@ -1090,7 +1090,7 @@ th#idnumber,#wsName,#wsDepartment{
 #form-label {
     float: left;
     background-color: rgba(0,0,0,0);
-    color: white;
+    color: black;
     opacity: inherit;
     width: 100%;
     /* height: 40px; */
@@ -1098,7 +1098,7 @@ th#idnumber,#wsName,#wsDepartment{
 #form-label2 {
     float: left;
     background-color: rgba(0,0,0,0);
-    color: white;
+    color: black;
     opacity: inherit;
     margin: 5px;
     /* height: 40px; */

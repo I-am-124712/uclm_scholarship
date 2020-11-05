@@ -1,7 +1,7 @@
 <?php require './app/views/user_view.php'; ?>
 
 <script>
-    window.onload = function(){
+    $(function(){
         let chart1 = new CanvasJS.Chart('chart-panel',{
             title:{
                 text: "WS Hires for the 1st Half of 2019",
@@ -75,7 +75,7 @@
 
         chart1.render();
         chart2.render();
-    };
+    });
 </script>
 
 

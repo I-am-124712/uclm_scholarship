@@ -101,7 +101,6 @@
             $("#err-msg-course").text(data.err_course);
 
             if(data.success){
-                console.log(data.success);
                 closeModal();
                 setTimeout(() => {
                     location.href = '/uclm_scholarship/dash/ws';
