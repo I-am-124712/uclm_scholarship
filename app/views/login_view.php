@@ -7,9 +7,9 @@
                     UCLM WORKING SCHOLARS APP</h1>
             <h1 class="modal-subheader" id="label-deptname">LOGIN</h1>
             <form id="ws-info-form" action=<?= $_GET['url']?> method="POST">
-                <label id="form-label" for="username">Username</label><br>
+                <label id="form-label" for="username" style="color: white">Username</label><br>
                 <input class="textbox" type="text" name="username" id="username">
-                <label id="form-label" for="password">Password</label><br>
+                <label id="form-label" for="password" style="color: white">Password</label><br>
                 <input class="textbox" type="password" name="password" id="password">
                 <div class="container">
                     <button class="button-solid round" id="form-button" type="submit" name="login" value="true">Login</button>

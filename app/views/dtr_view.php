@@ -3,6 +3,10 @@
 <div class="app-dash-panel">
     <div class="drawer">
 
+        <!-- Title -->
+        <div id="title">
+            DAILY TIME RECORD
+        </div>
         <!-- School Year -->
         <label for="" id="form-label2">School Year</label>
         <select name="school-year" id="school-year" class="textbox-transparent">
@@ -42,6 +46,20 @@
 </div>
 
 <script>
+    const months = [
+        'January', 
+        'February', 
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ];
     $(function(){
         // styling for drawer
         let $drawer = $(".drawer"); 
@@ -56,6 +74,14 @@
         });
         $drawer.children().css({
             'color' : 'white'
+        });
+        // styiling title
+        $('div#title').css({
+            'color' : 'rgb(255, 163, 88)',
+            "font-size" : '20px',
+            'font-weight' : 'bolder',
+            'text-align' : 'center',
+            'width' : '100%'
         });
         $drawer.children('select').css({
             'border' : 'unset',
@@ -76,30 +102,16 @@
         $table.css({
             'border-radius' : '20px',
             'margin': '0px 20px',
-            'width' : '60%',
+            'width' : 'auto',
             'height': 'auto',
             'float': 'left'
         });
         
 
-        const months = [
-            'January', 
-            'February', 
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December'
-        ];
 
         for(let i=0; i<months.length; ++i){
             let $monthOption = $("<option>");
-            $monthOption.val((i+1));
+            $monthOption.val((i));
             $monthOption.text(months[i]);
             $("select#month").append($monthOption);
         }
@@ -118,10 +130,39 @@
                     $row.text(departments[i].departmentName);
                     $('select#department').append($row);
                 }
+            },
+            error: function(err){
+                console.log(err);
             }
         });
 
     });
+
+    const format12HourTime = timeObj => {
+        let timeHour;
+        let timeMinute;
+        let stringHour;
+        let stringMinute;
+        let timeFullString;
+        if(timeObj == null)
+            return 'NULL';
+
+        timeHour = timeObj.getHours();
+        timeMinute = timeObj.getMinutes();
+
+        if(timeHour >= 12) {
+            stringHour = "" + ((modTimeHour= 1 + timeHour % 12) < 10 ? '0'+modTimeHour:modTimeHour);
+            stringMinute = timeMinute < 10? "0"+timeMinute:timeMinute; 
+            timeFullString = stringHour + ":" + stringMinute + " PM";
+        }
+        else{
+            stringHour = "" + (timeHour < 10? "0"+timeHour:timeHour);
+            stringMinute = timeMinute < 10? "0"+timeMinute:timeMinute; 
+            timeFullString = stringHour + ":" + stringMinute + " AM";
+        }
+
+        return timeFullString;
+    };
 
     /* Loads the DTR data from the selected settings... */
     const getDtrData = _=>{
@@ -141,7 +182,8 @@
                 + "&" + hide
                 + "&" + requested;
 
-        console.log(params);
+        // prepare the div that will contain the table
+        $('div.table').text('');
 
         // here comes the request...
         $.ajax({
@@ -149,8 +191,126 @@
             url: '/uclm_scholarship/records/dtr',
             data: params,
             dataType: 'JSON',
-            success: function(res){
+            success: function(data){
+                let $table = $('<table>');
+                let $row = $('<tr>');
+                let $data = $('<td>');
+                $table.addClass('table-flat');
                 
+
+                for(ws in data){
+                    let $newHeaderRow = $row.clone();
+                    let $newHeaderData = $data.clone();
+                    $newHeaderData.addClass('table-flat-header');
+                    $newHeaderData.attr('colspan', 4);
+                    $newHeaderData.css({
+                        'border-top-left-radius': '20px',
+                        'border-top-right-radius': '20px',
+                        'font-size' : '20px'
+                    });
+                    $newHeaderData.text(data[ws].idnumber + " - " + data[ws].wsName);
+                    $newHeaderRow.append($newHeaderData);
+                    $table.append($newHeaderRow);
+
+                    let records = data[ws].wsRecords;
+                    if(records.length <= 0){
+                        // fix the table's width to not compress its contents
+                        $('div.table').css({
+                            'width' : "60%"
+                        })
+
+                        $newHeaderRow = $row.clone();
+                        $newHeaderData = $data.clone();
+                        $newHeaderData.addClass('table-flat-data');
+                        $newHeaderData.attr('colspan', 4);
+                        $newHeaderData.css({
+                            'border-bottom-left-radius': '20px',
+                            'border-bottom-right-radius': '20px',
+                        });
+                        $newHeaderData.text("No DTR Entry to show");
+                        $newHeaderRow.append($newHeaderData);
+                        $table.append($newHeaderRow);
+                    }
+                    else{
+                        // automatically adjust table width
+                        $('div.table').css({
+                            'width' : "auto"
+                        })
+                        $newHeaderRow = $row.clone();
+                        $newHeaderDataBase = $data.clone();
+                        $newHeaderDataBase.addClass('table-flat-data');
+                        $newHeaderDataBase.css({
+                            'background-color' : 'rgb(255, 115, 0)'
+                        });
+                        $dateHeader = $newHeaderDataBase.clone();
+                        $timeInHeader = $newHeaderDataBase.clone();
+                        $timeOutHeader = $newHeaderDataBase.clone();
+                        $totalHeader = $newHeaderDataBase.clone();
+
+                        $dateHeader.text("Record Date");
+                        $timeInHeader.text("Time-in");
+                        $timeOutHeader.text("Time-out");
+                        $totalHeader.text("Hours Rendered");
+
+                        $newHeaderRow.append($dateHeader);
+                        $newHeaderRow.append($timeInHeader);
+                        $newHeaderRow.append($timeOutHeader);
+                        $newHeaderRow.append($totalHeader);
+
+                        $table.append($newHeaderRow);
+                        for(x in records){
+                            $newHeaderRow = $row.clone();
+                            $newDataBase = $data.clone();
+
+                            $dateData = $newDataBase.clone();
+                            $timeInData = $newDataBase.clone();
+                            $timeOutData = $newDataBase.clone();
+                            $totalData = $newDataBase.clone();
+                            
+                            $dateData.addClass('table-flat-data');
+                            $timeInData.addClass('table-flat-data');
+                            $timeOutData.addClass('table-flat-data');
+                            $totalData.addClass('table-flat-data');
+
+                            let dateString = "";
+                            let timeInString = "";
+                            let timeOutString = "";
+
+                            let recordId = records[x].record_id;
+                            let recordDate = new Date(records[x].recorddate.date);
+                            let timeIn = (tin = records[x].timeIn)? new Date(tin.date):null;
+                            let timeOut = (tout = records[x].timeOut)? new Date(tout.date):null;
+                            let hoursRendered = records[x].hoursRendered;
+
+                            dateString = months[recordDate.getMonth()] + " " + recordDate.getDate() + ", " + recordDate.getFullYear();
+                            timeInString = format12HourTime(timeIn);
+                            timeOutString = format12HourTime(timeOut);
+                            
+
+                            $dateData.text(dateString);
+                            $timeInData.text(timeInString);
+                            $timeOutData.text(timeOutString);
+                            $totalData.text(hoursRendered + " Hour(s)");
+
+                            $newHeaderRow.attr("id",recordId);
+
+                            $newHeaderRow.append($dateData);
+                            $newHeaderRow.append($timeInData);
+                            $newHeaderRow.append($timeOutData);
+                            $newHeaderRow.append($totalData);
+
+                            $table.append($newHeaderRow);
+
+                            // console.log(dateString + "\t" + timeInString + " - " + timeOutString +" Total: " + hoursRendered);
+                        }
+                    }
+                }
+                $('div.table').append($table);
+
+            },
+            error: function(err){
+                console.log('Is Error');
+                console.log(err.responseText);
             }
         })
     };

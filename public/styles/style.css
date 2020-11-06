@@ -615,6 +615,7 @@ table, td, th, tr {
 .table-flat-header.clickable:hover{
     color: white;
     background-color: rgb(255, 163, 88);
+    /* background-color: rgb(255, 115, 0); */
 }
 .table-flat-footer{
     background-color: inherit;

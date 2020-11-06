@@ -27,7 +27,16 @@ class Model {
 
 
     // debugging purposes only
-    public function get_fields(){ return $this->fields; }
+    public function get_fields($key = ''){ 
+        if($key == null || $key === '')
+            return $this->fields; 
+        else{
+            if(isset($this->fields[$key]))
+                return $this->fields[$key];
+            else
+                print('Provided key is invalid.');
+        }
+    }
 
 
     // Readies the connection to the SQLServer DB
@@ -120,12 +129,26 @@ class Model {
             $logic = isset($args['logic'])? ' '.$args['logic'].' ':' AND ';
             $this->query_string .= ' WHERE ';
             foreach($args as $key => $value){
-                if($key === 'columns' || 
-                    $key === 'logic' ||
+                if( $key === '' ||
+                    $key === 'columns' || 
+                    $key === 'logic' || 
                     $key === 'distinct')
                     continue;
-                $this->query_string .= $key.' = ? '.$logic.' ';
-                array_push($this->params,$value);
+                if($key === 'like'){
+                    foreach($value as $k => $v){
+                        $this->query_string .= ' '.$k .' LIKE '.$v.' '.$logic.' ';
+                    }
+                }
+                else if($key === 'between'){
+                    $this->query_string .= $value['column'].' BETWEEN '
+                                        .$value['arg1'].' AND '
+                                        .$value['arg2'].' '
+                                        .$logic;
+                }
+                else{
+                    $this->query_string .= $key.' = ?'.$logic;
+                    array_push($this->params,$value);
+                }
             }
             $this->query_string = rtrim($this->query_string,$logic);
         }
@@ -203,6 +226,7 @@ class Model {
                 $model_instance = get_class($this); 
                 $result = new $model_instance;
                 $result->create($res);
+                $result->set_object_source_query($this->query_string);
                 array_push($result_set,$result);
             }
 
@@ -218,5 +242,11 @@ class Model {
         $this->connectionResource = null;
     }
 
+    protected function set_object_source_query($query){
+        $this->query_string = $query;
+    }
+    public function get_query_string(){
+        return $this->query_string;
+    }
 
 }
