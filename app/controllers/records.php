@@ -1,5 +1,7 @@
 <?php
 
+require './app/core/UtilFunctions.php';
+
 class Records extends Controller {
 
     public function index(){
@@ -28,6 +30,7 @@ class Records extends Controller {
         $period = isset($_POST['period'])? $_POST['period']+0:'';
         $month = isset($_POST['month'])? $_POST['month']+0:'';
         $hide = isset($_POST['hide']);
+        $load_method = isset($_POST['load-method'])? $_POST['load-method']:'auto';
 
         // Select working scholars first. We will be performing
         // separate queries for every Working Scholars.
@@ -67,37 +70,169 @@ class Records extends Controller {
 
                 }
 
+                // declare arrays for DTR entries and Schedule data...
                 $dtr = array();
-                $result_dtr = $this->model('Record')
+                $schedules = array();
+
+                if($hide){
+                    $result_dtr = $this->model('Record')
+                    ->ready()
+                    ->find([
+                        'columns' => [
+                            'record_id',
+                            'recorddate',
+                            'timeIn',
+                            'timeOut',
+                            'hoursRendered'
+                        ]
+                    ])
+                    ->where([
+                        'idnumber' => $working->get()['idnumber'],
+                        'between' => [
+                            'column' => 'recorddate',
+                            'arg1' => $dateStart,
+                            'arg2' => $dateEnd
+                        ],
+                        'NOT NULL' => [
+                            'logic' => 'AND',
+                            'timeIn',
+                            'timeOut'
+                        ]
+                    ])
+                    ->go();
+                    // ->get_query_string();
+                    // echo($result_dtr);
+                }
+                else{
+                    $result_dtr = $this->model('Record')
+                    ->ready()
+                    ->find([
+                        'columns' => [
+                            'record_id',
+                            'recorddate',
+                            'timeIn',
+                            'timeOut',
+                            'hoursRendered'
+                        ]
+                    ])
+                    ->where([
+                        'idnumber' => $working->get('idnumber'),
+                        'between' => [
+                            'column' => 'recorddate',
+                            'arg1' => $dateStart,
+                            'arg2' => $dateEnd
+                        ],
+                    ])
+                    ->go();
+                }
+
+                $schedule = $this->model('Schedule')
                 ->ready()
                 ->find([
                     'columns' => [
-                        'record_id',
-                        'recorddate',
-                        'timeIn',
-                        'timeOut',
-                        'hoursRendered'
+                        'schedule_id',
+                        'scheduleType',
+                        'schedDay',
+                        'tin', 'tout',
+                        'totalHours'
                     ]
                 ])
                 ->where([
-                    'idnumber' => $working->get_fields()['idnumber'],
-                    'between' => [
-                        'column' => 'recorddate',
-                        'arg1' => $dateStart,
-                        'arg2' => $dateEnd
-                    ]
+                    'idnumber' => $working->get('idnumber'),
+                    'schoolYear' => $school_year,
+                    'semester' => $semester
                 ])
                 ->go();
 
-                if(!empty($result_dtr)){
-                    foreach($result_dtr as $record){
-                        array_push($dtr,$record->get_fields());
+                
+                // We will retrieve all the WS's schedule for
+                // the manual adding of schedule for every
+                // DTR entry if user chooses manual assignment.
+                
+                if(!empty($schedule)){
+                    foreach($schedule as $sched){
+                        array_push($schedules, $sched->get());
                     }
+                }
+
+
+                if(!empty($result_dtr)){
+                    $scheduleForRecord = [];
+                    foreach($result_dtr as $record){
+
+                        $dtr_entry = $record->get();
+                        $day = [null,"M","Tu","W","Th","F","S"];
+
+                        // Get the Day of week for the current DTR entry we are accessing...
+                        $recordWeekDay = date('w', strtotime(date_format($record->get('recorddate'),'M-d-Y')));
+                        // echo $recordWeekDay;
+                        if(!empty($schedule)){
+                            $late = 0;
+                            $undertime = 0;
+                            $total = 0;
+
+                            $lates_undertimes = [];
+                            foreach($schedule as $sched){
+                                switch($sched->get('scheduleType')){
+                                    case 'REG':
+                                        $matchingSched = $sched->is_match([
+                                            'schedDay' => $day[$recordWeekDay]
+                                        ]);
+
+
+                                        // we'll use shortcut single-line if-statements
+                                        if($matchingSched != null) {
+                                            array_push($scheduleForRecord,[
+                                                'schedIn' => $matchingSched->get('tin'),
+                                                'schedOut'=> $matchingSched->get('tout'),
+                                                'totalHours' => $matchingSched->get('totalHours')
+                                            ]);
+                                            // we'll compute the Lates, Undertime and total Hours
+                                            // if user chooses to automatically assign schedule
+                                            // for every DTR entry.
+                                            if($load_method === 'auto'){
+                                                $tin = $matchingSched->get('tin');
+                                                $tout = $matchingSched->get('tout');
+                                                $expectedHours = $matchingSched->get('totalHours');
+                                                $record_in = $dtr_entry['timeIn'] != null ? $dtr_entry['timeIn']:null;
+                                                $record_out = $dtr_entry['timeOut'] != null ? $dtr_entry['timeOut']:null;
+                                                // $record_out_string = "";
+
+                                                $late += $record_in==null? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
+                                                $undertime += $record_out==null? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
+                                                $total += $matchingSched->get('totalHours') - ($late + $undertime);
+                                                $total = $total <= 0 ? 0:$total;
+                                            }
+                                            // echo var_export($record->get())."\n";
+                                        }
+                                        else{
+                                            // ($scheduleForRecord = []);
+                                        }
+                                        break;
+                                    case 'SPC':
+                                }
+                            }
+
+                            $dtr_entry = array_merge($dtr_entry, [
+                                'late' => $late,
+                                'undertime' => $undertime,
+                                'hoursRendered' => $total
+                            ]);
+                        }
+                        $dtr_entry = array_merge($dtr_entry, ['schedule' => $scheduleForRecord]);
+                        array_push($dtr,$dtr_entry);
+                        $scheduleForRecord = [];
+                    }
+                    // var_export($scheduleForRecord);
 
                 }
+
+                
+
                 array_push($data,[
-                    'idnumber' => $working->get_fields('idnumber'),
-                    'wsName' => utf8_encode($working->get_fields('wsName')),
+                    'idnumber' => $working->get('idnumber'),
+                    'wsName' => utf8_encode($working->get('wsName')),
+                    'schedule' => $schedules,
                     'wsRecords' => $dtr
                 ]);
 
@@ -133,8 +268,8 @@ class Records extends Controller {
 
             foreach($result as $dept){
                 array_push($departments,[
-                    'deptId' => $dept->get_fields()['deptId'],
-                    'departmentName' => $dept->get_fields()['departmentName'],
+                    'deptId' => $dept->get()['deptId'],
+                    'departmentName' => $dept->get()['departmentName'],
                 ]);
             }
 

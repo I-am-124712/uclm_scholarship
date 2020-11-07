@@ -94,7 +94,7 @@
                 $("li#"+deptId).addClass("button-outline");
 
                 $("div#deptname-" + deptId).css({
-                    "color" : "rgb(255, 150, 0)",
+                    "color" : "rgb(255, 180, 120)",
                     "font-size" : "inherit",
                     "float" : "left",
                     "margin" : "5px"

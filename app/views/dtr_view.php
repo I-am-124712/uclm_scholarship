@@ -26,7 +26,7 @@
         </select>
         <!-- checkbox for hiding or showing records with no times-in or -out -->
         
-        <label for="hide" id="form-label2" style="margin: 10px 0px; float:left; font-size:12px">
+        <label for="hide" id="form-label2" style="margin: 10px 0px; float:left; width: 100%; font-size:12px">
             <input type="checkbox" name="hide" id="hide">
             Hide records with no in/out
         </label>
@@ -40,6 +40,18 @@
         <label for="month" id="form-label2">Month</label>
         <select name="month" id="month" class="textbox-transparent">
         </select>
+        <form action="" name="load-methods" id="load-methods">
+            <label for="" class="form-label2" style="float: left; margin:10px 5px;">Schedule plotting method
+                <label for="load-method" class="form-label2" style="float:left; margin-left: 20px; width:100%">
+                    <input type="radio" name="load-method" id="auto" value="auto">
+                    Automatic
+                </label>
+                <label for="load-method" class="form-label2" style="float:left; margin-left: 20px; width:100%">
+                    <input type="radio" name="load-method" id="manual" value="manual">
+                    Manual
+                </label>
+            </label>
+        </form>
         <button class="button-solid round" id="btn-load" onclick="getDtrData()">Load</button>
     </div>
     <div class="table"></div>
@@ -70,6 +82,7 @@
             'width' : "20%",
             'height': 'auto',
             'padding': '10px',
+            'margin': '0px 20px 20px 0px',
             'float' : 'left'
         });
         $drawer.children().css({
@@ -101,8 +114,8 @@
         let $table = $(".table"); 
         $table.css({
             'border-radius' : '20px',
-            'margin': '0px 20px',
-            'width' : 'auto',
+            // 'margin': '0px 20px',
+            'width' : '75%',
             'height': 'auto',
             'float': 'left'
         });
@@ -136,6 +149,9 @@
             }
         });
 
+        /* Default Schedule plotting will be automatic */
+        $('input#auto').attr('checked',true);
+
     });
 
     const format12HourTime = timeObj => {
@@ -145,13 +161,13 @@
         let stringMinute;
         let timeFullString;
         if(timeObj == null)
-            return 'NULL';
+            return '';
 
         timeHour = timeObj.getHours();
         timeMinute = timeObj.getMinutes();
 
         if(timeHour >= 12) {
-            stringHour = "" + ((modTimeHour= 1 + timeHour % 12) < 10 ? '0'+modTimeHour:modTimeHour);
+            stringHour = timeHour==12? 12 : ("" + ((modTimeHour= timeHour % 12) < 10 ? '0'+modTimeHour:modTimeHour));
             stringMinute = timeMinute < 10? "0"+timeMinute:timeMinute; 
             timeFullString = stringHour + ":" + stringMinute + " PM";
         }
@@ -172,6 +188,7 @@
         let period = $('#period').serialize();
         let month = $('#month').serialize();
         let hide = $('#hide').serialize();
+        let loadMethod = $("#load-methods").serialize();
         let requested = "req";
 
         let params = schoolYear 
@@ -180,7 +197,10 @@
                 + "&" + period 
                 + "&" + month
                 + "&" + hide
+                + "&" + loadMethod
                 + "&" + requested;
+
+        console.log(loadMethod);
 
         // prepare the div that will contain the table
         $('div.table').text('');
@@ -197,12 +217,13 @@
                 let $data = $('<td>');
                 $table.addClass('table-flat');
                 
+                console.log(data);
 
                 for(ws in data){
                     let $newHeaderRow = $row.clone();
                     let $newHeaderData = $data.clone();
                     $newHeaderData.addClass('table-flat-header');
-                    $newHeaderData.attr('colspan', 4);
+                    $newHeaderData.attr('colspan', 10);
                     $newHeaderData.css({
                         'border-top-left-radius': '20px',
                         'border-top-right-radius': '20px',
@@ -222,7 +243,7 @@
                         $newHeaderRow = $row.clone();
                         $newHeaderData = $data.clone();
                         $newHeaderData.addClass('table-flat-data');
-                        $newHeaderData.attr('colspan', 4);
+                        $newHeaderData.attr('colspan', 10);
                         $newHeaderData.css({
                             'border-bottom-left-radius': '20px',
                             'border-bottom-right-radius': '20px',
@@ -234,44 +255,72 @@
                     else{
                         // automatically adjust table width
                         $('div.table').css({
-                            'width' : "auto"
+                            'width' : "75%"
                         })
                         $newHeaderRow = $row.clone();
                         $newHeaderDataBase = $data.clone();
                         $newHeaderDataBase.addClass('table-flat-data');
                         $newHeaderDataBase.css({
-                            'background-color' : 'rgb(255, 115, 0)'
+                            'background-color' : 'rgb(255, 115, 0)',
+                            'font-size' : '14px'
                         });
+
+                        // For the subheader rows
                         $dateHeader = $newHeaderDataBase.clone();
+                        $schedInHeader = $newHeaderDataBase.clone();
+                        $schedOutHeader = $newHeaderDataBase.clone();
                         $timeInHeader = $newHeaderDataBase.clone();
                         $timeOutHeader = $newHeaderDataBase.clone();
+                        $lateHeader = $newHeaderDataBase.clone();
+                        $undertimeHeader = $newHeaderDataBase.clone();
                         $totalHeader = $newHeaderDataBase.clone();
 
                         $dateHeader.text("Record Date");
+                        $schedInHeader.text('Schedule-in');
+                        $schedOutHeader.text('Schedule-out');
                         $timeInHeader.text("Time-in");
                         $timeOutHeader.text("Time-out");
-                        $totalHeader.text("Hours Rendered");
+                        $lateHeader.text('Lates');
+                        $undertimeHeader.text('Undertime');
+                        $totalHeader.text("Total Hours");
 
                         $newHeaderRow.append($dateHeader);
+                        $newHeaderRow.append($schedInHeader);
+                        $newHeaderRow.append($schedOutHeader);
                         $newHeaderRow.append($timeInHeader);
                         $newHeaderRow.append($timeOutHeader);
+                        $newHeaderRow.append($lateHeader);
+                        $newHeaderRow.append($undertimeHeader);
                         $newHeaderRow.append($totalHeader);
 
                         $table.append($newHeaderRow);
                         for(x in records){
                             $newHeaderRow = $row.clone();
                             $newDataBase = $data.clone();
+                            $newDataBase.css({
+                                'font-size' : '12px'
+                            });
 
+                            // for each record data cell
                             $dateData = $newDataBase.clone();
+                            $schedInData = $newDataBase.clone();
+                            $schedOutData = $newDataBase.clone();
                             $timeInData = $newDataBase.clone();
                             $timeOutData = $newDataBase.clone();
+                            $lateData = $newDataBase.clone();
+                            $undertimeData = $newDataBase.clone();
                             $totalData = $newDataBase.clone();
                             
                             $dateData.addClass('table-flat-data');
+                            $schedInData.addClass('table-flat-data');
+                            $schedOutData.addClass('table-flat-data');
                             $timeInData.addClass('table-flat-data');
                             $timeOutData.addClass('table-flat-data');
+                            $lateData.addClass('table-flat-data');
+                            $undertimeData.addClass('table-flat-data');
                             $totalData.addClass('table-flat-data');
 
+                            
                             let dateString = "";
                             let timeInString = "";
                             let timeOutString = "";
@@ -290,18 +339,50 @@
                             $dateData.text(dateString);
                             $timeInData.text(timeInString);
                             $timeOutData.text(timeOutString);
+                            $lateData.text(records[x].late);
+                            $undertimeData.text(records[x].undertime);
                             $totalData.text(hoursRendered + " Hour(s)");
+
+                            // On this part we get to decide what we will display
+                            // on the schedule-in and -out cells in our DTR entry rows
+                            // based on what the user chooses.
+                            switch(loadMethod){
+                                case 'load-method=manual':
+                                    // console.log("MANUAL");
+                                    break;
+
+                                case 'load-method=auto':   
+                                default:
+                                    // console.log("AUTO");
+                                    let scheduleFor = records[x].schedule;
+                                    if(scheduleFor.length > 0){
+                                        // we'll loop through every schedule associated with the duty hours
+                                        // since there will be duty records with one or more schedule
+                                        // (in our terms, "broken" schedules)
+                                        let schedIn = "";
+                                        let schedOut = "";
+                                        for(i in scheduleFor){
+                                            schedIn += format12HourTime(new Date(scheduleFor[i].schedIn.date)) + "<br>";
+                                            schedOut += format12HourTime(new Date(scheduleFor[i].schedOut.date)) + "<br>";
+                                        }
+                                        $schedInData.html(schedIn);
+                                        $schedOutData.html(schedOut);
+                                    }
+                            }
 
                             $newHeaderRow.attr("id",recordId);
 
                             $newHeaderRow.append($dateData);
+                            $newHeaderRow.append($schedInData);
+                            $newHeaderRow.append($schedOutData);
                             $newHeaderRow.append($timeInData);
                             $newHeaderRow.append($timeOutData);
+                            $newHeaderRow.append($lateData);
+                            $newHeaderRow.append($undertimeData);
                             $newHeaderRow.append($totalData);
 
                             $table.append($newHeaderRow);
 
-                            // console.log(dateString + "\t" + timeInString + " - " + timeOutString +" Total: " + hoursRendered);
                         }
                     }
                 }
@@ -312,6 +393,8 @@
                 console.log('Is Error');
                 console.log(err.responseText);
             }
-        })
+        });
+
+
     };
 </script>

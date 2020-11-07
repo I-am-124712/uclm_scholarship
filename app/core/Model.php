@@ -34,7 +34,20 @@ class Model {
             if(isset($this->fields[$key]))
                 return $this->fields[$key];
             else
-                print('Provided key is invalid.');
+                throw new Exception('Provided key is invalid.');
+        }
+    }
+    /* This will be the final implementation of 
+        retrieving the value of a Model object's field(s).
+    */
+    public function get($key = ''){ 
+        if($key == null || $key === '')
+            return $this->fields; 
+        else{
+            if(isset($this->fields[$key]))
+                return $this->fields[$key];
+            else
+                throw new Exception('Provided key is invalid.');
         }
     }
 
@@ -134,11 +147,24 @@ class Model {
                     $key === 'logic' || 
                     $key === 'distinct')
                     continue;
+                
+                /* for the 'IS NULL' and 'IS NOT NULL' sql query */
+                if($key === 'NULL' || $key === 'NOT NULL'){
+                    $is_null_logic = isset($value['logic'])? $value['logic']:'AND';
+                    foreach($value as $key2 => $value2){
+                        if($key2 === 'logic')
+                            continue;
+                        $this->query_string .= '['.$value2.'] IS '.$key.' '.$is_null_logic.' ';
+                    }
+                    continue;
+                }
+                /* for the 'LIKE' sql query */
                 if($key === 'like'){
                     foreach($value as $k => $v){
                         $this->query_string .= ' '.$k .' LIKE '.$v.' '.$logic.' ';
                     }
                 }
+                /* for the 'BETWEEN' sql query */
                 else if($key === 'between'){
                     $this->query_string .= $value['column'].' BETWEEN '
                                         .$value['arg1'].' AND '
@@ -247,6 +273,21 @@ class Model {
     }
     public function get_query_string(){
         return $this->query_string;
+    }
+
+    public function is_match($args = []){
+        if($args == null || empty($args))
+            return;
+        $itemCount = 0;
+        $matchCount = 0;
+
+        foreach($args as $key => $value){
+            $itemCount++;
+            if($this->get($key) === $value){
+                $matchCount++;
+            }
+        }
+        return $matchCount>=$itemCount? $this: null;
     }
 
 }

@@ -1,4 +1,5 @@
 <?php
+require './app/core/UtilFunctions.php';
 
 class Working_scholars extends Controller{
 
@@ -432,7 +433,7 @@ class Working_scholars extends Controller{
         $schedDay = isset($_POST['schedDay'])? $_POST['schedDay']:"";
         $tin = isset($_POST['tin'])? $_POST['tin']:"";
         $tout = isset($_POST['tout'])? $_POST['tout']:"";
-        $total = $this->differenceInHours($tin,$tout);
+        $total = time_difference_abs($tin,$tout);
 
 
         $this->model("Schedule")
@@ -450,13 +451,6 @@ class Working_scholars extends Controller{
         ])
         ->insert()
         ->go();
-    }
-
-    private function differenceInHours($startdate,$enddate){
-        $starttimestamp = strtotime($startdate);
-        $endtimestamp = strtotime($enddate);
-        $difference = abs($endtimestamp - $starttimestamp)/3600;
-        return $difference;
     }
      
 
