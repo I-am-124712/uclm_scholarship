@@ -170,6 +170,9 @@ class Records extends Controller {
                             $late = 0;
                             $undertime = 0;
                             $total = 0;
+                            $record_in = $dtr_entry['timeIn'];
+                            $record_out = $dtr_entry['timeOut'];
+
 
                             $lates_undertimes = [];
                             foreach($schedule as $sched){
@@ -194,12 +197,11 @@ class Records extends Controller {
                                                 $tin = $matchingSched->get('tin');
                                                 $tout = $matchingSched->get('tout');
                                                 $expectedHours = $matchingSched->get('totalHours');
-                                                $record_in = $dtr_entry['timeIn'] != null ? $dtr_entry['timeIn']:null;
-                                                $record_out = $dtr_entry['timeOut'] != null ? $dtr_entry['timeOut']:null;
                                                 // $record_out_string = "";
 
-                                                $late += $record_in==null? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
-                                                $undertime += $record_out==null? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
+
+                                                $late += ($record_in==null)? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
+                                                $undertime += ($record_out==null)? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
                                                 $total += $matchingSched->get('totalHours') - ($late + $undertime);
                                                 $total = $total <= 0 ? 0:$total;
                                             }

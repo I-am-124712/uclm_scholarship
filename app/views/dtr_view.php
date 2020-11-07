@@ -340,8 +340,18 @@
                             $timeInData.text(timeInString);
                             $timeOutData.text(timeOutString);
                             $lateData.text(records[x].late);
+                            if(records[x].late > 0)
+                                $lateData.css({
+                                    'background-color' : 'rgb(255,30,30)'
+                                });
+                            if(records[x].undertime > 0)
+                                $undertimeData.css({
+                                    'background-color' : 'rgb(255,30,30)'
+                                });
                             $undertimeData.text(records[x].undertime);
                             $totalData.text(hoursRendered + " Hour(s)");
+
+
 
                             // On this part we get to decide what we will display
                             // on the schedule-in and -out cells in our DTR entry rows

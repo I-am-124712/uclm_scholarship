@@ -24,7 +24,7 @@ function compute_tardiness($dutyTime, $scheduleTime, $expectedHours){
 	$computedLateInt = 0;
 	$totalLate = 0;
 
-	$computedLate = round($scheduleTime - $dutyTime,2);
+	$computedLate = round(($scheduleTime - $dutyTime)/3600,2);
 	$computedLateInt = round($computedLate);
 
 	if ($computedLate > 0)
