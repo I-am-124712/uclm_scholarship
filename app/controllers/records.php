@@ -199,8 +199,9 @@ class Records extends Controller {
                                                 $expectedHours = $matchingSched->get('totalHours');
                                                 // $record_out_string = "";
 
-
+                                                // echo "::Late::\n";
                                                 $late += ($record_in==null)? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
+                                                // echo "::Undertime::\n";
                                                 $undertime += ($record_out==null)? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
                                                 $total += $matchingSched->get('totalHours') - ($late + $undertime);
                                                 $total = $total <= 0 ? 0:$total;
