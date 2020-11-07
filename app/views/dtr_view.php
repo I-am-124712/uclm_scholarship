@@ -229,7 +229,8 @@
                         'border-top-right-radius': '20px',
                         'font-size' : '20px'
                     });
-                    $newHeaderData.text(data[ws].idnumber + " - " + data[ws].wsName);
+                    // $newHeaderData.text(data[ws].idnumber + " - " + data[ws].wsName);
+                    $newHeaderData.text("▮▮▮▮▮▮▮▮ - " + data[ws].wsName);
                     $newHeaderRow.append($newHeaderData);
                     $table.append($newHeaderRow);
 
@@ -298,7 +299,7 @@
                             $newHeaderRow = $row.clone();
                             $newDataBase = $data.clone();
                             $newDataBase.css({
-                                'font-size' : '12px'
+                                'font-size' : '14px'
                             });
 
                             // for each record data cell
@@ -340,14 +341,32 @@
                             $timeInData.text(timeInString);
                             $timeOutData.text(timeOutString);
                             $lateData.text(records[x].late);
-                            if(records[x].late > 0)
+                            if(records[x].late > 0){
+                                if(records[x].late <= 1)
+                                    $lateData.css({
+                                        'background-color' : 'rgb(255,100,0)'
+                                    });
+                                else
+                                    $lateData.css({
+                                        'background-color' : 'rgb(200,0,0)'
+                                    });
                                 $lateData.css({
-                                    'background-color' : 'rgb(255,30,30)'
+                                    'font-weight' : 'bolder'
                                 });
-                            if(records[x].undertime > 0)
+                            }
+                            if(records[x].undertime > 0){
+                                if(records[x].undertime == 1)
+                                    $undertimeData.css({
+                                        'background-color' : 'rgb(255,100,0)'
+                                    });
+                                else
+                                    $undertimeData.css({
+                                        'background-color' : 'rgb(200,0,0)'
+                                    });
                                 $undertimeData.css({
-                                    'background-color' : 'rgb(255,30,30)'
+                                    'font-weight' : 'bolder'
                                 });
+                            }
                             $undertimeData.text(records[x].undertime);
                             $totalData.text(hoursRendered + " Hour(s)");
 

@@ -4,7 +4,7 @@
         <div class="logo-panel">
         <div id="form-panel">
             <h1 class="modal-header" id="label-title" style="font-size:24px">
-                    UCLM WORKING SCHOLARS APP</h1>
+                    WORKING SCHOLARS APP</h1>
             <h1 class="modal-subheader" id="label-deptname">LOGIN</h1>
             <form id="ws-info-form" action=<?= $_GET['url']?> method="POST">
                 <label id="form-label" for="username" style="color: white">Username</label><br>

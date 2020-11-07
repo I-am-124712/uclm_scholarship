@@ -17,8 +17,6 @@ function time_difference_abs($startdate,$enddate){
 
 function compute_tardiness($dutyTime, $scheduleTime, $expectedHours){
     // Convert to time first
-    // $dutyTime = var_export(0.0 + strtotime(date_format($dutyTime,'H:m')),true);
-    // $scheduleTime = var_export(0.0 + strtotime(date_format($scheduleTime,'H:m')),true);
     $dutyTime = strtotime(date_format($dutyTime,'H:i'));
     $scheduleTime = strtotime(date_format($scheduleTime,'H:i'));
 
@@ -29,8 +27,6 @@ function compute_tardiness($dutyTime, $scheduleTime, $expectedHours){
 	$computedLate = ($scheduleTime - $dutyTime)/3600;
     $computedLateInt = (int)($computedLate);
     
-    // echo "computedLate: ".var_export($computedLate,true)."\n";
-    // echo "computedLateInt: ".var_export($computedLateInt,true)."\n";
 
 	if ($computedLate > 0.0)
 		if( $computedLate < $expectedHours)
@@ -46,6 +42,5 @@ function compute_tardiness($dutyTime, $scheduleTime, $expectedHours){
 	else
 		$totalLate = 0.0;
     
-    // echo "totalLate: ".var_export($totalLate,true)."\n\n";
 	return $totalLate;
 }

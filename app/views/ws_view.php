@@ -52,7 +52,7 @@
                 foreach($args['ws'] as $ws){ ?>
 
                 <tr>
-                    <td class="table-flat-data" id="td-short"> <?= $ws->get_fields()['idnumber']?> </td>
+                    <td class="table-flat-data" id="td-short"> <?="▮▮▮▮▮▮▮▮" //$ws->get_fields()['idnumber']?> </td>
                     <td class="table-flat-data" id="td-long" style="font-size:24px;text-align:left"><b><?= utf8_encode($ws->get_fields()['wsName'])?></b></td>
                     <td class="table-flat-data" id="td-max">
                     <?php if($allowed_edit_user_detected &&

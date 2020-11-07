@@ -48,7 +48,7 @@
                 </div>
                 <div class="info-panel">
                     <ul class="info-words">
-                        <li class="info-lines"><?=$args['ws']->get_fields()['idnumber']?></li>
+                        <li class="info-lines"><?="▮▮▮▮▮▮▮▮"//$args['ws']->get_fields()['idnumber']?></li>
                         <li class="info-lines"><?=$lname.', '.$fname?></li>
                         <li class="info-lines"><?=$department_name?></li>
                     </ul>
@@ -69,7 +69,7 @@
                             </span>
                         </label>
                         <input type="text" id="selected-id" name="selected-id" value=<?=$idnumber?> hidden>
-                        <input class="textbox-transparent" type="text" name="idnumber" value=<?=$idnumber?>>
+                        <input class="textbox-transparent" type="text" name="idnumber" value=<?="▮▮▮▮▮▮▮▮"//$idnumber?>>
                         <label id="form-label2" style="color:black">
                             Last Name
                         </label>

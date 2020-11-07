@@ -40,6 +40,9 @@ class Records extends Controller {
         ->where([
             'depAssigned' => $department
         ])
+        ->order_by([
+            'wsName' => 'ASC'
+        ])
         ->go();
 
         
@@ -158,6 +161,7 @@ class Records extends Controller {
 
                 if(!empty($result_dtr)){
                     $scheduleForRecord = [];
+                    $spc_scheduleForRecord = [];
                     foreach($result_dtr as $record){
 
                         $dtr_entry = $record->get();
@@ -190,6 +194,7 @@ class Records extends Controller {
                                                 'schedOut'=> $matchingSched->get('tout'),
                                                 'totalHours' => $matchingSched->get('totalHours')
                                             ]);
+
                                             // we'll compute the Lates, Undertime and total Hours
                                             // if user chooses to automatically assign schedule
                                             // for every DTR entry.
@@ -197,40 +202,29 @@ class Records extends Controller {
                                                 $tin = $matchingSched->get('tin');
                                                 $tout = $matchingSched->get('tout');
                                                 $expectedHours = $matchingSched->get('totalHours');
-                                                // $record_out_string = "";
 
-                                                // echo "::Late::\n";
                                                 $late += ($record_in==null)? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
-                                                // echo "::Undertime::\n";
                                                 $undertime += ($record_out==null)? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
                                                 $total += $matchingSched->get('totalHours') - ($late + $undertime);
-                                                $total = $total <= 0 ? 0:$total;
+                                                $total = $total <= 0 ? 0:$total;    // Normalize
                                             }
-                                            // echo var_export($record->get())."\n";
-                                        }
-                                        else{
-                                            // ($scheduleForRecord = []);
                                         }
                                         break;
                                     case 'SPC':
+
                                 }
                             }
 
-                            $dtr_entry = array_merge($dtr_entry, [
-                                'late' => $late,
-                                'undertime' => $undertime,
-                                'hoursRendered' => $total
-                            ]);
+                            $dtr_entry['late'] = $late;
+                            $dtr_entry['undertime'] = $undertime;
+                            $dtr_entry['hoursRendered'] = $total;
+
                         }
-                        $dtr_entry = array_merge($dtr_entry, ['schedule' => $scheduleForRecord]);
+                        $dtr_entry['schedule'] = $scheduleForRecord;
                         array_push($dtr,$dtr_entry);
                         $scheduleForRecord = [];
                     }
-                    // var_export($scheduleForRecord);
-
                 }
-
-                
 
                 array_push($data,[
                     'idnumber' => $working->get('idnumber'),

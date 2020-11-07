@@ -4,7 +4,7 @@
     $(function(){
         let chart1 = new CanvasJS.Chart('chart-panel',{
             title:{
-                text: "WS Hires for the 1st Half of 2019",
+                text: "(Test) WS Hires for the 1st Half of 2019",
             },
 
             data: [  //array of dataSeries 
@@ -42,36 +42,51 @@
         
         chart2 = new CanvasJS.Chart('chart-panel-2',{
             title:{
-                text: "Lates and Undertime Per Duty"              
+                text: "(Test) Summary of Attendances"              
             },
 
             data: [  //array of dataSeries     
             { //dataSeries - first quarter
         /*** Change type "column" to "bar", "area", "line" or "pie"***/        
             type: "line",
-            name: "First Quarter",
+            name: "Complete Attendance",
+            showInLegend: true,
             dataPoints: [
-            { label: "banana", y: 58 },
-            { label: "orange", y: 69 },
-            { label: "apple", y: 80 },                                    
-            { label: "mango", y: 74 },
-            { label: "grape", y: 64 }
-            ]
+            { label: "January", y: 58 },
+            { label: "February", y: 69 },
+            { label: "March", y: 80 },                                    
+            { label: "April", y: 74 },                                    
+            { label: "May", y: 74 },
+            { label: "June", y: 70 }
+            ]},
+            { //dataSeries - second quarter
+                type: "line",
+                name: "w/ Lates",
+                showInLegend: true,
+                dataPoints: [
+                    { label: "January", y: 26 },
+                    { label: "February", y: 33 },
+                    { label: "March", y: 18 },                                    
+                    { label: "April", y: 19 },                                   
+                    { label: "May", y: 22 },
+                    { label: "June", y: 32 }
+                ]
             },
             { //dataSeries - second quarter
-
-            type: "line",
-            name: "Second Quarter",
-            dataPoints: [
-            { label: "banana", y: 63 },
-            { label: "orange", y: 73 },
-            { label: "apple", y: 88 },                                    
-            { label: "mango", y: 77 },
-            { label: "grape", y: 60 }
-            ]
+                type: "line",
+                name: "w/ Undertimes",
+                showInLegend: true,
+                dataPoints: [
+                    { label: "January", y: 12 },
+                    { label: "February", y: 27 },
+                    { label: "March", y: 4 },                                    
+                    { label: "April", y: 30 },                                   
+                    { label: "May", y: 16 },
+                    { label: "June", y: 19 }
+                ]
             }
-            ]
-        });
+        ]}
+        );
 
         chart1.render();
         chart2.render();
