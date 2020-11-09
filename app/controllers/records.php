@@ -31,20 +31,57 @@ class Records extends Controller {
         $this->trap_no_user_session();
 
         // Users with higher access privilege should be redirected to
-        // the general records view. 
+        // the general Records view. 
         if($_SESSION['user_privilege'] != 3)
             header('Location: /uclm_scholarship/records/dtr');
 
         if(isset($_GET['req'])){
-            $school_year = isset($_GET['school_year'])?$_GET['school_year']:'';
+
+            // Final result array ready for JSON encoding
+            $result = []; 
+
+            $school_year = isset($_GET['school-year'])?$_GET['school-year']:'';
+            $semester = isset($_GET['semester'])?$_GET['semester']:'';
             $period = isset($_GET['period'])?$_GET['period']:'';
             $month = isset($_GET['month'])? $_GET['month']:'';
+            $hide = isset($_GET['hide']);
 
-            if($school_year==='' ||
-                $period==='' ||
-                $month==='')
-                return $this->view('dtr-ws');
-            
+            // Get the Working Scholar's ID number from their very own User ID.
+            $user_id = $_SESSION['user_id'];
+
+            // Get the Period bounds first...
+            $period_bounds = $this->get_period_bounds($school_year, $period, $month);
+
+            $date_start = $period_bounds['dateStart'];
+            $date_end = $period_bounds['dateEnd'];
+
+
+            // now get the schedule data next. We first create a WS Model object
+            // having only 'idnumber' as property (or field).
+            $ws = $this->model('WS')
+            ->ready()
+            ->find()
+            ->where([
+                'user_id' => $user_id
+            ])
+            ->go()[0];
+
+            // we then retrieve schedule...
+            $schedule = $this->retrieve_schedule($ws, $school_year, $semester);
+
+            // then the DTR entries...
+            $result_dtr = $this->retrieve_dtr($ws, $date_start, $date_end, $hide);
+
+            // Automatically plot DTR data since this is in view mode.
+            $dtr_plotted = $this->plot_schedule_per_dtr($result_dtr, $schedule);
+
+
+            // Fill the array and prepare for JSON encoding...
+            $result['idnumber'] = $ws->get('idnumber');
+            $result['wsName'] = $ws->get('wsName');
+            $result['records'] = $dtr_plotted;
+
+            echo json_encode($result);
         }
         else{
             return $this->view('dtr-ws');
@@ -62,7 +99,9 @@ class Records extends Controller {
     }
 
 
-    public function get_departments(){
+
+
+    public final function get_departments(){
         session_start();
         $this->trap_no_user_session();
 
@@ -122,8 +161,11 @@ class Records extends Controller {
                 // for WS information (and Record data)
                 $ws_data = [];
 
+                // declare arrays for DTR entries and Schedule data...
+                $dtr = [];
+                $schedules = [];
 
-                /* Retrieve Records */
+                /*** Retrieve Records ***/
 
                 // This one decides what year to use by deciding if the month
                 // selected is inclusive to a given school year.
@@ -132,9 +174,6 @@ class Records extends Controller {
                 $dateStart = $period_bounds['dateStart'];
                 $dateEnd = $period_bounds['dateEnd'];
 
-                // declare arrays for DTR entries and Schedule data...
-                $dtr = [];
-                $schedules = [];
 
                 // Retrieve DTR entries...
                 $result_dtr = $this->retrieve_dtr($working, $dateStart, $dateEnd, $hide);
@@ -206,9 +245,20 @@ class Records extends Controller {
         }
     }
 
-    /* This function breaks down the Date string and determines the 
+    /** 
+        This function breaks down the Date string and determines the 
         Start and end date of a Period from a given school year and
         Month.
+
+        Params:
+            - $school_year = string representing the School Year
+            - $period = an integer specifying the period
+            - $month = an integer identifying the month
+        
+        Returns:
+            - ['dateStart' => string, 'dateEnd' => string] = an assoc array 
+            containing the SQL DateFromParts() string of both inclusive dates
+            for the specified Period.
     */
 
     private function get_period_bounds($school_year, $period, $month){
@@ -230,9 +280,18 @@ class Records extends Controller {
     }
 
 
-    /* 
+    /** 
         This function retrieves the DTR Data for a given Working Scholar $ws
         on a given period bound $date_start and $date_end. 
+
+        Params:
+            - $ws = A WS Model Object for basis using its 'idnumber'
+            - $date_start = An SQL DateFromPart() method String for the starting inclusive date to retrieve.
+            - $date_end = An SQL DateFromPart() method String for the closing inclusive date to retrieve.
+            - $hide_nulls = Hide Record entries having NULL for times-in or times-out.
+
+        Returns:
+            - $result_dtr = An Array of Record Model objects.
     */
     private function retrieve_dtr($ws, $date_start, $date_end, $hide_nulls){
 
@@ -249,7 +308,7 @@ class Records extends Controller {
                 ]
             ])
             ->where([
-                'idnumber' => $ws->get()['idnumber'],
+                'idnumber' => $ws->get('idnumber'),
                 'between' => [
                     'column' => 'recorddate',
                     'arg1' => $date_start,
@@ -289,9 +348,18 @@ class Records extends Controller {
     }
 
 
-    /*  
+    /**  
         This function retrieves the Schedules of the given Working Scholar $ws 
         during a given Semester on the given School Year.
+
+        Params:
+            - $ws = A WS Model object 
+            - $school_year = A string that represents the school year (must be two 4-digit year strings)
+                separated by a dash with no whitespaces (eg. "2015-2016")
+            - $semester = An integer representing the semester of the schedule to be loaded.
+
+        Returns:
+            - $schedule = An Array of Schedule Model object retrieved from the performed query.
     */
     private function retrieve_schedule($ws, $school_year, $semester){
 
@@ -317,13 +385,21 @@ class Records extends Controller {
         return $schedule;
     }
 
-    /* 
+    /** 
         This function plots each of the Working Scholar's respective
         Schedules in each of their DTR entries. The schedule to be
         associated for a DTR entry will depend on the DTR record's date
         and the day of week it belongs.
+        
+        Params:
+            - $result_dtr = array of Record Model objects
+            - $schedule = array of Schedule Model objects
+            - $load_method = specifies the load method (accepted values: 'manual', 'auto')
+
+        Returns:
+            - $dtr = new Array of DTR entries with corresponding Schedules.
     */
-    private function plot_schedule_per_dtr($result_dtr, $schedule, $load_method){
+    private function plot_schedule_per_dtr($result_dtr, $schedule, $load_method = 'auto'){
 
 		$dtr = [];
 

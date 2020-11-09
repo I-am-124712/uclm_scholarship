@@ -59,5 +59,5 @@
     <div class="table"></div>
 </div>
 
-<script src="/uclm_scholarship/public/scripts/misc/dtr-style.js"></script>
+<script src="/uclm_scholarship/public/scripts/misc/dtr-misc.js"></script>
 <script src="/uclm_scholarship/public/scripts/misc/dtr-functions.js"></script>

@@ -14,6 +14,33 @@ const months = [
     'December'
 ];
 
+// Format DateTime Object to 12-hour format (hh:mm AM|PM)
+const format12HourTime = timeObj => {
+    let timeHour;
+    let timeMinute;
+    let stringHour;
+    let stringMinute;
+    let timeFullString;
+    if(timeObj == null)
+        return '';
+
+    timeHour = timeObj.getHours();
+    timeMinute = timeObj.getMinutes();
+
+    if(timeHour >= 12) {
+        stringHour = timeHour==12? 12 : ("" + ((modTimeHour= timeHour % 12) < 10 ? '0'+modTimeHour:modTimeHour));
+        stringMinute = timeMinute < 10? "0"+timeMinute:timeMinute; 
+        timeFullString = stringHour + ":" + stringMinute + " PM";
+    }
+    else{
+        stringHour = "" + (timeHour < 10? "0"+timeHour:timeHour);
+        stringMinute = timeMinute < 10? "0"+timeMinute:timeMinute; 
+        timeFullString = stringHour + ":" + stringMinute + " AM";
+    }
+
+    return timeFullString;
+};
+
 $(()=>{
     // styling for drawer
     let $drawer = $(".drawer"); 
