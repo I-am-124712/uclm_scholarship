@@ -145,6 +145,8 @@
                 let $row = $('<tr>');
                 let $data = $('<td>');
                 $table.addClass('table-flat');
+
+                // console.log(data);
                 
                 for(ws in data){
                     let $newHeaderRow = $row.clone();

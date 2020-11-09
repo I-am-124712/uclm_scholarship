@@ -132,82 +132,16 @@ class Records extends Controller {
                 $dateStart = $period_bounds['dateStart'];
                 $dateEnd = $period_bounds['dateEnd'];
 
-
                 // declare arrays for DTR entries and Schedule data...
                 $dtr = [];
                 $schedules = [];
 
+                // Retrieve DTR entries...
+                $result_dtr = $this->retrieve_dtr($working, $dateStart, $dateEnd, $hide);
 
-                // Hide or show DTR entries without Times-in or -out...
-                if($hide){
-                    $result_dtr = $this->model('Record')
-                    ->ready()
-                    ->find([
-                        'columns' => [
-                            'record_id',
-                            'recorddate',
-                            'timeIn',
-                            'timeOut',
-                            'hoursRendered'
-                        ]
-                    ])
-                    ->where([
-                        'idnumber' => $working->get()['idnumber'],
-                        'between' => [
-                            'column' => 'recorddate',
-                            'arg1' => $dateStart,
-                            'arg2' => $dateEnd
-                        ],
-                        'NOT NULL' => [
-                            'logic' => 'AND',
-                            'timeIn',
-                            'timeOut'
-                        ]
-                    ])
-                    ->go();
-                }
-                else{
-                    $result_dtr = $this->model('Record')
-                    ->ready()
-                    ->find([
-                        'columns' => [
-                            'record_id',
-                            'recorddate',
-                            'timeIn',
-                            'timeOut',
-                            'hoursRendered'
-                        ]
-                    ])
-                    ->where([
-                        'idnumber' => $working->get('idnumber'),
-                        'between' => [
-                            'column' => 'recorddate',
-                            'arg1' => $dateStart,
-                            'arg2' => $dateEnd
-                        ],
-                    ])
-                    ->go();
-                }
+                // Retrieve the schedules for the working Scholar
+                $schedule = $this->retrieve_schedule($working, $school_year, $semester);     
 
-                $schedule = $this->model('Schedule')
-                ->ready()
-                ->find([
-                    'columns' => [
-                        'schedule_id',
-                        'scheduleType',
-                        'schedDay',
-                        'tin', 'tout',
-                        'totalHours'
-                    ]
-                ])
-                ->where([
-                    'idnumber' => $working->get('idnumber'),
-                    'schoolYear' => $school_year,
-                    'semester' => $semester
-                ])
-                ->go();
-
-                
                 // We will retrieve all the WS's schedule for
                 // the manual adding of schedule for every
                 // DTR entry if user chooses manual assignment.
@@ -218,75 +152,11 @@ class Records extends Controller {
                     }
                 }
 
-
-                if(!empty($result_dtr)){
-                    $scheduleForRecord = [];
-                    $spc_scheduleForRecord = [];
-                    foreach($result_dtr as $record){
-
-                        $dtr_entry = $record->get();
-                        $day = [null,"M","Tu","W","Th","F","S"];
-
-                        // Get the Day of week for the current DTR entry we are accessing...
-                        $recordWeekDay = date('w', strtotime(date_format($record->get('recorddate'),'M-d-Y')));
-                        
-                        if(!empty($schedule)){
-                            $late = 0;
-                            $undertime = 0;
-                            $total = 0;
-                            $record_in = $dtr_entry['timeIn'];
-                            $record_out = $dtr_entry['timeOut'];
+                // We will start plotting each schedules in each of the WS's DTR data. 
+                $dtr = $this->plot_schedule_per_dtr($result_dtr, $schedule, $load_method);
 
 
-                            $lates_undertimes = [];
-                            foreach($schedule as $sched){
-                                switch($sched->get('scheduleType')){
-                                    case 'REG':
-                                        $matchingSched = $sched->is_match([
-                                            'schedDay' => $day[$recordWeekDay]
-                                        ]);
-
-
-                                        // we'll use shortcut single-line if-statements
-                                        if($matchingSched != null) {
-                                            array_push($scheduleForRecord,[
-                                                'schedule_id' => $matchingSched->get('schedule_id'),
-                                                'schedIn' => $matchingSched->get('tin'),
-                                                'schedOut'=> $matchingSched->get('tout'),
-                                                'totalHours' => $matchingSched->get('totalHours')
-                                            ]);
-
-                                            // we'll compute the Lates, Undertime and total Hours
-                                            // if user chooses to automatically assign schedule
-                                            // for every DTR entry.
-                                            if($load_method === 'auto'){
-                                                $tin = $matchingSched->get('tin');
-                                                $tout = $matchingSched->get('tout');
-                                                $expectedHours = $matchingSched->get('totalHours');
-
-                                                $late += ($record_in==null)? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
-                                                $undertime += ($record_out==null)? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
-                                                $total += $matchingSched->get('totalHours') - ($late + $undertime);
-                                                $total = $total <= 0 ? 0:$total;    // Normalize
-                                            }
-                                        }
-                                        break;
-                                    case 'SPC':
-
-                                }
-                            }
-
-                            $dtr_entry['late'] = $late;
-                            $dtr_entry['undertime'] = $undertime;
-                            $dtr_entry['hoursRendered'] = $total;
-
-                        }
-                        $dtr_entry['schedule'] = $scheduleForRecord;
-                        array_push($dtr,$dtr_entry);
-                        $scheduleForRecord = [];
-                    }
-                }
-
+                // Prepare for JSON encoding
                 array_push($data,[
                     'idnumber' => $working->get('idnumber'),
                     'wsName' => utf8_encode($working->get('wsName')),
@@ -358,4 +228,173 @@ class Records extends Controller {
         }
         return [ 'dateStart' => $dateStart, 'dateEnd' => $dateEnd];
     }
+
+
+    /* 
+        This function retrieves the DTR Data for a given Working Scholar $ws
+        on a given period bound $date_start and $date_end. 
+    */
+    private function retrieve_dtr($ws, $date_start, $date_end, $hide_nulls){
+
+        if($hide_nulls){
+            $result_dtr = $this->model('Record')
+            ->ready()
+            ->find([
+                'columns' => [
+                    'record_id',
+                    'recorddate',
+                    'timeIn',
+                    'timeOut',
+                    'hoursRendered'
+                ]
+            ])
+            ->where([
+                'idnumber' => $ws->get()['idnumber'],
+                'between' => [
+                    'column' => 'recorddate',
+                    'arg1' => $date_start,
+                    'arg2' => $date_end
+                ],
+                'NOT NULL' => [
+                    'logic' => 'AND',
+                    'timeIn',
+                    'timeOut'
+                ]
+            ])
+            ->go();
+        }
+        else{
+            $result_dtr = $this->model('Record')
+            ->ready()
+            ->find([
+                'columns' => [
+                    'record_id',
+                    'recorddate',
+                    'timeIn',
+                    'timeOut',
+                    'hoursRendered'
+                ]
+            ])
+            ->where([
+                'idnumber' => $ws->get('idnumber'),
+                'between' => [
+                    'column' => 'recorddate',
+                    'arg1' => $date_start,
+                    'arg2' => $date_end
+                ],
+            ])
+            ->go();
+        }
+        return $result_dtr;
+    }
+
+
+    /*  
+        This function retrieves the Schedules of the given Working Scholar $ws 
+        during a given Semester on the given School Year.
+    */
+    private function retrieve_schedule($ws, $school_year, $semester){
+
+        $schedule = $this->model('Schedule')
+        ->ready()
+        ->find([
+            'columns' => [
+                'schedule_id',
+                'scheduleType',
+                'schedDay',
+                'tin', 'tout',
+                'totalHours'
+            ]
+        ])
+        ->where([
+            'idnumber' => $ws->get('idnumber'),
+            'schoolYear' => $school_year,
+            'semester' => $semester
+        ])
+        ->go();
+
+             
+        return $schedule;
+    }
+
+    /* 
+        This function plots each of the Working Scholar's respective
+        Schedules in each of their DTR entries. The schedule to be
+        associated for a DTR entry will depend on the DTR record's date
+        and the day of week it belongs.
+    */
+    private function plot_schedule_per_dtr($result_dtr, $schedule, $load_method){
+
+		$dtr = [];
+
+
+		if(!empty($result_dtr)){
+		    $scheduleForRecord = [];
+		    $spc_scheduleForRecord = [];
+		    foreach($result_dtr as $record){
+
+		        $dtr_entry = $record->get();
+		        $day = [null,"M","Tu","W","Th","F","S"];
+
+		        // Get the Day of week for the current DTR entry we are accessing...
+		        $recordWeekDay = date('w', strtotime(date_format($record->get('recorddate'),'M-d-Y')));
+		        
+		        if(!empty($schedule)){
+		            $late = 0;
+		            $undertime = 0;
+		            $total = 0;
+		            $record_in = $dtr_entry['timeIn'];
+		            $record_out = $dtr_entry['timeOut'];
+
+
+		            $lates_undertimes = [];
+		            foreach($schedule as $sched){
+		                switch($sched->get('scheduleType')){
+		                    case 'REG':
+		                        $matchingSched = $sched->is_match([
+		                            'schedDay' => $day[$recordWeekDay]
+		                        ]);
+
+
+		                        if($matchingSched != null) {
+		                            array_push($scheduleForRecord,[
+		                                'schedule_id' => $matchingSched->get('schedule_id'),
+		                                'schedIn' => $matchingSched->get('tin'),
+		                                'schedOut'=> $matchingSched->get('tout'),
+		                                'totalHours' => $matchingSched->get('totalHours')
+		                            ]);
+
+		                            // we'll compute the Lates, Undertime and total Hours
+		                            // if user chooses to automatically assign schedule
+		                            // for every DTR entry.
+		                            if($load_method === 'auto'){
+		                                $tin = $matchingSched->get('tin');
+		                                $tout = $matchingSched->get('tout');
+		                                $expectedHours = $matchingSched->get('totalHours');
+
+		                                $late += ($record_in==null)? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
+		                                $undertime += ($record_out==null)? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
+		                                $total += $matchingSched->get('totalHours') - ($late + $undertime);
+		                                $total = $total <= 0 ? 0:$total;    // Normalize
+		                            }
+		                        }
+		                        break;
+		                    case 'SPC':
+
+		                }
+		            }
+
+		            $dtr_entry['late'] = $late;
+		            $dtr_entry['undertime'] = $undertime;
+		            $dtr_entry['hoursRendered'] = $total;
+
+		        }
+		        $dtr_entry['schedule'] = $scheduleForRecord;
+		        array_push($dtr,$dtr_entry);
+		        $scheduleForRecord = [];
+		    }
+		}
+
+		return $dtr;
+	}
 }
