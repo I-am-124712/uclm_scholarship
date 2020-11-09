@@ -52,7 +52,7 @@
                 foreach($args['ws'] as $ws){ ?>
 
                 <tr>
-                    <td class="table-flat-data" id="td-short"> <?="▮▮▮▮▮▮▮▮" //$ws->get_fields()['idnumber']?> </td>
+                    <td class="table-flat-data" id="td-short"> <?=$ws->get_fields()['idnumber']//"▮▮▮▮▮▮▮▮" //?> </td>
                     <td class="table-flat-data" id="td-long" style="font-size:24px;text-align:left"><b><?= utf8_encode($ws->get_fields()['wsName'])?></b></td>
                     <td class="table-flat-data" id="td-max">
                     <?php if($allowed_edit_user_detected &&
@@ -76,50 +76,4 @@
 </div>
 <?php require './app/views/popups_view.php'; ?>
 
-<script>
-    const addWorkingScholars = (departmentId)=>{
-        url = "/uclm_scholarship/working_scholars/add_ws/"+departmentId;
-        $("#for-popups").load(url+" .modal-overlay");
-        $("#for-popups").removeAttr("hidden");
-    }
-    const closeModal = ()=>{
-        $("#for-popups").text("");
-    };
-
-    const save = ()=>{
-        url = "/uclm_scholarship/working_scholars/add";
-        params = $('form').serialize();
-        console.log(params);
-
-        // callback constants
-        const success = (data)=>{
-            console.log(data);
-
-            $("#err-msg-idnum").text(data.err_idnum);
-            $("#err-msg-lname").text(data.err_lname);
-            $("#err-msg-fname").text(data.err_fname);
-            $("#err-msg-course").text(data.err_course);
-
-            if(data.success){
-                closeModal();
-                setTimeout(() => {
-                    location.href = '/uclm_scholarship/dash/ws';
-                }, 100);
-            }
-        };
-        const err = (data)=>{
-            console.log(data);
-        };
-
-        // Time to add WS here.
-        $.post({
-            url: url,
-            async: true,
-            data: params,
-            dataType: 'JSON',
-            success: success,
-            error : err
-        });
-
-    }
-</script>
+<script src="/uclm_scholarship/public/scripts/misc/ws-view-functions.js"></script>

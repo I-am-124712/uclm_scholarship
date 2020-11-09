@@ -8,10 +8,16 @@ class Records extends Controller {
         session_start();
         $this->trap_no_user_session();
     }
-
+    
     public function dtr(){
         session_start();
         $this->trap_no_user_session();
+
+        // This method will return a specific view for users
+        // with privilege = 3 (Working Scholars)
+        if($_SESSION['user_privilege'] == 3)
+            header('Location: /uclm_scholarship/records/my_dtr');
+
         if(isset($_POST['req'])){
             $this->get_dtr_info();
         }
@@ -20,9 +26,72 @@ class Records extends Controller {
         }
     }
 
+    public function my_dtr(){
+        session_start();
+        $this->trap_no_user_session();
+
+        // Users with higher access privilege should be redirected to
+        // the general records view. 
+        if($_SESSION['user_privilege'] != 3)
+            header('Location: /uclm_scholarship/records/dtr');
+
+        if(isset($_GET['req'])){
+            $school_year = isset($_GET['school_year'])?$_GET['school_year']:'';
+            $period = isset($_GET['period'])?$_GET['period']:'';
+            $month = isset($_GET['month'])? $_GET['month']:'';
+
+            if($school_year==='' ||
+                $period==='' ||
+                $month==='')
+                return $this->view('dtr-ws');
+            
+        }
+        else{
+            return $this->view('dtr-ws');
+        }
+    }
+    
+    public function summary(){
+        session_start();
+        $this->trap_no_user_session();
+    }
+
+    public function overtime(){
+        session_start();
+        $this->trap_no_user_session();
+    }
+
+
+    public function get_departments(){
+        session_start();
+        $this->trap_no_user_session();
+
+        if(isset($_GET['req'])){
+
+            $result = $this->model('Departments')
+            ->ready()
+            ->find()
+            ->go();
+
+            $departments = array();
+
+            foreach($result as $dept){
+                array_push($departments,[
+                    'deptId' => $dept->get()['deptId'],
+                    'departmentName' => $dept->get()['departmentName'],
+                ]);
+            }
+
+            echo json_encode($departments);
+        }
+    }
+
+    
+    // Method that returns a JSON encoded array of every DTR entry + schedules 
+    // of the Working Scholars assigned in the selected Department
+
     private function get_dtr_info(){
-        $max_month_days = [31,29,31,30,31,30,31,31,30,31,30,31];
-        $data = array();     // for main result Object
+        $data = [];     // for main result Object
 
         $school_year = isset($_POST['school-year'])? $_POST['school-year']:'';
         $department = isset($_POST['department'])? $_POST['department']+0:'';
@@ -51,32 +120,25 @@ class Records extends Controller {
             foreach($working_scholars as $working){
 
                 // for WS information (and Record data)
-                $ws_data = array();
+                $ws_data = [];
 
 
                 /* Retrieve Records */
 
                 // This one decides what year to use by deciding if the month
                 // selected is inclusive to a given school year.
-                $record_year = ($month<5)? explode('-',$school_year)[1]:explode('-',$school_year)[0];
-                $dateStart = '';
-                $dateEnd = '';
+                $period_bounds = $this->get_period_bounds($school_year,$period,$month);
 
-                switch($period){
-                    case 1:// First Period
-                        $dateStart = 'DateFromParts(' . $record_year . ','. ($month+1) . ', 1)';
-                        $dateEnd = 'DateFromParts(' . $record_year . ','. ($month+1) . ', 15)';
-                        break;
-                    case 2: // Second Period
-                        $dateStart = 'DateFromParts(' . $record_year . ','. ($month+1) . ', 16)';
-                        $dateEnd = 'DateFromParts(' . $record_year . ','. ($month+1) . ', '.$max_month_days[$month].')';
+                $dateStart = $period_bounds['dateStart'];
+                $dateEnd = $period_bounds['dateEnd'];
 
-                }
 
                 // declare arrays for DTR entries and Schedule data...
-                $dtr = array();
-                $schedules = array();
+                $dtr = [];
+                $schedules = [];
 
+
+                // Hide or show DTR entries without Times-in or -out...
                 if($hide){
                     $result_dtr = $this->model('Record')
                     ->ready()
@@ -103,8 +165,6 @@ class Records extends Controller {
                         ]
                     ])
                     ->go();
-                    // ->get_query_string();
-                    // echo($result_dtr);
                 }
                 else{
                     $result_dtr = $this->model('Record')
@@ -169,7 +229,7 @@ class Records extends Controller {
 
                         // Get the Day of week for the current DTR entry we are accessing...
                         $recordWeekDay = date('w', strtotime(date_format($record->get('recorddate'),'M-d-Y')));
-                        // echo $recordWeekDay;
+                        
                         if(!empty($schedule)){
                             $late = 0;
                             $undertime = 0;
@@ -190,6 +250,7 @@ class Records extends Controller {
                                         // we'll use shortcut single-line if-statements
                                         if($matchingSched != null) {
                                             array_push($scheduleForRecord,[
+                                                'schedule_id' => $matchingSched->get('schedule_id'),
                                                 'schedIn' => $matchingSched->get('tin'),
                                                 'schedOut'=> $matchingSched->get('tout'),
                                                 'totalHours' => $matchingSched->get('totalHours')
@@ -239,40 +300,62 @@ class Records extends Controller {
 
     }
 
-    public function summary(){
-        session_start();
-        $this->trap_no_user_session();
+
+    // Backend Deletion of our Records data
+    public function delete(){
+        $record_id = isset($_POST['record_id'])? $_POST['record_id']:'';
+        if($record_id === '')
+            return;
+        
+        $this->model("Record")
+        ->ready()
+        ->delete()
+        ->where([
+            'record_id' => $record_id
+        ])
+        ->go();
     }
 
-    public function overtime(){
-        session_start();
-        $this->trap_no_user_session();
-    }
+    // Backend updating of our Records data
+    public function update(){
 
+        if(!empty($_POST)){
+            $record_id = $_POST['record_id']; 
+            unset($_POST['record_id']);
 
-    public function get_departments(){
-        session_start();
-        $this->trap_no_user_session();
+            var_export($_POST);
 
-        if(isset($_GET['req'])){
-
-            $result = $this->model('Departments')
+            echo "Record ID : ".$record_id."\n";
+            $this->model('Record')
             ->ready()
-            ->find()
+            ->update($_POST)
+            ->where([
+                'record_id' => $record_id
+            ])
             ->go();
-
-            $departments = array();
-
-            foreach($result as $dept){
-                array_push($departments,[
-                    'deptId' => $dept->get()['deptId'],
-                    'departmentName' => $dept->get()['departmentName'],
-                ]);
-            }
-
-            echo json_encode($departments);
         }
     }
 
-    
+    /* This function breaks down the Date string and determines the 
+        Start and end date of a Period from a given school year and
+        Month.
+    */
+
+    private function get_period_bounds($school_year, $period, $month){
+        $record_year = ($month<5)? explode('-',$school_year)[1]:explode('-',$school_year)[0];
+        $max_month_days = [31,29,31,30,31,30,31,31,30,31,30,31];
+        $dateStart;
+        $dateEnd;
+        switch($period){
+            case 1:// First Period
+                $dateStart = 'DateFromParts(' . $record_year . ','. ($month+1) . ', 1)';
+                $dateEnd = 'DateFromParts(' . $record_year . ','. ($month+1) . ', 15)';
+                break;
+            case 2: // Second Period
+                $dateStart = 'DateFromParts(' . $record_year . ','. ($month+1) . ', 16)';
+                $dateEnd = 'DateFromParts(' . $record_year . ','. ($month+1) . ', '.$max_month_days[$month].')';
+
+        }
+        return [ 'dateStart' => $dateStart, 'dateEnd' => $dateEnd];
+    }
 }

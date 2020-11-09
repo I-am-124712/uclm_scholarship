@@ -959,7 +959,39 @@ th#idnumber,#wsName,#wsDepartment{
     width: 35px;
     height:35px
 }
+#action-button-delete-icon-white{
+    float:left; 
+    border-radius:100%;
+    margin: 0px;
+    padding: 0px;
+    background-image:url('/uclm_scholarship/public/sources/icons/iconDeleteWhite.png');
+    background-position: center;
+    background-size:25px;
+    background-repeat: no-repeat;
+    width: 35px;
+    height:35px
+}
+#action-button-confirm-icon{
+    float:left; 
+    border-radius:100%;
+    margin: 0px;
+    padding: 0px;
+    background-color: rgb(0,100,0);
+    background-image:url('/uclm_scholarship/public/sources/icons/iconCheck.png');
+    background-position: center;
+    background-size:25px;
+    background-repeat: no-repeat;
+    width: 35px;
+    height:35px
+}
+#action-button-confirm-icon:hover{
+    background-color: rgb(20,255,20);
+}
 #action-button-delete-icon:hover{
+    background-color:inherit;
+    background-image:url('/uclm_scholarship/public/sources/icons/iconDeleteHover.png');
+}
+#action-button-delete-icon-white:hover{
     background-color:inherit;
     background-image:url('/uclm_scholarship/public/sources/icons/iconDeleteHover.png');
 }

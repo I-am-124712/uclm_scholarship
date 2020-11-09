@@ -38,13 +38,6 @@ function loadWSInfo(idnumber){
 }
 
 
-function deleteWorkingScholar(idnumber){
-    if(confirm('Are you sure you want to delete this WS?')){
-        httpRequestExternal('GET','/uclm_scholarship/working_scholars/delete?idnumber='+idnumber);
-        setTimeout(()=>{ location.href = '/uclm_scholarship/dash/ws'; },60);
-    }
-}
-
 
 function editWSInformation(){
     let serial = $('form').serialize();
@@ -58,7 +51,7 @@ function editWSInformation(){
 }
 
 /// Code based on tutorial from W3Schools.com
-function tableSort(tableId, col){
+const tableSort = (tableId, col)=>{
     let table, rows, switching, i, x, y, shouldSwitch, dir, switchCount = 0;
 
     table = document.getElementById(tableId);

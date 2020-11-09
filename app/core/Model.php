@@ -14,6 +14,8 @@ class Model {
     protected $query_string = '';
     protected $prepared_statement;
     protected $query;
+    protected $query_method;
+
 
 
     /** Creates a Model object with the given fields. These fields
@@ -55,12 +57,14 @@ class Model {
     // Readies the connection to the SQLServer DB
     public function ready(){
         if($this->connectionResource === null)
-        $this->connectionResource = sqlsrv_connect($this->server,$this->connectionInfo);
+            $this->connectionResource = sqlsrv_connect($this->server,$this->connectionInfo);
         return $this;
     }
     
     // Performs an INSERT operation into the specified database
     public function insert(){
+        $this->query_method = 'DML';
+
         if(get_class($this) === 'Finder')
             return;
         if(empty($this->fields)){
@@ -81,7 +85,7 @@ class Model {
             array_push($this->params,$value);
         }
         $fields = rtrim($fields,',').')';
-        $value_binders = 'VALUES('.rtrim($value_binders,',').')';
+        $value_binders = 'VALUES(' . rtrim($value_binders,',') . ')';
         
         $this->query_string .= $fields.' '.$value_binders;
 
@@ -97,7 +101,7 @@ class Model {
             }
             $this->query_string = rtrim($this->query_string,',');
         }
-        $this->prepare_query_statement();
+        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -108,6 +112,7 @@ class Model {
      * fields to be searched.
      */ 
     public function find($args = []){
+        $this->query_method = 'DQL';
 
         $this->query_string .= 'SELECT ';
         if($args !== null){
@@ -133,7 +138,7 @@ class Model {
             
         }
         // echo $this->query_string;
-        $this->prepare_query_statement();
+        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -179,11 +184,12 @@ class Model {
             $this->query_string = rtrim($this->query_string,$logic);
         }
         
-        $this->prepare_query_statement();
+        // $this->prepare_query_statement();
         return $this;
     }
 
     public final function delete(){
+        $this->query_method = 'DML';
         $this->query_string .= 'DELETE FROM ['.get_class($this).'] ';
         // $this->prepare_query_statement();
         return $this;
@@ -200,13 +206,15 @@ class Model {
         }
         $this->query_string = rtrim($this->query_string,',');
         
-        $this->prepare_query_statement();
+        // $this->prepare_query_statement();
         return $this;
     }
 
     ///// UPDATE statement here
 
     public function update($args = []){
+        $this->query_method = 'DML';
+
         if(empty($args))
             return;
 
@@ -214,14 +222,18 @@ class Model {
         $set = 'SET ';
 
         foreach($args as $k => $v){
-            array_push($this->params,$v);
-            $set .= $k.' = ?,';
+            if($this->check_null($v)){
+                $set .= '['.$k.'] = NULL,';
+            }else{
+                array_push($this->params,$v);
+                $set .= '['.$k.'] = ?,';
+            }
         }
         $set = rtrim($set,',').' ';
 
         $this->query_string .= $set;
 
-        $this->prepare_query_statement();
+        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -237,29 +249,33 @@ class Model {
     public function go(){
 
         // echo $this->query_string;
+        
+        if($this->query_method === 'DML'){
+            // Perform a DML
+            $this->prepare_query_statement();
 
-        if($this->prepared_statement !== null){
-            // Executes a one-time query first.
-            if(!sqlsrv_execute($this->prepared_statement)){
-                die(print_r(sqlsrv_errors(),true));
+            // query string should be refreshed
+            $this->query_string = '';
+            $this->close();
+        }
+        else{
+            $this->prepare_query_statement();
+            $result_set = [];
+    
+            if($this->query){
+                while($res = sqlsrv_fetch_array($this->query, SQLSRV_FETCH_ASSOC)){
+                    $model_instance = get_class($this); 
+                    $result = new $model_instance;
+                    $result->create($res);
+                    $result->set_object_source_query($this->query_string);
+                    array_push($result_set,$result);
+                }
+                // query string should be refreshed
+                $this->query_string = '';
+                $this->close();
+                return $result_set;
             }
         }
-
-        $result_set = [];
-   
-        if($this->query)
-            while($res = sqlsrv_fetch_array($this->query, SQLSRV_FETCH_ASSOC)){
-                $model_instance = get_class($this); 
-                $result = new $model_instance;
-                $result->create($res);
-                $result->set_object_source_query($this->query_string);
-                array_push($result_set,$result);
-            }
-
-        // query string should be refreshed
-        $this->query_string = '';
-        $this->close();
-        return $result_set;
     }
     private function close(){
         unset($this->params);
@@ -290,4 +306,25 @@ class Model {
         return $matchCount>=$itemCount? $this: null;
     }
 
+
+    private function check_null($v){
+       return $v == null ||
+        $v === null ||
+        $v === 'null' ||
+        $v === 'nulL' ||
+        $v === 'nuLl' ||
+        $v === 'nuLL' ||
+        $v === 'nUll' ||
+        $v === 'nUlL' ||
+        $v === 'nULl' ||    // bruh
+        $v === 'nULL' ||
+        $v === 'Null' ||
+        $v === 'NulL' ||
+        $v === 'NuLl' ||
+        $v === 'NuLL' ||
+        $v === 'NUll' ||
+        $v === 'NUlL' ||
+        $v === 'NULl' ||
+        $v === 'NULL';
+    }
 }

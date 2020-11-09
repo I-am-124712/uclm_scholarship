@@ -436,7 +436,7 @@ class Working_scholars extends Controller{
         $total = time_difference_abs($tin,$tout);
 
 
-        $this->model("Schedule")
+        $req = $this->model("Schedule")
         ->ready()
         ->create([
             "schedule_id" => $schedule_id,
@@ -449,8 +449,10 @@ class Working_scholars extends Controller{
             'tout' => $tout,
             'totalHours' => $total
         ])
-        ->insert()
-        ->go();
+        ->insert();
+        echo $req->get_query_string();
+
+        $req->go();
     }
      
 
