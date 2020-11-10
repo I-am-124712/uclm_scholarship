@@ -4,6 +4,18 @@ require './app/core/UtilFunctions.php';
 
 class Records extends Controller {
 
+    private $departments_obj;
+    private $ws_obj;
+    private $schedule_obj;
+    private $record_obj;
+
+    public function __construct(){
+        $this->departments_obj = $this->model('Departments');
+        $this->ws_obj = $this->model('WS');
+        $this->schedule_obj = $this->model('Schedule');
+        $this->record_obj = $this->model('Record');
+    }
+
     public function index(){
         session_start();
         $this->trap_no_user_session();
@@ -58,13 +70,13 @@ class Records extends Controller {
 
             // now get the schedule data next. We first create a WS Model object
             // having only 'idnumber' as property (or field).
-            $ws = $this->model('WS')
+            $ws = $this->ws_obj
             ->ready()
             ->find()
             ->where([
                 'user_id' => $user_id
             ])
-            ->go()[0];
+            ->result_set(['index' => 0]);
 
             // we then retrieve schedule...
             $schedule = $this->retrieve_schedule($ws, $school_year, $semester);
@@ -107,7 +119,7 @@ class Records extends Controller {
 
         if(isset($_GET['req'])){
 
-            $result = $this->model('Departments')
+            $result = $this->departments_obj
             ->ready()
             ->find()
             ->go();
@@ -142,7 +154,7 @@ class Records extends Controller {
 
         // Select working scholars first. We will be performing
         // separate queries for every Working Scholars.
-        $working_scholars = $this->model('WS')
+        $working_scholars = $this->ws_obj
         ->ready()
         ->find()
         ->where([
@@ -216,7 +228,7 @@ class Records extends Controller {
         if($record_id === '')
             return;
         
-        $this->model("Record")
+        $this->record_obj
         ->ready()
         ->delete()
         ->where([
@@ -232,10 +244,7 @@ class Records extends Controller {
             $record_id = $_POST['record_id']; 
             unset($_POST['record_id']);
 
-            var_export($_POST);
-
-            echo "Record ID : ".$record_id."\n";
-            $this->model('Record')
+            $this->record_obj
             ->ready()
             ->update($_POST)
             ->where([
@@ -296,7 +305,7 @@ class Records extends Controller {
     private function retrieve_dtr($ws, $date_start, $date_end, $hide_nulls){
 
         if($hide_nulls){
-            $result_dtr = $this->model('Record')
+            $result_dtr = $this->record_obj
             ->ready()
             ->find([
                 'columns' => [
@@ -320,10 +329,10 @@ class Records extends Controller {
                     'timeOut'
                 ]
             ])
-            ->go();
+            ->result_set();
         }
         else{
-            $result_dtr = $this->model('Record')
+            $result_dtr = $this->record_obj
             ->ready()
             ->find([
                 'columns' => [
@@ -342,7 +351,7 @@ class Records extends Controller {
                     'arg2' => $date_end
                 ],
             ])
-            ->go();
+            ->result_set();
         }
         return $result_dtr;
     }
@@ -363,7 +372,7 @@ class Records extends Controller {
     */
     private function retrieve_schedule($ws, $school_year, $semester){
 
-        $schedule = $this->model('Schedule')
+        $schedule = $this->schedule_obj
         ->ready()
         ->find([
             'columns' => [
@@ -379,7 +388,7 @@ class Records extends Controller {
             'schoolYear' => $school_year,
             'semester' => $semester
         ])
-        ->go();
+        ->result_set();
 
              
         return $schedule;

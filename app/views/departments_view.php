@@ -1,7 +1,7 @@
 <?php require './app/views/user_view.php'; ?>
 
 <div class="app-dash-panel" id="dashboard-panel">
-    <div class="form-flat" style="width:500px;height:auto; float:left;">
+    <div class="form-flat" style="width:450px;height:auto; float:left;">
         <div style="color:rgb(255,115,0);font-size:30px;padding-left:25px;padding-top:5px;padding-bottom:5px">
                 <b>SELECT A DEPARTMENT</b>
         </div>
@@ -37,7 +37,7 @@
             })
             $("#search-btn").css({
                 "float" : "right",
-                "width" : "150px",
+                "width" : "120px",
                 "margin-top" : "5px"
             })
             $("div#for-list-container").css({

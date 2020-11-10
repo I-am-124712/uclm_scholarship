@@ -56,6 +56,9 @@ class Model {
 
     // Readies the connection to the SQLServer DB
     public function ready(){
+        // query string should be refreshed
+        $this->query_string = '';
+
         if($this->connectionResource === null)
             $this->connectionResource = sqlsrv_connect($this->server,$this->connectionInfo);
         return $this;
@@ -254,8 +257,6 @@ class Model {
             // Perform a DML
             $this->prepare_query_statement();
 
-            // query string should be refreshed
-            $this->query_string = '';
             $this->close();
         }
         else{
@@ -270,13 +271,85 @@ class Model {
                     $result->set_object_source_query($this->query_string);
                     array_push($result_set,$result);
                 }
-                // query string should be refreshed
-                $this->query_string = '';
                 $this->close();
                 return $result_set;
             }
         }
     }
+
+    /**
+        Performs a normal Data Query Operation using this Model object (SQL SELECT).
+        This will be the last method that should be chained when doing a select() or find()
+        method chaining.
+
+        Params:
+            - $options [] = Associative array containing the options on what to retrieve. If 
+                empty, this method returns the result set itself.
+                
+        $options:
+            - "index" => int = the index of a single item from the result set to retrieve.
+                (Note: Once you specify this argument, the ranged selection options (start_index & end_index)
+                will be overridden, and this method will proceed to return only the element this argument specifies.)
+            - "start_index" => int = starting index of the range of items from the result set to retrieve.
+            - ["end_index" => int] = (optional) end index of the range of items from the Result set to retrieve.
+                If unset, end bounds will be result set length. 
+     */
+    public function result_set($options = []){
+
+        $this->prepare_query_statement();
+        $result_set = [];
+
+        if($this->query){
+            while($res = sqlsrv_fetch_array($this->query, SQLSRV_FETCH_ASSOC)){
+                $model_instance = get_class($this); 
+                $result = new $model_instance;
+                $result->create($res);
+                $result->set_object_source_query($this->query_string);
+                array_push($result_set,$result);
+            }
+            $this->close();
+        }
+
+        if(!empty($options)){
+            if(isset($options['index'])){
+                $index = max(0,$options['index']);
+                return isset($result_set[$index])? $result_set[$index]:null;
+            }
+            else{
+                $start_index = isset($options['start_index'])? $options['start_index']: 0;
+                $end_index = isset($options['end_index'])? $options['end_index']:-1;
+    
+                $new_result_set = [];
+    
+                // We return the item specified by the start_index whenever the end_index
+                // is lesser than the start index. We don't want to overbound our array;
+                if($end_index <= $start_index){
+                    return isset($result_set[$start_index])? $result_set[$start_index]:null;
+                }else{
+
+                    // normalize bounds
+                    $start_index = min((count($result_set)-1), $start_index);
+                    $end_index = min((count($result_set)-1), $end_index);
+
+                    // fill our return set
+                    for($i=0; $current_i = $start_index++ < $end_index; ++$i){
+                        $new_result_set[$i] = $result_set[$current_i];
+                    }
+
+                    $result_set = [];
+                    gc_enable();   // Free the unused memory just in case
+
+                    return $new_result_set;
+                }
+            }
+        }
+        else{
+            return $result_set;
+        }
+    }
+    
+
+
     private function close(){
         unset($this->params);
         $this->params = array();

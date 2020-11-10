@@ -56,7 +56,8 @@ $(()=>{
         // 'position' : 'fixed'
     });
     $drawer.children().css({
-        'color' : 'white'
+        'color' : 'white',
+        'font-size': '14px'
     });
     // styiling title
     $('div#title').css({
@@ -70,6 +71,7 @@ $(()=>{
         'border' : 'unset',
         'background-color' : 'white',
         'color' : 'black',
+        'font-size': '14px'
     })
     $drawer.children('select').children("option").css({
         'background-color': 'white',
