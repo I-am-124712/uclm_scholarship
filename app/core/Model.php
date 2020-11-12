@@ -280,7 +280,9 @@ class Model {
     /**
         Performs a normal Data Query Operation using this Model object (SQL SELECT).
         This will be the last method that should be chained when doing a select() or find()
-        method chaining.
+        method chaining. (Note: Once you specify the 'index' argument, the ranged selection options 
+        (start_index & end_index) will be overridden, and this method will proceed to return 
+        only the element this argument specifies.)
 
         Params:
             - $options [] = Associative array containing the options on what to retrieve. If 
@@ -288,10 +290,9 @@ class Model {
                 
         $options:
             - "index" => int = the index of a single item from the result set to retrieve.
-                (Note: Once you specify this argument, the ranged selection options (start_index & end_index)
-                will be overridden, and this method will proceed to return only the element this argument specifies.)
-            - "start_index" => int = starting index of the range of items from the result set to retrieve.
-            - ["end_index" => int] = (optional) end index of the range of items from the Result set to retrieve.
+                
+            - "start_index" => int = starting index of the result set items to retrieve.
+            - ["end_index" => int] = (optional) end index of the result set items to retrieve.
                 If unset, end bounds will be result set length. 
      */
     public function result_set($options = []){

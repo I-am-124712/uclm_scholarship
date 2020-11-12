@@ -60,6 +60,129 @@ select{
 }
 
 
+.notif-wrapper{
+    width: 350px;
+}
+
+/* Navigation Bar Icon */
+.navbar-icon{
+    background: inherit;
+    border-radius: 100%;
+    cursor: pointer;
+    /* display: inline-block; */
+    float: left;
+    font-size: 32px;
+    margin: 0px 5px;
+    position: relative;
+    text-align: center;
+    transition-duration: .3s;
+    width: 35px;
+    height: 35px;
+}
+
+.navbar-icon:hover{
+    background-color: rgb(78, 140, 255);
+}
+.navbar-icon:hover .tooltip-text {
+    visibility: visible;
+}
+
+/* Navigation Bar Panel */
+.navbar-panel {
+    width: 250px;
+    height: 35px;
+    background-color: rgb(0, 64, 184);
+    border-radius: 20px;
+    position: relative;
+    float: left;
+    padding: auto;
+}
+
+div #user-name{
+    float: left;
+    width: auto;
+    margin: 6px 10px;
+    font-weight: bolder;
+}
+
+
+.icon-container {
+    float: left;
+    border-radius: 100%;
+    background-size: cover;
+    background-repeat: no-repeat; 
+    width: 35px;
+    height: 35px;
+    text-align: center;
+}
+.dropdown{
+    display: none;
+}
+.dropdown.active {
+    background: rgb(245,245,245);
+    box-shadow: 2px 2px  3px rgb(0,0,0,0.25);
+    color: black;
+    display: block;
+    float: right;
+    margin-top: 50px;
+    overflow-y: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    position: fixed;
+    width: 320px;
+    height: 300px;
+    z-index: 1;
+}
+
+.drop-title{
+    color: rgb(255, 115, 0);
+    font-size: 18px;
+    font-weight: bolder;
+    margin: 0px 10px;
+    position: relative;
+}
+.dropdown .drop-strip{
+    cursor: pointer;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: inherit;
+    height: 50px;
+}
+.dropdown .drop-strip:hover{
+    background: rgb(218, 218, 218);
+}
+
+.dropdown .drop-img {
+    float: left;
+    background-color: rgb(0, 64, 184);
+    border-radius: 100%;
+    margin-top: 5px;
+    margin-left: 10px;
+}
+.drop-profile{
+    width: 40px;
+    height: 40px;
+    background-image: url("/uclm_scholarship/public/sources/users/user_default.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.dropdown .drop-info{
+    float: left;
+    color: black;
+    font-size: 14px;
+    width: 200px;
+    height: auto;
+    padding: 5px 5px 5px 10px;
+}
+
+.drop-time{
+    font-size: 10px;
+    color: rgb(117, 117, 117);
+}
+
+
 .app-header{
     background-color: rgb(30, 98, 223);
     color : white;
@@ -319,7 +442,6 @@ select{
 }
 
 .tabbed-panel{
-    border: 1px solid gray;
     border-radius: 20px;
     width: 100%;
     height: auto;
@@ -398,8 +520,10 @@ select{
 }
 
 .form-flat{
+    background-color: rgb(240,240,240);
+    box-shadow: 2px 2px  5px rgb(0,0,0,0.25);
     padding-bottom:30px;
-    border:1px solid gray;
+    /* border:1px solid gray; */
     border-radius:20px;
     margin-top:10px;
     margin-bottom:20px;
@@ -429,7 +553,6 @@ select{
 .form-flat#info-form{
     display: block;
     border-radius: 20px;
-    border: 1px solid gray;
     width: 35%;
     height: auto;
     float: left;
@@ -439,7 +562,6 @@ select{
 
 .form-flat#sched-form{
     border-radius: 20px;
-    border: 1px solid gray;
     width:55%;
     height: auto;
     float: left;
@@ -503,7 +625,6 @@ select{
     padding-left: 30px;
     padding-right: 30px;
     border-radius: 20px;
-    border: 1px solid gray;
 }
 
 
@@ -728,7 +849,7 @@ th#idnumber,#wsName,#wsDepartment{
     height: 90%;
     background-color: inherit;
     color: black;
-    border-radius: 10px;
+    border-radius: 20px;
     display: block;
     position: fixed;
 }
@@ -750,9 +871,6 @@ th#idnumber,#wsName,#wsDepartment{
     color: white;
 }
 
-.dropDown {
-    position: relative;
-}
 .container {
     /* position: relative; */
     width: auto;
@@ -848,6 +966,22 @@ th#idnumber,#wsName,#wsDepartment{
     overflow-y: hidden;
 }
 
+/* Tootlips */
+.tooltip-text{
+    background-color: rgb(36, 36, 36);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    padding: 5px 10px;
+    position: absolute;
+    visibility: hidden;
+    width: 100px;
+    z-index: 2;
+
+    top: calc(100% + 5px);
+    left: 50%;
+    margin-left: -60px;
+}
 
 
 
@@ -884,29 +1018,32 @@ th#idnumber,#wsName,#wsDepartment{
     background-size: contain;
     background-repeat: no-repeat;
 }
-.icon#profile-icon{
+#profile-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconProfile.png");
 }
-.icon#dash-icon{
+#dash-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconDash.png");
 }
-.icon#departments-icon{
+#departments-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconDeptsPlaceholder.png");
 }
-.icon#notif-icon{
+#notif-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconNotification.png");
 }
-.icon#records-icon{
+#records-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconRecords.png");
 }
-.icon#message-icon{
+#message-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconMessage.png");
 }
-.icon#setting-icon{
+#setting-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconSettings.png");
 }
-.icon#logout-icon{
+#logout-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconLogout.png");
+}
+#user-profile{
+    background-image: url("/uclm_scholarship/public/sources/users/admin.jpg");
 }
 
 
@@ -1190,6 +1327,7 @@ th#idnumber,#wsName,#wsDepartment{
     color: rgb(255, 153, 0);;
     font-size: 30px;
     font-weight: bold;
+    width: 100%;
     /* text-align: right; */
 }
 #message-pane{
@@ -1222,14 +1360,16 @@ th#idnumber,#wsName,#wsDepartment{
     float: right;
 }
 #table-button-add{
-    float: left;
-    width: 20%;
-    height: 100%;
-    font-size: 90%;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
+    float: left;
+    font-size: 90%;
+    left: 0%;
+    margin-top: 10px;
+    display: inline;
+    width: 20%;
     height: max-content;
-    overflow: visible;
+    /* overflow: visible; */
 }
 #table-button-delete{
     width: 15%;
@@ -1312,7 +1452,6 @@ th#idnumber,#wsName,#wsDepartment{
    }
    .form-flat{
        border-radius: 20px;
-       border: 1px solid gray;
        width: auto;
        height: auto;
        float: none;
@@ -1330,7 +1469,6 @@ th#idnumber,#wsName,#wsDepartment{
     .form-flat#info-form,
     .form-flat#sched-form{
         border-radius: 20px;
-        border: 1px solid gray;
         width: auto;
         height: auto;
         float: none;
@@ -1361,14 +1499,11 @@ th#idnumber,#wsName,#wsDepartment{
     .edit-panel{
         width: auto;
         height: auto;
-        /* margin: 20px;
-        margin-top: 30px; */
         overflow: hidden;
         padding-top: 10px;
         padding-bottom: 30px;
         padding-left: 30px;
         padding-right: 30px;
         border-radius: 20px;
-        border: 1px solid gray;
     }
 }

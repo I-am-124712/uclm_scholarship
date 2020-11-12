@@ -49,7 +49,8 @@
             })
             $("div#for-list").css({
                 "width" : "100%",
-                "float" : "left"
+                "float" : "left",
+                "box-shadow" : "none"
             })
             $("ul#departments-list").css({
                 "width" : "100%",
@@ -101,7 +102,7 @@
                 });
                 $("div#wsCount-" + deptId).css({
                     "color" : "white",
-                    "font-size" : "15px",
+                    "font-size" : "12px",
                     "float" : "right",
                     "margin" : "5px"
                 })

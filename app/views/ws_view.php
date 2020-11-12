@@ -22,17 +22,17 @@
     <div> 
         <div>
             <button class="button-solid round" id="back-button" onclick="location.href='/uclm_scholarship/dash/departments'">Back to Previous</button><br>
-        </div><br>
-        <div id="ws-table-panel" style="padding:10px;border-radius:20px;border:1px solid gray">
-            <div class="table-title" id="dept-name-title">
+        </div>
+        <div class="form-flat" id="ws-table-panel" style="padding:20px; margin-top: 0; border-radius:20px">
+            <span class="table-title" id="dept-name-title" style="width:100%">
                 <b id="label-deptname"><?php echo strtoupper($this->model('Departments')->ready()->find()->where(['deptId' => $args['depAssigned']])->go()[0]->get_fields()['departmentName'])?></b>
-            </div>
-            <table style="width:100%" id="ws-table">
-                <?php 
-                if($allowed_edit_user_detected &&
+            </span>
+            <?php 
+            if($allowed_edit_user_detected &&
                 $allowed_edit_ajax_request){?>
-                    <button class="button-solid half-round" id="table-button-add" name="go" value="true" onclick="addWorkingScholars(<?=$args['depAssigned']?>)">Add Working Scholar</button>
-                <?php }?>
+                <button class="button-solid half-round" id="table-button-add" name="go" value="true" onclick="addWorkingScholars(<?=$args['depAssigned']?>)">Add Working Scholar</button>
+            <?php }?>
+            <table style="width:100%" id="ws-table">
                 <tr>
                     <th class="table-flat-header clickable" onclick="tableSort('ws-table',0)">
                         <b>ID Number</b>

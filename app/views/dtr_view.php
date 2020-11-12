@@ -53,6 +53,7 @@
             </label>
         </form>
         <button class="button-solid round" id="btn-load" onclick="getDtrData()">Load Entries</button>
+        <button class="button-solid round" id="btn-save" onclick="">Upload .dat File</button>
         <button class="button-solid round" id="btn-save" onclick="saveDtrData()">Save Changes</button>
         <button class="button-solid round" id="btn-pdf" onclick="saveDtrData()">Generate PDF</button>
     </div>

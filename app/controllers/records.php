@@ -425,9 +425,16 @@ class Records extends Controller {
 		        $recordWeekDay = date('w', strtotime(date_format($record->get('recorddate'),'M-d-Y')));
 		        
 		        if(!empty($schedule)){
+                    // For Regular Schedule computation...
 		            $late = 0;
 		            $undertime = 0;
-		            $total = 0;
+                    $total = 0;
+                    
+                    // For Specific Schedule computation...
+                    $spc_late = 0;
+                    $spc_undertime = 0;
+                    $spc_total = 0;
+
 		            $record_in = $dtr_entry['timeIn'];
 		            $record_out = $dtr_entry['timeOut'];
 
@@ -435,7 +442,8 @@ class Records extends Controller {
 		            $lates_undertimes = [];
 		            foreach($schedule as $sched){
 		                switch($sched->get('scheduleType')){
-		                    case 'REG':
+                            case 'REG':
+                            default:
 		                        $matchingSched = $sched->is_match([
 		                            'schedDay' => $day[$recordWeekDay]
 		                        ]);
@@ -464,22 +472,57 @@ class Records extends Controller {
 		                            }
 		                        }
 		                        break;
-		                    case 'SPC':
+                            case 'SPC':
+                                $recorddate = date_format($record->get('recorddate'),'m/d/Y');
 
+                                // echo "Entered SPC case...\n";
+                                // echo "Record Date: ".$recorddate."\n";
+                                // echo "Schedule Date: ".$sched->get('schedDay')."\n";
+
+                                if($sched->get('schedDay') === $recorddate){
+                                    // echo "Entered Conditional::\n";
+                                    array_push($spc_scheduleForRecord, [
+                                        'schedule_id' => $sched->get('schedule_id'),
+                                        'schedIn' => $sched->get('tin'),
+                                        'schedOut' => $sched->get('tout'),
+                                        'totalHours' => $sched->get('totalHours')
+                                    ]);
+                                    // we'll compute the Lates, Undertime and total Hours
+                                    // if user chooses to automatically assign schedule
+                                    // for every DTR entry.
+                                    if($load_method === 'auto'){
+                                        $spc_tin = $sched->get('tin');
+                                        $spc_tout = $sched->get('tout');
+                                        $spc_expectedHours = $sched->get('totalHours');
+    
+                                        $spc_late += ($record_in==null)? $sched->get('totalHours') : compute_tardiness($spc_tin, $record_in, $spc_expectedHours);
+                                        $spc_undertime += ($record_out==null)? $sched->get('totalHours') : compute_tardiness($record_out, $spc_tout, $spc_expectedHours);
+                                        $spc_total += $sched->get('totalHours') - ($spc_late + $spc_undertime);
+                                        $spc_total = $spc_total <= 0 ? 0:$spc_total;    // Normalize
+                                    }
+                                }
+                                break;
 		                }
 		            }
 
-		            $dtr_entry['late'] = $late;
-		            $dtr_entry['undertime'] = $undertime;
-		            $dtr_entry['hoursRendered'] = $total;
+
+		            $dtr_entry['late'] = empty($spc_scheduleForRecord) ? $late : $spc_late;
+		            $dtr_entry['undertime'] = empty($spc_scheduleForRecord) ? $undertime : $spc_undertime;
+		            $dtr_entry['hoursRendered'] = empty($spc_scheduleForRecord) ? $total : $spc_total;
 
 		        }
-		        $dtr_entry['schedule'] = $scheduleForRecord;
+		        $dtr_entry['schedule'] = empty($spc_scheduleForRecord) ? $scheduleForRecord : $spc_scheduleForRecord;
 		        array_push($dtr,$dtr_entry);
 		        $scheduleForRecord = [];
+		        $spc_scheduleForRecord = [];
 		    }
 		}
 
 		return $dtr;
-	}
+    }
+    
+
+    private function compute_late_undertime(){
+        
+    }
 }

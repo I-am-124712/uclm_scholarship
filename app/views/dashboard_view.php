@@ -97,7 +97,10 @@
 
 <div class="app-dash-panel" id="dashboard-panel">
 
-    <div style="width:inherit;padding:20px;border-radius:20px;border:1px solid gray;font-size:25px">
+    <div class="form-flat" style="width:inherit;
+                                  padding:20px;
+                                  border-radius:20px;
+                                  font-size:25px">
         <b>DASHBOARD</b>
     </div>
     <div style="width:auto; height:fit-content;">

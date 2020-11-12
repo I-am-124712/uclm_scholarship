@@ -120,12 +120,13 @@ const getDtrData = _=>{
             let $data = $('<td>');
             $table.addClass('table-flat');
 
-            // console.log(data);
+            console.log(data);
             
             for(ws in data){
                 let $newHeaderRow = $row.clone();
                 let $newHeaderData = $data.clone();
                 $newHeaderData.addClass('table-flat-header');
+                $newHeaderData.attr("id", "ws-info-header");
                 $newHeaderData.attr('colspan', 10);
                 $newHeaderData.css({
                     'border-top-left-radius': '20px',

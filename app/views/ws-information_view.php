@@ -133,7 +133,11 @@
             <button class="button-tab" id="sched-type">Specific Day</button>
         </div>
         <div class="form-flat" id="sched-panel" style="margin-top:0px; width:100%">
-            <div class="form-flat" style="margin-top:10px;padding:0px;border:0px;width:100%">
+            <div class="form-flat" style="margin-top:10px;
+                                          padding:0px;
+                                          border:0px;
+                                          box-shadow: none;
+                                          width:100%">
                 <div class="form-flat" style="width: 100%">
                     <b><div id="day-label" style="margin-left:15px">SELECT DAYS</div></b>
                     <div class="form-flat" id="days-panel">
