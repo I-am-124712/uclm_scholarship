@@ -465,10 +465,17 @@ class Records extends Controller {
 		                                $tout = $matchingSched->get('tout');
 		                                $expectedHours = $matchingSched->get('totalHours');
 
-		                                $late += ($record_in==null)? $matchingSched->get('totalHours') : compute_tardiness($tin, $record_in, $expectedHours);
-		                                $undertime += ($record_out==null)? $matchingSched->get('totalHours') : compute_tardiness($record_out, $tout, $expectedHours);
-		                                $total += $matchingSched->get('totalHours') - ($late + $undertime);
-		                                $total = $total <= 0 ? 0:$total;    // Normalize
+                                        $this->compute_late_undertime(
+                                            $matchingSched,
+                                            $tin,
+                                            $tout,
+                                            $expectedHours,
+                                            $record_in,
+                                            $record_out,
+                                            $late,
+                                            $undertime,
+                                            $total
+                                        );
 		                            }
 		                        }
 		                        break;
@@ -495,10 +502,17 @@ class Records extends Controller {
                                         $spc_tout = $sched->get('tout');
                                         $spc_expectedHours = $sched->get('totalHours');
     
-                                        $spc_late += ($record_in==null)? $sched->get('totalHours') : compute_tardiness($spc_tin, $record_in, $spc_expectedHours);
-                                        $spc_undertime += ($record_out==null)? $sched->get('totalHours') : compute_tardiness($record_out, $spc_tout, $spc_expectedHours);
-                                        $spc_total += $sched->get('totalHours') - ($spc_late + $spc_undertime);
-                                        $spc_total = $spc_total <= 0 ? 0:$spc_total;    // Normalize
+                                        $this->compute_late_undertime(
+                                            $sched,
+                                            $spc_tin,
+                                            $spc_tout,
+                                            $spc_expectedHours,
+                                            $record_in,
+                                            $record_out,
+                                            $spc_late,
+                                            $spc_undertime,
+                                            $spc_total
+                                        );
                                     }
                                 }
                                 break;
@@ -522,7 +536,20 @@ class Records extends Controller {
     }
     
 
-    private function compute_late_undertime(){
-        
+    private function compute_late_undertime(
+        $schedule,
+        $timeIn,
+        $timeOut,
+        $expectedHours,
+        $recordIn,
+        $recordOut,
+        &$late,
+        &$undertime,
+        &$total
+    ){
+        $late += ($recordIn==null)? $schedule->get('totalHours') : compute_tardiness($timeIn, $recordIn, $expectedHours);
+        $undertime += ($recordOut==null)? $schedule->get('totalHours') : compute_tardiness($recordOut, $timeOut, $expectedHours);
+        $total += $schedule->get('totalHours') - ($late + $undertime);
+        $total = $total <= 0 ? 0:$total;    // Normalize
     }
 }
