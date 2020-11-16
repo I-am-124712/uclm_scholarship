@@ -103,7 +103,7 @@
                 </div>
             </div>
         </div>
-        <div style="margin-top:0px;padding-top:0px;text-align:center">
+        <div style="margin:0px 0px 20px 0px;padding-top:0px;text-align:center">
             <button id="save-edit" type="button" class="button-solid green">
                 Edit Information
             </button>

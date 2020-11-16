@@ -621,7 +621,6 @@ div #user-name{
     margin-top: 30px;
     overflow: hidden;
     padding-top: 10px;
-    padding-bottom: 30px;
     padding-left: 30px;
     padding-right: 30px;
     border-radius: 20px;
@@ -1501,7 +1500,6 @@ th#idnumber,#wsName,#wsDepartment{
         height: auto;
         overflow: hidden;
         padding-top: 10px;
-        padding-bottom: 30px;
         padding-left: 30px;
         padding-right: 30px;
         border-radius: 20px;
