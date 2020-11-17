@@ -34,7 +34,7 @@
                 <?=Messages::dump('edit-status')?>
             </div>
             <div style="margin:10px">
-                <form action="/uclm_scholarship/dash/ws?allow_edit" method="post">
+                <form action="<?=isset($_SESSION['generalView'])? '/uclm_scholarship/dash/ws/general?allow_edit' : '/uclm_scholarship/dash/ws?allow_edit'?>" method="post">
                     <input hidden type="text" name="department" 
                             value=<?=$department_id?>>
                     <button class="button-solid round" id="back-button" type="submit">

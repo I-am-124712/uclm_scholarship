@@ -21,11 +21,25 @@
 <div class="app-dash-panel" id="dashboard-panel">
     <div> 
         <div>
-            <button class="button-solid round" id="back-button" onclick="location.href='/uclm_scholarship/dash/departments'">Back to Previous</button><br>
+            <button class="button-solid round" id="back-button" 
+                    onclick="location.href='<?=isset($args['generalView'])? '/uclm_scholarship/dash':'/uclm_scholarship/dash/departments' ?>'">
+                    <?=isset($args['generalView'])? 'Back to Dashboard':'Back to Previous'?>
+            </button><br>
         </div>
         <div class="form-flat" id="ws-table-panel" style="padding:20px; margin-top: 0; border-radius:20px">
             <span class="table-title" id="dept-name-title" style="width:100%">
-                <b id="label-deptname"><?php echo strtoupper($this->model('Departments')->ready()->find()->where(['deptId' => $args['depAssigned']])->go()[0]->get_fields()['departmentName'])?></b>
+                <b id="label-deptname">
+                <?php 
+                if(isset($args['depAssigned']))
+                    echo strtoupper($this->model('Departments')
+                                         ->ready()
+                                         ->find()
+                                         ->where(['deptId' => $args['depAssigned']])
+                                         ->result_set(['index' => 0])
+                                         ->get('departmentName'));
+                else
+                    echo "WORKING SCHOLARS - ". count($args['ws']) . ' as of '. date_format(new DateTime('now'), 'M d, Y');
+                ?></b>
             </span>
             <?php 
             if($allowed_edit_user_detected &&
@@ -73,7 +87,56 @@
             </table>
         </div>
     </div>
+    <button class="button-solid round" id="btn-back-to-top">^</button>
 </div>
 <?php require './app/views/popups_view.php'; ?>
 
 <script src="/uclm_scholarship/public/scripts/misc/ws-view-functions.js"></script>
+<script>
+    
+/// For scrolling back to top of page
+/// Retrieved from W3Schools.com
+
+$(function(){
+
+    $('#btn-back-to-top').css({
+        'display': 'none',
+        'border-radius' : '100%',
+        'bottom': '20px',
+        'box-shadow': '0px 10px 20px rgba(0,0,0,0.8)',
+        'left' : 'calc(50% - 25px)',
+        'font-weight': "bold",
+        'position' : 'fixed',
+        'width' : '50px',
+        'height' : '50px',
+        'z-index' : '99',
+    });
+
+    const backToTop = src =>{
+        // document.documentBody.scrollTop = 0;
+        src.scrollTop = 0;
+    }
+
+    const scrollFunction = src =>{
+        if (src.scrollTop >= 100 || src.scrollTop >= 100) {
+            $('#btn-back-to-top').css({
+                'display': 'block'
+            });
+        } else {
+            $('#btn-back-to-top').css({
+                'display': 'none'
+            });
+        }
+    };
+
+    $('#btn-back-to-top').click(()=>{
+        backToTop(dashPanel);
+    });
+
+    const dashPanel = document.getElementById('dashboard-panel');
+    dashPanel.onscroll = ()=>{
+        scrollFunction(dashPanel);
+    };
+});
+
+</script>

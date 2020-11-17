@@ -76,7 +76,7 @@
                 // the Working Scholars beside the departments list.
                 $('li#'+deptId).mouseenter(function(){
                     deptId = $(this).attr("id");
-                    url = '/uclm_scholarship/dash/ws_view_only?';
+                    url = '/uclm_scholarship/dash/ws_view_grouped?';
                     params = 'department=' + deptId;
                     $("div#for-ws-view").load(url+params + " div#ws-table-panel");
                 }).mouseleave(function(){
@@ -95,7 +95,7 @@
                 $("li#"+deptId).addClass("button-outline");
 
                 $("div#deptname-" + deptId).css({
-                    "color" : "rgb(255, 180, 120)",
+                    "color" : "inherit",
                     "font-size" : "inherit",
                     "float" : "left",
                     "margin" : "5px"
@@ -103,9 +103,10 @@
                 $("div#wsCount-" + deptId).css({
                     "color" : "white",
                     "font-size" : "12px",
+                    'font-weight' : 'normal',
                     "float" : "right",
                     "margin" : "5px"
-                })
+                });
             }
             $("#departments-list").JPaging({
                 visiblePageSize : 5

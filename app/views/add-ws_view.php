@@ -13,7 +13,7 @@
                     </center>
                 </p>
                 <input hidden id="deptId" name="deptId" type="text" value="<?=$args->get_fields()['deptId']?>">
-                <label id="form-label" style="padding-bottom:5px">ID Number 
+                <label id="form-label" style="padding-bottom:5px; color:white">ID Number 
                     <div id="err-msg-idnum" 
                          style="float:right;
                                 font-size: 15px;
@@ -23,7 +23,7 @@
                                 color:rgb(255,100,100)"></div>
                     <input spellcheck="false" class="textbox" id="idnumber" type="text" name="idnumber">
                 </label>
-                <label id="form-label" style="padding-bottom:5px">Last Name 
+                <label id="form-label" style="padding-bottom:5px; color:white">Last Name 
                     <div id="err-msg-lname" 
                          style="float:right;
                                 font-size: 15px;
@@ -33,7 +33,7 @@
                                 color:rgb(255,100,100)"></div>
                     <input spellcheck="false" class="textbox" id="lname" type="text" name="lname">
                 </label>
-                <label id="form-label" style="padding-bottom:5px">First Name 
+                <label id="form-label" style="padding-bottom:5px; color:white">First Name 
                     <div id="err-msg-fname" 
                          style="float:right;
                                 font-size: 15px;
@@ -43,7 +43,7 @@
                                 color:rgb(255,100,100)"></div>
                     <input spellcheck="false" class="textbox" id="fname" type="text" name="fname">
                 </label>
-                <label id="form-label" style="padding-bottom:5px">Date of Hire 
+                <label id="form-label" style="padding-bottom:5px; color:white">Date of Hire 
                     <div id="err-msg-datehired" 
                          style="float:right;
                                 font-size: 15px;
@@ -53,7 +53,7 @@
                                 color:rgb(255,100,100)"></div>
                     <input class="textbox" id="date_of_hire" type="date" name="date_of_hire">
                 </label>
-                <label id="form-label" style="padding-bottom:5px">Course 
+                <label id="form-label" style="padding-bottom:5px; color:white">Course 
                     <input spellcheck="false" class="textbox" id="course" type="text" name="course">
                 </label>
             </form>

@@ -34,7 +34,7 @@
                     <div class="icon-panel">
                         <div class="icon" id="message-icon"></div>
                     </div>
-                    <div class="btn-label">Message</div>
+                    <div class="btn-label">Messages</div>
                 </button>
             </div>
             <div>

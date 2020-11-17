@@ -74,21 +74,53 @@ class Dash extends Controller {
         return $this->view('departments',$department_details);
     }
 
-    public function ws(){
+    public function ws($generalView = null){
         session_start();
         $this->trap_no_user_session();
+
+        // We should remove the generalView session token first just to make sure.
+        unset($_SESSION['generalView']);    
         
         // Block Users with User Privilege = 3 (WS)
         if($_SESSION['user_privilege']==3){
             header('Location: /uclm_scholarship/home');
         }
 
-        $this->ws_view_only();
+        $_SESSION['generalView'] = $generalView; 
+
+        if($_SESSION['generalView'])
+            $this->ws_view_general();
+        else
+            $this->ws_view_grouped();
     }
 
-    public function ws_view_only(){
+
+    private function ws_view_general(){
         if(session_status() !== PHP_SESSION_ACTIVE)
             session_start();
+        
+        // We should remove the selected departmentID saved into our SESSION when we
+        // are in general view.
+        unset($_SESSION['department']);
+
+        $working_scholars = $this->model("WS")
+        ->ready()
+        ->find()
+        ->result_set();
+
+        return $this->view('ws',[
+            'ws' => $working_scholars,
+            'allow_edit' => isset($_GET['allow_edit']),
+            'generalView' => true
+        ]);
+    } 
+
+
+
+    public function ws_view_grouped(){
+        if(session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+
 
         $deptId = isset($_GET['department'])? $_GET['department']:
                             (isset($_SESSION['department'])? $_SESSION['department']:0);
@@ -163,6 +195,12 @@ class Dash extends Controller {
     /// dashboard data and statistics chu2x loading here aron chuy tan-awn
     private function load_dashboard_data(){
 
+        // Number of Departments
+        $departments = $this->model('Departments')
+        ->ready()
+        ->find()
+        ->result_set();
+
         // Current Number of Working Scholars
         $no_of_ws = $this->model('WS')
         ->ready()
@@ -183,7 +221,8 @@ class Dash extends Controller {
 
         return [
             'no_of_ws' => $no_of_ws,
-            'ws_with_ot' => $ws_with_ot
+            'ws_with_ot' => $ws_with_ot,
+            'departmentCount'=> count($departments)
         ];
 
     }

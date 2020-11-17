@@ -17,7 +17,6 @@ class Model {
     protected $query_method;
 
 
-
     /** Creates a Model object with the given fields. These fields
     * will be the corresponding fields in this model's table in the database.
     * @param $fields an associative array having the column name as key.
