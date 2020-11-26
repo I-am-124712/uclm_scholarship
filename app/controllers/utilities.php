@@ -15,12 +15,18 @@ class Utilities extends Controller {
     }
 
     public function generate($format, $docName){
-        if(isset($_POST['_req'])){
-        }
+        $data = isset($_POST["data"]) ? json_decode($_POST['data'], true):"";
+        $department = isset($_POST["department"])? $_POST["department"]: "";
+
+        $args = [
+            'department' => $department,
+            'data' => $data
+        ];
+
         switch($docName){
             case "dtr":
             case "DTR":
-                $this->dtr->prepare()->getGeneratedPDF();
+                $this->dtr->prepare($args)->getGeneratedPDF();
                 break;
             case "Summary":
                 $this->summary->getGeneratedPDF();
@@ -33,16 +39,14 @@ class DTR extends Controller {
 
     private $args = [];
 
-    public function prepare(){
-        $this->args['wsName'] = "SAMPLE";
+    public function prepare($args){
+        $this->args = $args;
         return $this;
     }
 
     public function getGeneratedPDF(){
         if(isset($this->args) && !empty($this->args))
-            return $this->view_custom("./app/views/pdfTemplates/dtr_linker.html", "/pdfTemplates/dtr-pdf-template", $this->args);
-        else
-            echo "MAMA! Just killed a man!";        
+            return $this->view_custom("./app/views/pdfTemplates/dtr_linker.html", "/pdfTemplates/dtr-pdf-template", $this->args);     
     }
 }
 class Summary extends Controller{
@@ -54,7 +58,5 @@ class Summary extends Controller{
     public function getGeneratedPDF($args = []){
         if(isset($args) && !empty($args))
             return $this->view("./app/views/pdfTemplates/summary_linker.html", "/pdfTemplates/summary-pdf-template", $this->args);
-        else
-            echo "MAMA! Just killed a man!";
     }
 }

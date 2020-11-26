@@ -1,3 +1,5 @@
+let dtrJSONData = null;
+
 
 $(function(){
 
@@ -126,8 +128,9 @@ const getDtrData = _=>{
             let $data = $('<td>');
             $table.addClass('table-flat');
 
-            console.log(data);
-            
+            // console.log(data);
+            dtrJSONData = data;
+
             for(ws in data){
                 let $newHeaderRow = $row.clone();
                 let $newHeaderData = $data.clone();
@@ -630,9 +633,29 @@ const saveDtrData = () => {
  */
 const generatePDF = () => {
 
+    // This object array will hold the data that we will be sending to our
+    // post request.
+    let dataObj = [];
+    let departmentName = $('select#department option:selected').text();
+
+    // Let us filter out what we will be sending to our request.
+
+    dataObj.push
+    for(x in data = dtrJSONData){
+        dataObj.push({
+            wsName: data[x].wsName,
+            wsRecords : data[x].wsRecords
+        });
+    }
+    let param = 'department="' + departmentName + '"&' +
+            "data=" + JSON.stringify(dataObj);
+    console.log(param);
+
     $.ajax({
         url: '/uclm_scholarship/utilities/generate/pdf/dtr',
+        type: 'post',
         dataType: "html",
+        data: param,
         success: res => {
             let printer = window.open('','_blank');
             printer.document.write(res);
