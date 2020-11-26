@@ -10,8 +10,13 @@ class Controller {
     }
 
     public function view($view,$args=[]){
+        return $this->view_custom('index.html', $view, $args);
+    }
+    
+    public function view_custom($header, $view, $args=[]){
         // include './index.html';
-        require_once 'index.html';
+        // require_once './app/views/html/footer.html'; 
+        require_once $header;
         require_once './app/views/'.$view.'_view.php';
     }
 

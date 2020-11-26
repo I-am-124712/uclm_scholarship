@@ -44,3 +44,8 @@ function compute_tardiness($dutyTime, $scheduleTime, $expectedHours){
     
 	return $totalLate;
 }
+
+
+function getDateFromPartsString(int $year, int $month, int $day){
+	return "DateFromParts(". $year . "," . $month . "," . $day . ")";
+}

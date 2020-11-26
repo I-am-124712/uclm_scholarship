@@ -38,7 +38,7 @@
                     <input hidden type="text" name="department" 
                             value=<?=$department_id?>>
                     <button class="button-solid round" id="back-button" type="submit">
-                        Back to Previous
+                        Back to WS List
                     </button><br>
                 </form>
             </div>

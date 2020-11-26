@@ -1,18 +1,4 @@
 
-const months = [
-    'January', 
-    'February', 
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-];
 
 // Format DateTime Object to 12-hour format (hh:mm AM|PM)
 const format12HourTime = timeObj => {
@@ -81,6 +67,13 @@ $(()=>{
         'margin-top' : "15px",
         'width' : '100%' 
     });
+    // initialize custom style for Save and PDF button
+    $("button#btn-save").css({
+        'width' : '100%',
+        'margin-top': '10px',
+        'float' : 'left',
+        'background-color' : 'inherit'
+    });
 
     // styling for table
     let $table = $(".table"); 
@@ -93,7 +86,7 @@ $(()=>{
         'position' : 'auto'
     });
 
-    // Fill the Monts combo box...
+    // Fill the Months combo box...
     for(let i=0; i<months.length; ++i){
         let $monthOption = $("<option>");
         $monthOption.val((i));

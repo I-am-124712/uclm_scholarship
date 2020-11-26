@@ -81,18 +81,13 @@ $(function(){
 
 });
 
-
-/* Loads the DTR data from the selected settings... */
-const getDtrData = _=>{
-    $("button#btn-save").slideDown();
-
+const serializeParamsOnClick = loadMethod => {
     let schoolYear = $('#school-year').serialize();
     let department = $('#department').serialize();
     let semester = $('#semester').serialize();
     let period = $('#period').serialize();
     let month = $('#month').serialize();
     let hide = $('#hide').serialize();
-    let loadMethod = $("#load-methods").serialize();
     let requested = "req";
 
     let params = schoolYear 
@@ -103,6 +98,17 @@ const getDtrData = _=>{
             + "&" + hide
             + "&" + loadMethod
             + "&" + requested;
+    return params;
+}
+
+
+/* Loads the DTR data from the selected settings... */
+const getDtrData = _=>{
+    $("button#btn-save").slideDown();
+
+    let loadMethod = $("#load-methods").serialize();
+
+    let params = serializeParamsOnClick(loadMethod);
 
 
     // prepare the div that will contain the table
@@ -134,7 +140,6 @@ const getDtrData = _=>{
                     'font-size' : '20px'
                 });
                 $newHeaderData.text(data[ws].idnumber + " - " + data[ws].wsName);
-                // $newHeaderData.text("▮▮▮▮▮▮▮▮ - " + data[ws].wsName);
                 $newHeaderRow.append($newHeaderData);
                 $table.append($newHeaderRow);
 
@@ -270,7 +275,7 @@ const getDtrData = _=>{
                         $lateData.attr('id','late');
                         $undertimeData.attr('id','undertime');
                         $totalData.attr('id','totalData');
-                        $actionsData.attr('id','table-flat-data');
+                        $actionsData.attr('id','actions');
 
                         
                         let dateString = "";
@@ -291,9 +296,9 @@ const getDtrData = _=>{
                         $dateData.val(dateString);
                         $timeInData.val(timeInString);
                         $timeOutData.val(timeOutString);
-                        $lateData.val(wsRecords[x].late);
-                        $undertimeData.val(wsRecords[x].undertime);
-                        $totalData.val(hoursRendered);
+                        $lateData.attr("value",wsRecords[x].late);
+                        $undertimeData.attr("value",wsRecords[x].undertime);
+                        $totalData.attr("value",hoursRendered);
 
                         // then display them as text in the cells.
                         $dateData.text(dateString);
@@ -446,9 +451,11 @@ const getDtrData = _=>{
 
 };
 
-// For DTR Data Deletion. Now, instead of reloading all data,  we will
-// just delete the row element of the schedule after we successfully
-// performed deletion on the server.
+/** 
+    For DTR Data Deletion. Now, instead of reloading all data,  we will
+    just delete the row element of the schedule after we successfully
+    performed deletion on the server.
+*/
 const deleteDtrData = $src => {
 
     if(confirm("Are you sure you want to permanently delete this DTR entry?")){
@@ -469,12 +476,14 @@ const deleteDtrData = $src => {
 
 }
 
-// For Editing DTR Data. This functionality will allow users to edit the data
-// on the selected row. This functionality is put here since some Records are not
-// properly parsed once the raw data from the Biometrics Machine is uploaded to 
-// the system. One reason is that Working Scholars tend to forget switching the
-// machine to "Check-out" once they check out from their attendance. The user 
-// will have the control to modify such discrepant entries.
+/** 
+    For Editing DTR Data. This functionality will allow users to edit the data
+    on the selected row. This functionality is put here since some Records are not
+    properly parsed once the raw data from the Biometrics Machine is uploaded to 
+    the system. One reason is that Working Scholars tend to forget switching the
+    machine to "Check-out" once they check out from their attendance. The user 
+    will have the control to modify such discrepant entries.
+ */
 const editDtrData = $src => {
 
     // we get the row for querying...
@@ -566,4 +575,70 @@ const editDtrData = $src => {
         $timeIn.html($timeInText);
         $timeOut.html($timeOutText);
     }
+};
+
+/**
+ * Saves our backend-generated DTR Data (with all changes applied)
+ * to our Database.
+ */
+const saveDtrData = () => {
+
+    $('tr.dtr-entry').each(function(){
+        // Get values from each Table cells
+        let recordId = $(this).attr("id");
+        let late = $(this).children("td#late").attr("value");
+        let undertime = $(this).children("td#undertime").attr("value");
+        let totalData = $(this).children("td#totalData").attr("value");
+
+        // These two becomes undefined if there are no schedules
+        // for this working scholar for the given DTR entry. So, 
+        // we default it to zero.
+        late = late==undefined? 0 : late;
+        undertime = undertime==undefined? 0 : undertime;
+
+        args = "id=" + recordId + "&" +
+                "late=" + late + "&" +
+                "undertime=" + undertime + "&" +
+                "totalData=" + totalData;
+
+        $.post({
+            url: "/uclm_scholarship/records/saveDtrData",
+            data: args,
+            dataType: "JSON",
+            success: res => {
+                let $success = $('<div>');
+                $success.attr('id','success-icon');
+
+                // Clear the Actions cell
+                $(this).children('td#actions').text("");
+
+                // Replace with Save
+                $(this).children('td#actions').append($success);
+                $(this).children('td#actions').append("Saved");
+            },
+            error: err => {
+                console.log(err.responseText);
+            }
+        });
+        
+    });
+};
+
+
+/**
+ * Sends a request to generate a pdf and opens it in a new tab.
+ */
+const generatePDF = () => {
+
+    $.ajax({
+        url: '/uclm_scholarship/utilities/generate/pdf/dtr',
+        dataType: "html",
+        success: res => {
+            let printer = window.open('','_blank');
+            printer.document.write(res);
+            setTimeout(function(){
+                printer.print();
+            }, 500);
+        }
+    })
 };

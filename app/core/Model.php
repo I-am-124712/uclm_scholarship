@@ -241,9 +241,11 @@ class Model {
 
 
 
-    protected function prepare_query_statement(){
+    public final function prepare_query_statement(){
         $this->prepared_statement = sqlsrv_prepare($this->connectionResource, $this->query_string, $this->params);
         $this->query = sqlsrv_query($this->connectionResource, $this->query_string, $this->params);
+        
+        return $this;
     }
 
     // Performs the query to the Database and closes the connection. This method
@@ -254,9 +256,13 @@ class Model {
         
         if($this->query_method === 'DML'){
             // Perform a DML
-            $this->prepare_query_statement();
-
-            $this->close();
+            if($this->prepare_query_statement()){
+                $this->close();
+                return true;
+            }
+            else{
+                return false;
+            }
         }
         else{
             $this->prepare_query_statement();
@@ -277,22 +283,22 @@ class Model {
     }
 
     /**
-        Performs a normal Data Query Operation using this Model object (SQL SELECT).
-        This will be the last method that should be chained when doing a select() or find()
-        method chaining. (Note: Once you specify the 'index' argument, the ranged selection options 
-        (start_index & end_index) will be overridden, and this method will proceed to return 
-        only the element this argument specifies.)
+    *    Performs a normal Data Query Operation using this Model object (SQL SELECT).
+    *    This will be the last method that should be chained when doing a select() or find()
+    *    method chaining. (Note: Once you specify the 'index' argument, the ranged selection options 
+    *    (start_index & end_index) will be overridden, and this method will proceed to return 
+    *    only the element this argument specifies.)
 
-        Params:
-            - $options [] = Associative array containing the options on what to retrieve. If 
-                empty, this method returns the result set itself.
-                
-        $options:
-            - "index" => int = the index of a single item from the result set to retrieve.
-                
-            - "start_index" => int = starting index of the result set items to retrieve.
-            - ["end_index" => int] = (optional) end index of the result set items to retrieve.
-                If unset, end bounds will be result set length. 
+    *    Params:
+    *    - $options [] = Associative array containing the options on what to retrieve. If 
+    *        empty, this method returns the result set itself.
+    *            
+    *    $options:
+    *    - "index" => int = the index of a single item from the result set to retrieve.
+    *        
+    *    - "start_index" => int = starting index of the result set items to retrieve.
+    *    - ["end_index" => int] = (optional) end index of the result set items to retrieve.
+    *       If unset, end index will be result set length. 
      */
     public function result_set($options = []){
 
@@ -336,16 +342,13 @@ class Model {
                         $new_result_set[$i] = $result_set[$current_i];
                     }
 
-                    $result_set = [];
-                    gc_enable();   // Free the unused memory just in case
-
-                    return $new_result_set;
+                    $result_set = $new_result_set;
                 }
             }
+            $this->close();
         }
-        else{
-            return $result_set;
-        }
+        
+        return $result_set;
     }
     
 
@@ -381,8 +384,7 @@ class Model {
 
 
     private function check_null($v){
-       return $v == null ||
-        $v === null ||
+       return $v === null ||
         $v === 'null' ||
         $v === 'nulL' ||
         $v === 'nuLl' ||

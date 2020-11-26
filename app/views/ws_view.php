@@ -38,7 +38,7 @@
                                          ->result_set(['index' => 0])
                                          ->get('departmentName'));
                 else
-                    echo "WORKING SCHOLARS - ". count($args['ws']) . ' as of '. date_format(new DateTime('now'), 'M d, Y');
+                    echo "WORKING SCHOLARS : ". count($args['ws']) . ' as of '. date_format(new DateTime('now'), 'M d, Y');
                 ?></b>
             </span>
             <?php 
@@ -87,7 +87,7 @@
             </table>
         </div>
     </div>
-    <button class="button-solid round" id="btn-back-to-top">^</button>
+    <button class="button-solid round" id="btn-back-to-top"></button>
 </div>
 <?php require './app/views/popups_view.php'; ?>
 
@@ -102,6 +102,9 @@ $(function(){
     $('#btn-back-to-top').css({
         'display': 'none',
         'border-radius' : '100%',
+        'background-size':'cover',
+        'background-repeat':'no-repeat',
+        'background-image':'url("/uclm_scholarship/public/sources/icons/iconTop.png")',
         'bottom': '20px',
         'box-shadow': '0px 10px 20px rgba(0,0,0,0.8)',
         'left' : 'calc(50% - 25px)',

@@ -1,0 +1,56 @@
+@page{
+	size: 8.5in 13in;
+	margin: 0.25in 0.25in 0.25in 0.25in;
+}
+body{
+	font-family: 'Calibri';
+}
+.sheet{
+	width: 50%;
+	height: 1300px;
+}
+.table{
+	border: 1px solid black;
+	border-collapse: collapse;
+	width: 750px;
+}
+
+td,th{
+	border: 1px solid black;
+	border-collapse: collapse;
+	font-size: 14px;
+	height: 15px;
+	text-align: center;
+	word-break: break-all;
+}
+
+.name{
+	width: 150px;
+}
+.date{
+	width: 100px;
+}
+.sched{
+	width: 100px;
+}
+.dt{
+	width: 100px;
+}
+
+.h,.l,.u,.t{
+	width: 40px;
+}
+
+.name,.date,.sched,.dt,.h,.l,.u,.t,.tintout{	
+	font-weight: bold;
+}
+
+
+.tableHeader{
+	text-align: center;
+	font-weight: bold;
+}
+
+th#dep{
+	font-size: 30px;
+}

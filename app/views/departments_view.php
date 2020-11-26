@@ -76,7 +76,7 @@
                 // the Working Scholars beside the departments list.
                 $('li#'+deptId).mouseenter(function(){
                     deptId = $(this).attr("id");
-                    url = '/uclm_scholarship/dash/ws_view_grouped?';
+                    url = '/uclm_scholarship/dash/wsViewGrouped?';
                     params = 'department=' + deptId;
                     $("div#for-ws-view").load(url+params + " div#ws-table-panel");
                 }).mouseleave(function(){

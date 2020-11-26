@@ -2,11 +2,13 @@
 require_once './app/core/Model.php';
 
 final class User extends Model{}
+final class UserLogbook extends Model{}
 final class UserPrivilege extends Model{}
 final class Departments extends Model{}
 final class WS extends Model{}
 final class Schedule extends Model{}
 final class Record extends Model{}
+final class AllowanceSummary extends Model{}
 final class Overtime extends Model{}
 
 /* Special Finder class for Complex Queries */
@@ -90,6 +92,20 @@ final class Finder extends Model {
     
         $this->query_string .= ' HAVING '.$conditions;
         $this->prepare_query_statement();
+        return $this;
+    }
+
+    public final function customSQL($sql = ''){
+        if($sql === '')
+            return null;
+        $this->query_string = $sql;
+        return $this;
+    }
+
+    public final function setBindParams($params = []){
+        if(empty($params))
+            return null;
+        $this->params = $params;
         return $this;
     }
 

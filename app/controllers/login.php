@@ -1,8 +1,6 @@
 <?php
 class Login extends Controller {
 
-    // private $salt = '7ba85c1ef9b655e2';
-
     public function index($params = ''){
 
         session_start();
@@ -42,13 +40,27 @@ class Login extends Controller {
                     'username' => $username,
                     'password' => md5(SALT.$password)
                 ])
-                ->go();
+                ->result_set([
+                    'index' => 0
+                ]);
                 
                 if($matched_user){
-                    $_SESSION['user_id'] = $matched_user[0]->get_fields()['user_id'];
-                    $_SESSION['username'] = $matched_user[0]->get_fields()['user_fname'].' '.$matched_user[0]->get_fields()['user_lname'];
-                    $_SESSION['user_privilege'] = $matched_user[0]->get_fields()['user_privilege'];
-                    $_SESSION['user_photo'] = $matched_user[0]->get_fields()['user_photo'];
+                    // Log user session to our database.
+                    $this->model('UserLogbook')
+                    ->ready()
+                    ->create([
+                        'user_id'=> $matched_user->get('user_id'),
+                        'login_datetime' => new DateTime('now')
+                    ])
+                    ->insert()
+                    ->go();
+
+                    // Set logged user session.
+                    $_SESSION['user_id'] = $matched_user->get('user_id');
+                    $_SESSION['username'] = $matched_user->get('user_fname').' '.$matched_user->get('user_lname');
+                    $_SESSION['user_privilege'] = $matched_user->get('user_privilege');
+                    $_SESSION['user_photo'] = $matched_user->get('user_photo');
+
                     header('Location: /uclm_scholarship/home',false);
                 }
                 else{
@@ -61,7 +73,6 @@ class Login extends Controller {
         }
         else{
             if($_SESSION['user_id'] !== ''){
-                // echo 'Entered if($_SESSION["user_id"] !== "") on login.php';
                 header('Location: /uclm_scholarship/home',false);
             }
         }

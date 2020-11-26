@@ -16,12 +16,14 @@ class Dash extends Controller {
                 return $dataPanel;
             }
                 
-            // Show only USO adverts for guests
+            // Show only USO adverts for guests users.
             else{
                 return $this->view('guest');
             }
         }
     }
+
+
     public function departments(){
         session_start();
         $this->trap_no_user_session();
@@ -89,13 +91,13 @@ class Dash extends Controller {
         $_SESSION['generalView'] = $generalView; 
 
         if($_SESSION['generalView'])
-            $this->ws_view_general();
+            $this->wsViewGeneral();
         else
-            $this->ws_view_grouped();
+            $this->wsViewGrouped();
     }
 
 
-    private function ws_view_general(){
+    private function wsViewGeneral(){
         if(session_status() !== PHP_SESSION_ACTIVE)
             session_start();
         
@@ -117,7 +119,7 @@ class Dash extends Controller {
 
 
 
-    public function ws_view_grouped(){
+    public function wsViewGrouped(){
         if(session_status() !== PHP_SESSION_ACTIVE)
             session_start();
 
