@@ -33,8 +33,8 @@ class Working_scholars extends Controller{
 
         $deptAssigned = isset($_POST['deptId'])? $_POST['deptId']:'0';
         $idnumber = isset($_POST['idnumber'])? $_POST['idnumber']:'';
-        $lname = isset($_POST['lname'])? $_POST['lname']:'';
-        $fname = isset($_POST['fname'])? $_POST['fname']:'';
+        $lname = isset($_POST['lname'])? utf8_decode($_POST['lname']):'';
+        $fname = isset($_POST['fname'])? utf8_decode($_POST['fname']):'';
         $date_of_hire = isset($_POST['date_of_hire'])? $_POST['date_of_hire']:'';
         $course = isset($_POST['course'])? $_POST['course']:'';
 
@@ -53,7 +53,6 @@ class Working_scholars extends Controller{
             'dateOfHire' => $date_of_hire,
             'course' => $course
         ];
-
 
         $err_count = 0;
 

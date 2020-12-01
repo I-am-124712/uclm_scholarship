@@ -16,7 +16,9 @@ class Utilities extends Controller {
 
     public function generate($format, $docName){
         $data = isset($_POST["data"]) ? json_decode($_POST['data'], true):"";
-        $department = isset($_POST["department"])? $_POST["department"]: "";
+        $department = (isset($_POST["department"]) && $_POST["department"] !== "") ? 
+                    $_POST["department"]: 
+                    "MY DAILY TIME RECORD";
 
         $args = [
             'department' => $department,

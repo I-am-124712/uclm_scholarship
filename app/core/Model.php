@@ -103,7 +103,6 @@ class Model {
             }
             $this->query_string = rtrim($this->query_string,',');
         }
-        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -139,8 +138,6 @@ class Model {
             // set the relation logic for selecting whenever specified
             
         }
-        // echo $this->query_string;
-        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -186,7 +183,6 @@ class Model {
             $this->query_string = rtrim($this->query_string,$logic);
         }
         
-        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -208,7 +204,6 @@ class Model {
         }
         $this->query_string = rtrim($this->query_string,',');
         
-        // $this->prepare_query_statement();
         return $this;
     }
 
@@ -235,7 +230,6 @@ class Model {
 
         $this->query_string .= $set;
 
-        // $this->prepare_query_statement();
         return $this;
     }
 

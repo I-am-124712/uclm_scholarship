@@ -59,7 +59,7 @@
         <button class="button-solid round" id="btn-load" onclick="getDtrData()">Load Entries</button>
         <button class="button-solid round" id="btn-save" onclick="">Upload .dat / .csv File</button>
         <button class="button-solid round" id="btn-save" onclick="saveDtrData()">Save Changes</button>
-        <button class="button-solid round" id="btn-pdf" onclick="generatePDF()">Generate PDF</button>
+        <button class="button-solid round" id="btn-pdf" onclick="generatePDFAdmin()">Generate PDF</button>
     </div>
     <div class="table"></div>
 </div>

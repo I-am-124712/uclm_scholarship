@@ -1,7 +1,4 @@
-$(function(){
-
-});
-
+let dtrJSONData = null;
 
 const getDtrDataWS = _=>{
 
@@ -33,7 +30,7 @@ const getDtrDataWS = _=>{
             let $row = $('<tr>');
             let $data = $('<td>');
 
-            console.log(res);
+            dtrJSONData = res;
 
             let $newHeaderRow = $row.clone();
             let $newHeaderData = $data.clone();
@@ -50,8 +47,7 @@ const getDtrDataWS = _=>{
             $table.append($newHeaderRow);
 
 
-            let wsRecords = res.records;
-            console.log(wsRecords);
+            let wsRecords = res.wsRecords;
 
             if(wsRecords.length <= 0){
                 // fix the table's width to not compress its contents
@@ -255,3 +251,24 @@ const getDtrDataWS = _=>{
         }
     });
 }
+
+
+/**
+ * Sends a request to generate a pdf and opens it in a new tab.
+ */
+const generatePDFWS = () => {
+
+    let data = [];
+    data.push(dtrJSONData);
+
+    let schoolYears = $('select#school-year').val().split("-");
+
+    let period = $('select#period option:selected').text();
+    let month = $('select#month').val();
+    let monthName = months[month];
+    let schoolYear = month <= 5 ? schoolYears[1] : schoolYears[0];
+
+    let periodMonth = period.toUpperCase() + " OF " + monthName.toUpperCase() + " " + schoolYear;
+    
+    generatePDF(periodMonth, data);
+};

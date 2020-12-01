@@ -95,7 +95,7 @@ class Records extends Controller {
             // Fill the array and prepare for JSON encoding...
             $result['idnumber'] = $ws->get('idnumber');
             $result['wsName'] = $ws->get('wsName');
-            $result['records'] = $dtr_plotted;
+            $result['wsRecords'] = $dtr_plotted;
 
             echo json_encode($result);
         }
@@ -749,7 +749,7 @@ class Records extends Controller {
 
         if(!empty($summary_temp)){
             foreach($summary_temp as $summary){
-                if($summary->get("allowance_status") === 'CLAIMED'){
+                if($summary->get("allowance_status") === 'RELEASED'){
                     echo "Allowance already claimed!";
                     return;
                 }

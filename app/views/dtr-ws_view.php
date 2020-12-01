@@ -37,6 +37,7 @@
         <select name="month" id="month" class="textbox-transparent">
         </select>
         <button class="button-solid round" id="btn-load" onclick="getDtrDataWS()">Load Entries</button>
+        <button class="button-solid round" id="btn-pdf" onclick="generatePDFWS()">Generate PDF</button>
     </div>
     <div class="table"></div>
 </div>

@@ -63,6 +63,28 @@ $(()=>{
             'background-color' : 'inherit'
         });
     });
+    // For PDF button:
+    $("button#btn-pdf").css({
+        'width' : '100%',
+        'margin-top': '10px',
+        'float' : 'left',
+        'background-color' : 'inherit'
+    });
+    $("button#btn-pdf").mouseenter(function(){
+        $(this).css({
+            'width' : '100%',
+            'margin-top': '10px',
+            'float' : 'left',
+            'background-color' : 'rgb(90,150,255)'
+        });
+    }).mouseleave(function(){
+        $(this).css({
+            'width' : '100%',
+            'margin-top': '10px',
+            'float' : 'left',
+            'background-color' : 'inherit'
+        });
+    });
     // Fill the Months combo box...
     for(let i=0; i<months.length; ++i){
         let $monthOption = $("<option>");

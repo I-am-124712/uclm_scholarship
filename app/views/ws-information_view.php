@@ -140,7 +140,7 @@
                                           width:100%">
                 <div class="form-flat" style="width: 100%">
                     <b><div id="day-label" style="margin-left:15px">SELECT DAYS</div></b>
-                    <div class="form-flat" id="days-panel">
+                    <div class="form-flat" id="days-panel" style="box-shadow: none">
                         <button class="button-solid round-toggle" id="day-of-week" name="m" value="M">M</button>
                         <button class="button-solid round-toggle" id="day-of-week" name="tu" value="Tu">Tu</button>
                         <button class="button-solid round-toggle" id="day-of-week" name="w" value="W">W</button>
@@ -148,10 +148,15 @@
                         <button class="button-solid round-toggle" id="day-of-week" name="f" value="F">F</button>
                         <button class="button-solid round-toggle" id="day-of-week" name="s" value="S">S</button>
                     </div>
-                    <div class="form-flat" id="days-panel" style="display:auto; width:inherit; margin-left: auto; margin-right: auto">
+                    <div class="form-flat" id="days-panel" style="box-shadow: none; 
+                                                                display:auto; 
+                                                                width:inherit; 
+                                                                margin-left: auto; 
+                                                                margin-right: auto">
                         <input type="date" name="spc-date" id="spc-date" class="textbox-transparent" 
                         style="float: none;
                                 border: 0px;
+                                cursor: pointer;
                                 margin-left:auto;
                                 margin-right:auto;
                                 width:calc(100%-30px)">
@@ -175,6 +180,9 @@
             <div style="margin:5px auto 5px auto; width:50%;">
                 <select class="combo-dropbox" name="school-year" id="school-year">
                     <option value="2019-2020">2019-2020</option>
+                    <option value="2020-2021">2020-2021</option>
+                    <option value="2021-2022">2021-2022</option>
+                    <option value="2022-2023">2022-2023</option>
                 </select>
             </div>
             <button class="button-solid round" 

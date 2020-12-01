@@ -86,6 +86,30 @@ $(()=>{
         'position' : 'auto'
     });
 
+
+    // For PDF button:
+    $("button#btn-pdf").css({
+        'width' : '100%',
+        'margin-top': '10px',
+        'float' : 'left',
+        'background-color' : 'inherit'
+    });
+    $("button#btn-pdf").mouseenter(function(){
+        $(this).css({
+            'width' : '100%',
+            'margin-top': '10px',
+            'float' : 'left',
+            'background-color' : 'rgb(90,150,255)'
+        });
+    }).mouseleave(function(){
+        $(this).css({
+            'width' : '100%',
+            'margin-top': '10px',
+            'float' : 'left',
+            'background-color' : 'inherit'
+        });
+    });
+
     // Fill the Months combo box...
     for(let i=0; i<months.length; ++i){
         let $monthOption = $("<option>");
@@ -94,3 +118,41 @@ $(()=>{
         $("select#month").append($monthOption);
     }
 })
+
+
+/**
+ * Sends a request to generate a pdf and opens it in a new tab.
+ */
+const generatePDF = (departmentName, dtrJSONData) => {
+
+    // This object array will hold the data that we will be sending to our
+    // post request.
+    let dataObj = [];
+
+    // Let us filter out what we will be sending to our request.
+
+    dataObj.push
+    for(x in data = dtrJSONData){
+        dataObj.push({
+            wsName: data[x].wsName,
+            wsRecords : data[x].wsRecords
+        });
+    }
+    let param = 'department="' + departmentName + '"&' +
+            "data=" + JSON.stringify(dataObj);
+    console.log(param);
+
+    $.ajax({
+        url: '/uclm_scholarship/utilities/generate/pdf/dtr',
+        type: 'post',
+        dataType: "html",
+        data: param,
+        success: res => {
+            let printer = window.open('','_blank');
+            printer.document.write(res);
+            setTimeout(function(){
+                printer.print();
+            }, 500);
+        }
+    })
+};

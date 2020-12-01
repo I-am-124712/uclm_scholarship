@@ -1,5 +1,5 @@
 <?php require "dtr_linker.html"; 
-    $department = isset($args["department"])? $args["department"]:"NONE";
+    $department = $args["department"];
     $department = str_replace('"', '', $department);
 ?>
 
@@ -53,9 +53,16 @@
                                     $scheduleOut .= date_format(date_create($schedule['schedOut']['date']), "h:i A") . "<br>";
                                     $grossHours += $schedule['totalHours'];
                                 }
+
+                            $timeIn = isset($record['timeIn'])? 
+                                    date_format(date_create($record['timeIn']['date']), "h:i A"): 
+                                    '';
+                            $timeOut = isset($record['timeOut'])?
+                                    date_format(date_create($record['timeOut']['date']), "h:i A"): 
+                                    '';
                             
-                            $recordIn = date_format(date_create($record['timeIn']['date']), "h:i A");
-                            $recordOut = date_format(date_create($record['timeOut']['date']), "h:i A");
+                            $recordIn = $timeIn;
+                            $recordOut = $timeOut;
 
                             $totalGrossHours += $grossHours;
                             $totalLates += $late = $record['late'];
