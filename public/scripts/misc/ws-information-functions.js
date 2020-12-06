@@ -35,7 +35,7 @@
     const loadSched = function(){
         schedType = "schedType=" + schedTypeNames[$(".button-tab.active#sched-type").index()];
         semester = 'semester=' + ($(".button-tab.active#semester").index() + 1);
-        schoolYear = $("#school-year").serialize();
+        schoolYear = $("select#school-year").serialize();
         idnumber = $('#selected-id').serialize();
         args = schedType + "&" + semester + '&' + schoolYear + '&' + idnumber;
         url = "/uclm_scholarship/working_scholars/view_schedules";

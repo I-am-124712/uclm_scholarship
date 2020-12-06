@@ -14,6 +14,15 @@ const months = [
     'December'
 ];
 
+const days = [
+    'MONDAY',
+    'TUESDAY',
+    'WEDNESDAY',
+    'THURSDAY',
+    'FRIDAY',
+    'SATURDAY'
+]
+
 
 let message = "";
 let json_arg = undefined;

@@ -225,11 +225,13 @@
                                 </div>
                                 <div style="float:right; margin-bottom:5px">
                                     <button class="button-solid round" 
+                                            title="Edit"
                                             id="action-button-info-icon" 
                                             value=<?=$scheduleId?>
                                             onclick="editSchedule($(this))"></button>
                                     <button class="button-flashing round" 
                                             id="action-button-delete-icon" 
+                                            title="Delete"
                                             value=<?=$scheduleId?>
                                             onclick="confirmDelete(this.value)"></button>
                                 </div>

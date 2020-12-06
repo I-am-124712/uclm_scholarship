@@ -10,6 +10,9 @@
         <label for="" id="form-label2">School Year</label>
         <select name="school-year" id="school-year" class="textbox-transparent">
             <option value="2019-2020">2019-2020</option>
+            <option value="2020-2021">2020-2021</option>
+            <option value="2021-2022">2021-2022</option>
+            <option value="2022-2023">2022-2023</option>
         </select>
 
         <!-- Selector for semester to be used as basis for schedule -->

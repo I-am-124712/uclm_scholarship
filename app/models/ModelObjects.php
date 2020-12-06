@@ -14,7 +14,7 @@ final class Overtime extends Model{}
 /* Special Finder class for Complex Queries */
 final class Finder extends Model {
 
-    public final function select($cols){
+    public final function select($cols = []){
         $this->query_string .= 'SELECT ';
         if(!empty($cols)){
             foreach($cols as $column){

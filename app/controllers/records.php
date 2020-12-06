@@ -774,4 +774,123 @@ class Records extends Controller {
         echo json_encode($data);
     }
 
+    public function retrieveScheduleAsJSON(){
+        if(!isset($_POST['req']))
+            die(400);
+
+        session_start();
+
+        $idnumber = str_replace("ws", "",$_SESSION['user_id']);
+        $month = date('m') + 0;
+        $year = date('Y') + 0;
+        // First Semester
+        if($month >= 6 && $month < 10){
+            $semester = 1;
+            $semesterWord = "FIRST SEMESTER";
+        }
+        // Second Semester
+        else if($month >= 10 && ($month <= 12 || $month < 3)){
+            $semester = 2;
+            $semesterWord = "SECOND SEMESTER";
+        }
+        // Summer Class
+        else{
+            $semester = 3;
+            $semesterWord = "SUMMER";
+        }
+        
+        // decide the school year depending on the current month and year
+        if($month > 6)
+            $schoolYear = date('Y') . "-" . ((date('Y')+0) + 1);
+        else
+            $schoolYear = ((date('Y')+0) - 1) . "-" . date('Y');
+
+        $schedules = $this->model('Finder')
+        ->ready()
+        ->select()
+        ->from(['Schedule'])
+        ->where([
+            'idnumber'=>$idnumber,
+            'semester'=>$semester,
+            'schoolYear'=>$schoolYear,
+            'scheduleType' => 'REG'
+        ])
+        ->order_by([
+            "(CASE schedDay 
+            WHEN 'M' THEN 1 
+            WHEN 'Tu' THEN 2 
+            WHEN 'W' THEN 3 
+            WHEN 'Th' THEN 4 
+            WHEN 'F' THEN 5 
+            WHEN 'S' THEN 6 
+            END)" => '',
+            'tin'=>'',
+            'tout'=>''
+        ])
+        // ->get_query_string()
+        ->go();
+
+        $res = [];
+        $res['semester'] = $semesterWord;
+        $res['schedule'] = [];
+
+        $days = [
+            'M' => "MONDAY",
+            'Tu'=> "TUESDAY",
+            'W' => "WEDNESDAY",
+            'Th'=> "THURSDAY",
+            'F' => "FRIDAY",
+            'S' => "SATURDAY"
+        ];
+
+        $previousItem = null;
+        
+        if(!empty($schedules))
+        foreach($schedules as $sched){
+            $schedule = [];
+
+            $schedule['day'] = $days[$sched->get('schedDay')];
+            $schedule['rawTimeInValue'] = [];
+            $schedule['rawTimeOutValue']= [];
+
+            $timeIn = date_format($sched->get('tin'), "h:i A");
+            $timeOut = date_format($sched->get('tout'), "h:i A");
+
+            $timeValue = $timeIn . " - " . $timeOut;
+            $times = $timeValue;
+
+            // append the time schedule of the current iteration's time schedule
+            // with an HTML line break.
+            if(isset($previousItem) && $previousItem['day'] === $days[$sched->get('schedDay')]){
+                $previousItem['time'] = $previousItem['time'] . "<br>" .$times;
+                $previousItem['total'] += $sched->get('totalHours');
+
+                array_push($previousItem['rawTimeInValue'], $timeIn);
+                array_push($previousItem['rawTimeOutValue'], $timeOut);
+
+                continue;
+            }
+
+            // check if this schedule's day matches today
+            $schedule['isForToday'] = $days[$sched->get('schedDay')] === strtoupper(date('l'));
+
+            $schedule['time'] = $times;
+            array_push($schedule['rawTimeInValue'], $timeIn);
+            array_push($schedule['rawTimeOutValue'], $timeOut);
+
+            $schedule['total'] = $sched->get('totalHours');
+            array_push($res['schedule'], $schedule);
+
+            $previousItem = &$res['schedule'][count($res['schedule'])-1];
+        }
+        
+        foreach($res['schedule'] as $scheds){
+            if($scheds['isForToday']){
+                unset($scheds['isForToday'], $scheds['time']);
+                $res['forToday'] = $scheds;
+            }
+        }
+        echo json_encode($res);
+    }
+
 }

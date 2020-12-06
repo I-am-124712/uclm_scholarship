@@ -156,7 +156,9 @@ const getDtrData = _=>{
                     $newHeaderDataBase = $data.clone();
                     $newHeaderDataBase.addClass('table-flat-data');
                     $newHeaderDataBase.css({
-                        'background-color' : 'rgb(255, 115, 0)',
+                        'background-color' : 'rgb(40, 40, 40)',
+                        'font-weight' : 'bold',
+                        // 'color' : 'rgb(255, 115, 0)',
                         'font-size' : '14px'
                     });
 
@@ -222,12 +224,14 @@ const getDtrData = _=>{
                         let $editButton = $("<button>");
                         $editButton.addClass("button-solid round");
                         $editButton.attr("id", "action-button-info-icon");
+                        $editButton.attr("title", "Edit");
                         $editButton.attr("onclick", "editDtrData($(this))");
 
                         // Delete Entry Button
                         let $deleteButton = $("<button>");
                         $deleteButton.addClass("button-flashing round");
                         $deleteButton.attr("id", "action-button-delete-icon-white");
+                        $deleteButton.attr("title", "Delete");
                         $deleteButton.attr("onclick", "deleteDtrData($(this))");
 
                         $editButton.val(wsRecords[x].record_id);

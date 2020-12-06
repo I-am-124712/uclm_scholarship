@@ -20,29 +20,29 @@ function compute_tardiness($dutyTime, $scheduleTime, $expectedHours){
     $dutyTime = strtotime(date_format($dutyTime,'H:i'));
     $scheduleTime = strtotime(date_format($scheduleTime,'H:i'));
 
-	$computedLate = 0.0;
-	$computedLateInt = 0;
-	$totalLate = 0.0;
+	$computedTardiness = 0.0;
+	$computedTardinessInt = 0;
+	$totalTardiness = 0.0;
 
-	$computedLate = ($scheduleTime - $dutyTime)/3600;
-    $computedLateInt = (int)($computedLate);
+	$computedTardiness = ($scheduleTime - $dutyTime)/3600;
+    $computedTardinessInt = (int)($computedTardiness);
     
 
-	if ($computedLate > 0.0)
-		if( $computedLate < $expectedHours)
-			if (($computedLate - $computedLateInt) < ($computedLateInt + 0.5))
-				if (($computedLate - $computedLateInt) > ($computedLateInt + 0.25))
-					$totalLate = ($computedLateInt + 0.5);
+	if ($computedTardiness > 0.0)
+		if( $computedTardiness < $expectedHours)
+			if (($computedTardiness - $computedTardinessInt) < ($computedTardinessInt + 0.5))
+				if (($computedTardiness - $computedTardinessInt) > ($computedTardinessInt + 0.25))
+					$totalTardiness = ($computedTardinessInt + 0.5);
 				else
-                    $totalLate = $computedLateInt;
+                    $totalTardiness = $computedTardinessInt;
 			else
-				$totalLate = ceil($computedLate);
+				$totalTardiness = ceil($computedTardiness);
 		else
-			$totalLate = $expectedHours;
+			$totalTardiness = $expectedHours;
 	else
-		$totalLate = 0.0;
+		$totalTardiness = 0.0;
     
-	return $totalLate;
+	return $totalTardiness;
 }
 
 

@@ -1,8 +1,5 @@
 <?php require './app/views/user_view.php'; ?>
 
-
-
-
 <div class="app-dash-panel" id="dashboard-panel">
 
     <div class="form-flat" style="width:inherit;
@@ -20,11 +17,9 @@
                 break;
             case 3:
             default:
+                require_once './app/views/dashboard-ws_view.php';
                 
         }
     ?>
 
 </div>
-<?php
-// require './app/views/popups_view.php'; 
-?>

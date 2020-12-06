@@ -1,6 +1,5 @@
 <?php
 
-
 class Model {
 
     protected $server = 'RAVINSLENOVO\\RAVIN_LOUIS_0X45';
@@ -16,6 +15,16 @@ class Model {
     protected $query;
     protected $query_method;
 
+
+    // Readies the connection to the SQLServer DB
+    public function ready(){
+        // query string should be refreshed
+        $this->query_string = '';
+
+        if($this->connectionResource === null)
+            $this->connectionResource = sqlsrv_connect($this->server,$this->connectionInfo);
+        return $this;
+    }
 
     /** Creates a Model object with the given fields. These fields
     * will be the corresponding fields in this model's table in the database.
@@ -45,23 +54,10 @@ class Model {
         if($key == null || $key === '')
             return $this->fields; 
         else{
-            if(isset($this->fields[$key]))
-                return $this->fields[$key];
-            else
-                throw new Exception('Provided key is invalid.');
+            return $this->fields[$key];
         }
     }
 
-
-    // Readies the connection to the SQLServer DB
-    public function ready(){
-        // query string should be refreshed
-        $this->query_string = '';
-
-        if($this->connectionResource === null)
-            $this->connectionResource = sqlsrv_connect($this->server,$this->connectionInfo);
-        return $this;
-    }
     
     // Performs an INSERT operation into the specified database
     public function insert(){
@@ -358,7 +354,8 @@ class Model {
         $this->query_string = $query;
     }
     public function get_query_string(){
-        return $this->query_string;
+        echo $this->query_string;
+        return $this;
     }
 
     public function is_match($args = []){

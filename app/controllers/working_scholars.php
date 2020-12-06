@@ -449,7 +449,7 @@ class Working_scholars extends Controller{
             'totalHours' => $total
         ])
         ->insert();
-        echo $req->get_query_string();
+        $req->get_query_string();
 
         $req->go();
     }
@@ -496,5 +496,145 @@ class Working_scholars extends Controller{
             $sched_id['schedId'] = $sched_index->get_fields()['schedule_id'];
         }
         echo (json_encode($sched_id));
+    }
+
+    /**
+     * Verify if this working scholar has submitted an attendance entry.
+     */
+    public function hasAttendance($idnumber, $dateString){
+        
+        $timeInRecord = $this->model("Record")
+        ->ready()
+        ->find()
+        ->where([
+            'idnumber' => $idnumber,
+            'recorddate' => $dateString
+        ])
+        ->result_set();
+
+        return count($timeInRecord) > 0;
+    }
+
+    /**
+     * Submits a time-in entry for the current Working Scholar.
+     */
+    public function submitAttendance(){
+        if(!isset($_POST['req']))
+            echo json_encode([
+                'err' => 'Invalid request'
+            ]);
+
+        session_start();
+        date_default_timezone_set('Asia/Manila');
+
+        $idnumber = str_replace("ws","",$_SESSION['user_id']);
+        $dateNow = date_format(new DateTime(), 'M d, Y');
+        $timeNow = new DateTime();
+        $timeNowString = date_format($timeNow, 'h:i a');
+        $type = $_POST['attype'];
+        $totalHours = $_POST['totalHours'];
+        $schedule = explode(",", $_POST['schedule']);
+        $tardiness = 0;
+        
+        if(count($schedule) > 1)
+        foreach($schedule as $schedString){
+            if($type === 'in')
+                $computedTardiness = compute_tardiness(date_create_from_format("h:i A",$schedString), $timeNow, $totalHours);
+            else if($type === 'out')
+                $computedTardiness = compute_tardiness($timeNow, date_create_from_format("h:i A",$schedString), $totalHours);
+
+            $tardiness += $computedTardiness;
+        }
+        
+        $tardiness = $tardiness >= $totalHours? $totalHours : $tardiness; 
+
+        if($type === 'in'){
+            if($this->hasAttendance($idnumber, $dateNow)){
+                echo json_encode(['err'=>'Already submitted Time-in for today.']);
+                return;
+            }else{
+                $this->model('Record')
+                ->ready()
+                ->create([
+                    'idnumber' => $idnumber,
+                    'recorddate' => $dateNow,
+                    'timeIn' => $timeNowString,
+                    'dutyHours' => $totalHours,
+                    'late' => $tardiness,
+                    'undertime' => 0,
+                ])
+                ->insert()
+                ->go();
+            }
+        }else if($type==='out'){
+            $this->model('Record')
+            ->ready()
+            ->update([
+                'timeOut' => $timeNowString,
+                'undertime' => $tardiness
+            ])
+            ->where([
+                'idnumber' => $idnumber,
+                'recorddate' => $dateNow
+            ])
+            ->go();
+        }
+
+    }
+
+    /**
+     * Returns a JSON-encoded response containing the current Working Scholar's record
+     * during the current month.
+     * 
+     */
+    public function getMyRecordForThisMonth(){
+        if(!isset($_POST['req']))
+            die(400);
+        
+        session_start();
+
+        $maxDays = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        $idnumber = str_replace("ws", "", $_SESSION['user_id']);
+        $month = date("M");
+        $monthIndex = date('m') + 0;
+        $year = date("Y");
+
+        // Set SELECT bounds
+        $dateStart = $month . " 1, " . $year;
+        $dateEnd = $month . " ". $maxDays[$monthIndex - 1] .", " . $year; 
+
+        $records = $this->model('Record')
+        ->ready()
+        ->find()
+        ->where([
+            'idnumber' => $idnumber,
+            'between' =>[
+                'column' => 'recorddate',
+                'arg1' => "'". $dateStart ."'",
+                'arg2' => "'" . $dateEnd . "'"
+            ] 
+        ])
+        ->result_set();
+
+        $res = [];
+        foreach($records as $rec) {
+            $recordInfo = [];
+
+            $recordInfo['recordDate'] = date_format($rec->get('recorddate'), 'M d, Y');
+            $recordInfo['timeIn'] = $rec->get('timeIn') != null? date_format($rec->get('timeIn'), "h:i A"): ''; 
+            $recordInfo['timeOut'] = $rec->get('timeOut') != null? date_format($rec->get('timeOut'), "h:i A"): ''; 
+            $recordInfo['late'] = $rec->get('late');
+            $recordInfo['undertime'] = $rec->get('undertime');
+            $recordInfo['hoursRendered'] = $rec->get('hoursRendered');
+
+            array_push($res, $recordInfo);
+        }
+
+        echo json_encode([
+            'month' => $monthIndex,
+            'dateStart' => $dateStart,
+            'dateEnd' => $dateEnd,
+            'records' => $res
+        ]);
     }
 }

@@ -79,7 +79,9 @@ const getDtrDataWS = _=>{
                 $newHeaderDataBase = $data.clone();
                 $newHeaderDataBase.addClass('table-flat-data');
                 $newHeaderDataBase.css({
-                    'background-color' : 'rgb(255, 115, 0)',
+                    'background-color' : 'rgb(40, 40, 40)',
+                    // 'color' : 'rgb(255, 115, 0)',
+                    'font-weight': 'bold',
                     'font-size' : '14px'
                 });
 
