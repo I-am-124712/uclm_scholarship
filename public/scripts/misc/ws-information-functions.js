@@ -162,7 +162,6 @@
             type: 'post',
             data: scheduleId,
             success: function(res){
-                console.log(res);
             }
         });
         loadSched();
@@ -238,7 +237,6 @@
                                     data: params,
                                     dataType: 'html',
                                     success: _=>{
-                                        console.log(_);
                                     }
                                 });
                             }
@@ -265,7 +263,6 @@
                             dataType: 'html',
                             data: params,
                             success: _=>{
-                                console.log(_.responseText);
                             },
                             error: err=>{
                                 console.log(err.responseText);

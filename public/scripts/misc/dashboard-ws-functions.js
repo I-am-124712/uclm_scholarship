@@ -24,22 +24,25 @@ let mySchedulePanelStyle = {
     'box-shadow': '3px 3px 5px rgba(0,0,0,0.3)',
 };
 let myAttendancePanelStyle = {
-    'width' : 'inherit',
-    'height' : '300px',
+    'width' : 'auto',
+    'height' : 'auto',
+    'max-height' : '300px',
+    // 'height': 'calc(min(auto, 300px))',
     'margin' : '5px',
     'background': 'white',
     'border-radius': '20px',
     'box-shadow': '3px 3px 5px rgba(0,0,0,0.3)',
-    'padding': '0px 15px',
+    'padding': '0px 15px 15px 15px',
 };
 let tableStyle = {
     "overflow-y": "auto",
     "width" : "100%",
-    "height": "225px",
+    "height": "auto",
+    "max-height": "180px",
     "border-radius": "20px"
 };
 let panelTitleHeaderStyle = {
-    "width":"auto", 
+    "width":"100%", 
     "height": "24px", 
     "font-size":"20px", 
     "font-weight":"bold", 
@@ -108,6 +111,7 @@ $(()=>{
     // load our records
     loadRecords();
 
+    // Functions for our Virtual Biometrics
     $('button#btn-submit-in').click(submitAttendance);
     $('button#btn-submit-out').click(submitAttendance);
 });
@@ -209,9 +213,6 @@ const submitAttendance = function(){
     let scheduleOut = scheduleForToday.rawTimeOutValue;
     let totalHours = scheduleForToday.total;
 
-    console.log(scheduleIn);
-    console.log(scheduleOut);
-
     let forPassing = "";
     if(attype === 'in'){
         forPassing = scheduleIn;
@@ -228,19 +229,23 @@ const submitAttendance = function(){
         method: 'post',
         dataType: 'JSON',
         success: res => {
-            console.log(res);
         },
         error: err => {
             console.log(err.responseText);
         }
     });
+
     // Reload our records table to update
     loadRecords();
 }
 
 const loadRecords = ()=>{
+    // We will buffer the table rows so to prevent any flickering during update.
+    // Plus we will do the update through this object before displaying it.
+    let $table = $('table#attendance-table').clone();
+
     // Clear data rows first...
-    $('tr#header-row').siblings().remove();
+    $table.find('tr#header-row').siblings().remove();
 
     // retrieve our data from server...tada!
     $.ajax({
@@ -249,7 +254,6 @@ const loadRecords = ()=>{
         dataType: 'JSON',
         method: 'post',
         success: res => {
-            console.log(res);
 
             let $row = $('<tr>');
             let $data = $('<td>');
@@ -277,12 +281,13 @@ const loadRecords = ()=>{
                 $currentRow.append($late);
                 $currentRow.append($undertime);
 
-                $('table#attendance-table').append($currentRow);
-                $('span#for-month-name').text(months[res.month - 1].toUpperCase());
+                $table.append($currentRow);
+                $('div#for-table-panel').html($table);
+                $('span#for-month-name').text(months[res.month - 1].toUpperCase() + " " + res.year);
             }
         },
         error: err => {
             console.log(err.responseText);
         }
-    })
+    });
 }

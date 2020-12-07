@@ -28,7 +28,8 @@
         <label for="month" id="form-label2">Month</label>
         <select name="month" id="month" class="textbox-transparent">
         </select>
-        <button class="button-solid round" id="btn-load" onclick="saveSummary()">Save Summary</button>
+        <button class="button-solid round" id="btn-load" onclick="saveSummary()">Confirm and Save</button>
+        <button class="button-solid round" id="btn-pdf" onclick="releaseGeneratedSummary()">Release Summary</button>
         <button class="button-solid round" id="btn-pdf" onclick="">Generate PDF</button>
     </div>
     <div class="table">

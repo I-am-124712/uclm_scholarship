@@ -632,6 +632,7 @@ class Working_scholars extends Controller{
 
         echo json_encode([
             'month' => $monthIndex,
+            'year' => date('Y'),
             'dateStart' => $dateStart,
             'dateEnd' => $dateEnd,
             'records' => $res

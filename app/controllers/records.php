@@ -733,7 +733,6 @@ class Records extends Controller {
             'overall_total' => $hoursRendered
         ];
 
-
         // Before INSERTing, we check first all our Summary entries (if any) for any 
         // duplications. Once a duplicate is found, we just simply UPDATE the entry.
         $summary_temp = $this->allowance_summary_obj
@@ -750,7 +749,7 @@ class Records extends Controller {
         if(!empty($summary_temp)){
             foreach($summary_temp as $summary){
                 if($summary->get("allowance_status") === 'RELEASED'){
-                    echo "Allowance already claimed!";
+                    echo "(RELEASED)";
                     return;
                 }
                 $this->allowance_summary_obj
@@ -771,6 +770,7 @@ class Records extends Controller {
         }
         
         $data['success'] = true;
+        $data['status'] = "(SAVE SUCCESS)";
         echo json_encode($data);
     }
 
@@ -891,6 +891,55 @@ class Records extends Controller {
             }
         }
         echo json_encode($res);
+    }
+
+    /**
+     * Marks the loaded summary from the given period, month and school year as RELEASED.
+     */
+    public function release(){
+        if(!isset($_POST['req'])){
+            echo json_encode([
+                'err' => 'Invalid request handled'
+            ]);
+            return;
+        }
+
+        $department = $_POST['department'] + 0;
+        $schoolYear = $_POST['school-year'];
+        $period = $_POST['period'] + 0;
+        $month = $_POST['month'] + 0;
+
+        $customSql = "SELECT * FROM AllowanceSummary WHERE ws_idnumber in (SELECT idnumber FROM WS WHERE depAssigned = ?)
+            AND school_year = ? AND dtr_period = ? AND dtr_month = ? AND
+            allowance_status = 'UNRELEASED';";
+        $updateReleased = "UPDATE AllowanceSummary SET allowance_status = 'RELEASED'
+            WHERE ws_idnumber in (SELECT idnumber FROM WS WHERE depAssigned = ?)
+            AND school_year = ? AND dtr_period = ? AND dtr_month = ?;
+        ";
+        $bindParams = [ $department, $schoolYear, $period, $month ];
+
+        $res = $this->model('Finder')
+        ->ready()
+        ->customSql($customSql)
+        ->setBindParams($bindParams)
+        ->result_set();
+
+        // Update to RELEASED status.
+        if(count($res) > 0){
+            $this->model('Finder')
+            ->ready()
+            ->customSql($updateReleased)
+            ->setBindParams($bindParams)
+            ->go();
+
+            echo json_encode([
+                'status' => "(RELEASE SUCCESSFUL)",
+            ]);
+        }else{
+            echo json_encode([
+                'status' => "(SUMMARY UNSAVED OR RELEASED)",
+            ]);
+        }
     }
 
 }

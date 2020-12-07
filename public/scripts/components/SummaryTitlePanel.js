@@ -2,6 +2,7 @@ class SummaryTitlePanel {
 
     constructor() {
         let $div = $("<div>");
+        let $span = $("<span>");
 
         this.periods = [null, "First", "Second"];
         this.months = months;
@@ -12,6 +13,14 @@ class SummaryTitlePanel {
         this.$titleSpan = $div.clone();
         this.$periodSpan = $div.clone();
         this.$departmentNameSpan = $div.clone();
+        this.$statusSpan = $span.clone();
+        
+
+        this.$schoolNameSpan.attr('id', 'school-name');
+        this.$titleSpan.attr('id', 'title');
+        this.$periodSpan.attr('id', 'period');
+        this.$departmentNameSpan.attr('id', 'department-name');
+        this.$statusSpan = $span.attr('id', 'summary-status');
 
         this.schoolNameText = "University of Cebu Lapu-lapu and Mandaue<br>A.C Cortes Ave., Looc, Mandaue City";
         this.titleText = "WORKING SCHOLARS' ALLOWANCE SUMMARY REPORT";
@@ -85,7 +94,7 @@ class SummaryTitlePanel {
         return this;
     }
     setDepartment(departmentNameText){
-        this.departmentNameText = departmentNameText;
+        this.departmentNameText = departmentNameText + " ";
         return this;
     }
 
@@ -119,6 +128,7 @@ class SummaryTitlePanel {
         this.$titleSpan.text(this.titleText);
         this.$periodSpan.text(this.periodText + " Period of " + this.monthText + " " + this.schoolYearText);
         this.$departmentNameSpan.text(this.departmentNameText);
+        this.$departmentNameSpan.append(this.$statusSpan);
 
         this.$panel.text("");
 

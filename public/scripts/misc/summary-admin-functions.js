@@ -248,6 +248,8 @@ const loadSummary = ()=>{
             console.log(err.responseText);
         }
     });
+
+    $('span#summary-status').text('');
 }
 
 /**
@@ -273,22 +275,22 @@ const saveSummary = () => {
                 + lates + "&"
                 + undertimes + "&"
                 + hoursRendered;
-
-        console.log(data);
         
         $.post({
             url: '/uclm_scholarship/records/saveSummary',
             data: data,
             dataType: 'JSON',
             success: res => {
-                console.log(res);
                 $(this).children().css({
                     'background-color': 'rgb(0,100,0)',
                     'color' : 'white'
                 })
+                $('span#summary-status').text(res.status);
             },
             error: err => {
-                console.log(err.responseText);
+                responseStatus = err.responseText;
+                $('span#summary-status').text(responseStatus);
+
                 $(this).children().css({
                     'background-color': 'rgb(100,0,0)',
                     'color' : 'white'
@@ -296,6 +298,35 @@ const saveSummary = () => {
             }
         })
     });
+
+}
+/**
+ * Requests the Summary generated be marked as released.
+ */
+const releaseGeneratedSummary = ()=>{
+    let schoolYear = $('select#school-year').serialize();
+    let department = $('select#department').serialize();
+    let period = $('select#period').serialize();
+    let month = $('select#month').serialize();
+
+    let params = schoolYear + '&'
+        + department + '&'
+        + period + '&'
+        + month;
+
+    $.ajax({
+        url: '/uclm_scholarship/records/release',
+        data: 'req&' + params,
+        dataType: "JSON",
+        method: 'POST',
+        success: res=>{
+            console.log(res);
+            $('span#summary-status').text(res.status);
+        },
+        error: err => {
+            console.log(err.responseText);
+        }
+    })
 }
 
 /**

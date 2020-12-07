@@ -106,7 +106,6 @@ const getDtrData = _=>{
             let $data = $('<td>');
             $table.addClass('table-flat');
 
-            // console.log(data);
             dtrJSONData = data;
 
             for(ws in data){
@@ -497,9 +496,6 @@ const editDtrData = $src => {
         newTimeIn = (newTimeIn === '')? null : newTimeIn;
         newTimeOut = (newTimeOut === '')? null : newTimeOut;
 
-        console.log('New time-in: ' + newTimeIn);
-        console.log('New time-out: ' + newTimeOut);
-
         let params = "record_id=" + record_id + "&"
                     + "timeIn=" + newTimeIn + "&"
                     + "timeOut=" + newTimeOut;
@@ -510,7 +506,7 @@ const editDtrData = $src => {
             url: '/uclm_scholarship/records/update',
             data: params,
             success: function(res){
-                console.log(res);
+                
                 // only if we're successful in commiting changes
                 // should we remove the attribute...
                 $src.removeAttr("isEditing");

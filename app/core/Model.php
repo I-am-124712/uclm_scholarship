@@ -233,9 +233,9 @@ class Model {
 
     public final function prepare_query_statement(){
         $this->prepared_statement = sqlsrv_prepare($this->connectionResource, $this->query_string, $this->params);
-        $this->query = sqlsrv_query($this->connectionResource, $this->query_string, $this->params);
+        $yes = $this->query = sqlsrv_query($this->connectionResource, $this->query_string, $this->params);
         
-        return $this;
+        return $yes;
     }
 
     // Performs the query to the Database and closes the connection. This method
@@ -244,7 +244,7 @@ class Model {
 
         // echo $this->query_string;
         
-        if($this->query_method === 'DML'){
+        if($this->query_method === 'DML' || $this->query_method === 'Custom'){
             // Perform a DML
             if($this->prepare_query_statement()){
                 $this->close();

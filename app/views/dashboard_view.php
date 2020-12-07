@@ -12,8 +12,10 @@
         switch($_SESSION['user_privilege']){
             case 999:
             case 1:
-            case 2:
                 require_once './app/views/dashboard-privileged_view.php';
+                break;
+            case 2:
+                require_once './app/views/dashboard-in-charge_view.php';
                 break;
             case 3:
             default:

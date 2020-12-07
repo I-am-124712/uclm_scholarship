@@ -1,11 +1,10 @@
 <?php require "dtr_linker.html"; 
-    $department = $args["department"];
-    $department = str_replace('"', '', $department);
+    $department = str_replace('"', '', $args["department"]);
 ?>
 
 <body>
     <div class="sheet"> 
-        <table class="table" align ="center" > 
+        <table class="table" align="center" > 
             <tr class="tableHeader" > 
                 <th id="dep" colspan ="10" ><?=strtoupper($department)?></th>
             </tr>

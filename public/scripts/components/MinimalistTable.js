@@ -18,9 +18,9 @@ class MinimalistTable {
         this.$td = $('<td>');
 
         // add appropriate classes for each element
-        this.$table.addClass('table-minimalist');
-        this.$th.addClass('table-minimalist-header');
-        this.$td.addClass('table-minimalist-data');
+        this.$table.addClass('table-flat');
+        this.$th.addClass('table-flat-header');
+        this.$td.addClass('table-flat-data');
 
         // For insertion of new td rows
         this.$dataRowCollection = this.$div.clone();

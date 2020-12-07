@@ -15,8 +15,6 @@
 
         // callback constants
         const success = (data)=>{
-            console.log(data);
-
             $("#err-msg-idnum").text(data.err_idnum);
             $("#err-msg-lname").text(data.err_lname);
             $("#err-msg-fname").text(data.err_fname);
