@@ -870,6 +870,8 @@ class Records extends Controller {
 
                 continue;
             }
+            // We set our timezone first to "Asia/Manila"
+            date_default_timezone_set('Asia/Manila'); 
 
             // check if this schedule's day matches today
             $schedule['isForToday'] = $days[$sched->get('schedDay')] === strtoupper(date('l'));
@@ -912,10 +914,12 @@ class Records extends Controller {
         $customSql = "SELECT * FROM AllowanceSummary WHERE ws_idnumber in (SELECT idnumber FROM WS WHERE depAssigned = ?)
             AND school_year = ? AND dtr_period = ? AND dtr_month = ? AND
             allowance_status = 'UNRELEASED';";
+
         $updateReleased = "UPDATE AllowanceSummary SET allowance_status = 'RELEASED'
             WHERE ws_idnumber in (SELECT idnumber FROM WS WHERE depAssigned = ?)
             AND school_year = ? AND dtr_period = ? AND dtr_month = ?;
         ";
+
         $bindParams = [ $department, $schoolYear, $period, $month ];
 
         $res = $this->model('Finder')

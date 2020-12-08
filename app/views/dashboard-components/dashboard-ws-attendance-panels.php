@@ -43,7 +43,8 @@
                         <th class="table-flat-header">Time-In</th>
                         <th class="table-flat-header">Time-Out</th>
                         <th class="table-flat-header">Computed Late</th>
-                        <th class="table-flat-header round-top-right">Computed Undertime</th>
+                        <th class="table-flat-header">Computed Undertime</th>
+                        <th class="table-flat-header round-top-right">Total Rendered</th>
                     </tr>
                 </table>
             </div>

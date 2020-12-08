@@ -128,7 +128,6 @@ const loadSchedules = ()=>{
         dataType: 'JSON',
         method: 'post',
         success: res => {
-            console.log(res);
 
             let $div = $("<div>");
             $('span#for-semester-name').text(res.semester);
@@ -207,6 +206,9 @@ const loadStyles = ()=>{
 
 }
 
+/**
+ * Submits the working scholar's Attendance
+ */
 const submitAttendance = function(){
     let attype = $(this).val();
     let scheduleIn = scheduleForToday.rawTimeInValue;
@@ -221,7 +223,6 @@ const submitAttendance = function(){
     }
 
     let params = 'req&attype=' + attype + "&schedule=" + forPassing + "&totalHours=" + totalHours;
-    console.log(params);
 
     $.ajax({
         url: '/uclm_scholarship/working_scholars/submitAttendance',
@@ -268,18 +269,21 @@ const loadRecords = ()=>{
                 let $out = $data.clone();
                 let $late = $data.clone();
                 let $undertime = $data.clone();
+                let $total = $data.clone();
                 
                 $date.text(rec[i].recordDate);
                 $in.text(rec[i].timeIn);
                 $out.text(rec[i].timeOut);
                 $late.text(rec[i].late);
                 $undertime.text(rec[i].undertime);
+                $total.text(rec[i].hoursRendered);
 
                 $currentRow.append($date);
                 $currentRow.append($in);
                 $currentRow.append($out);
                 $currentRow.append($late);
                 $currentRow.append($undertime);
+                $currentRow.append($total);
 
                 $table.append($currentRow);
                 $('div#for-table-panel').html($table);
@@ -291,3 +295,4 @@ const loadRecords = ()=>{
         }
     });
 }
+

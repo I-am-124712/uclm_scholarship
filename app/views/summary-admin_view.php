@@ -30,7 +30,7 @@
         </select>
         <button class="button-solid round" id="btn-load" onclick="saveSummary()">Confirm and Save</button>
         <button class="button-solid round" id="btn-pdf" onclick="releaseGeneratedSummary()">Release Summary</button>
-        <button class="button-solid round" id="btn-pdf" onclick="">Generate PDF</button>
+        <button class="button-solid round" id="btn-pdf" onclick="generateSummaryPDF()">Generate PDF</button>
     </div>
     <div class="table">
         <div id="for-title-panel"></div>

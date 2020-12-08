@@ -22,7 +22,8 @@ class Utilities extends Controller {
 
         $args = [
             'department' => $department,
-            'data' => $data
+            'data' => $data,
+            'dbFinder' => $this->model('Finder')
         ];
 
         switch($docName){
@@ -31,7 +32,8 @@ class Utilities extends Controller {
                 $this->dtr->prepare($args)->getGeneratedPDF();
                 break;
             case "Summary":
-                $this->summary->getGeneratedPDF();
+            case "summary":
+                $this->summary->prepare($args)->getGeneratedPDF();
         }
     }
 
@@ -53,12 +55,15 @@ class DTR extends Controller {
 }
 class Summary extends Controller{
 
-    public function prepare(){
+    private $args = [];
+
+    public function prepare($args){
+        $this->args = $args;
         return $this;
     }
 
-    public function getGeneratedPDF($args = []){
-        if(isset($args) && !empty($args))
-            return $this->view("./app/views/pdfTemplates/summary_linker.html", "/pdfTemplates/summary-pdf-template", $this->args);
+    public function getGeneratedPDF(){
+        if(isset($this->args) && !empty($this->args))
+            return $this->view_custom("./app/views/pdfTemplates/summary_linker.html", "/pdfTemplates/summary-pdf-template", $this->args);
     }
 }

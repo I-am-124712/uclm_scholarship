@@ -502,14 +502,17 @@ class Working_scholars extends Controller{
      * Verify if this working scholar has submitted an attendance entry.
      */
     public function hasAttendance($idnumber, $dateString){
-        
-        $timeInRecord = $this->model("Record")
+
+        $customSql = "SELECT * FROM Record WHERE idnumber = ? AND recorddate = ?
+            AND timeIn IS NOT NULL AND [timeOut] IS NULL;
+        ";
+
+        $bindParams = [ $idnumber, $dateString ];
+
+        $timeInRecord = $this->model('Finder')
         ->ready()
-        ->find()
-        ->where([
-            'idnumber' => $idnumber,
-            'recorddate' => $dateString
-        ])
+        ->customSql($customSql)
+        ->setBindParams($bindParams)
         ->result_set();
 
         return count($timeInRecord) > 0;
@@ -536,16 +539,18 @@ class Working_scholars extends Controller{
         $schedule = explode(",", $_POST['schedule']);
         $tardiness = 0;
         
-        if(count($schedule) > 1)
-        foreach($schedule as $schedString){
-            if($type === 'in')
-                $computedTardiness = compute_tardiness(date_create_from_format("h:i A",$schedString), $timeNow, $totalHours);
-            else if($type === 'out')
-                $computedTardiness = compute_tardiness($timeNow, date_create_from_format("h:i A",$schedString), $totalHours);
-
-            $tardiness += $computedTardiness;
+        if(count($schedule) >= 1){
+            foreach($schedule as $schedString){
+                $scheduleAsTime = date_create_from_format("h:i A",$schedString);
+                if($type === 'in'){
+                    $computedTardiness = compute_tardiness($scheduleAsTime, $timeNow, $totalHours);
+                }
+                else if($type === 'out'){
+                    $computedTardiness = compute_tardiness($timeNow, $scheduleAsTime, $totalHours);
+                }
+                $tardiness += $computedTardiness;
+            }
         }
-        
         $tardiness = $tardiness >= $totalHours? $totalHours : $tardiness; 
 
         if($type === 'in'){
@@ -603,17 +608,18 @@ class Working_scholars extends Controller{
         $dateStart = $month . " 1, " . $year;
         $dateEnd = $month . " ". $maxDays[$monthIndex - 1] .", " . $year; 
 
-        $records = $this->model('Record')
+        $sql = "SELECT recorddate, timeIn, [timeOut], late, undertime,
+            case when timeIn is not null and [timeOut] is not null then 
+            case when dutyHours - (late + undertime) <= 0 then 0 else dutyHours - (late + undertime) 
+            end else 0 end as 'hoursRendered'
+            from Record where idnumber = ? and recorddate between ? and ?; 
+        ";
+        $bindParams = [ $idnumber, $dateStart, $dateEnd ];
+
+        $records = $this->model('Finder')
         ->ready()
-        ->find()
-        ->where([
-            'idnumber' => $idnumber,
-            'between' =>[
-                'column' => 'recorddate',
-                'arg1' => "'". $dateStart ."'",
-                'arg2' => "'" . $dateEnd . "'"
-            ] 
-        ])
+        ->customSql($sql)
+        ->setBindParams($bindParams)
         ->result_set();
 
         $res = [];

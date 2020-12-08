@@ -333,6 +333,34 @@ const releaseGeneratedSummary = ()=>{
  * Request a Generated PDF for our 
  */
 const generateSummaryPDF = ()=>{
+    let schoolYear = $('select#school-year').val();
+    let department = $('select#department').val();
+    let departmentName = $('select#department option:selected').text();
+    let period = $('select#period').val();
+    let month = $('select#month').val();
 
+    let dataObj = {
+        schoolYear : schoolYear,
+        departmentId : department,
+        period : period,
+        month: month,
+    };
 
+    let params = "department=" + departmentName + "&data=" + JSON.stringify(dataObj);
+
+    $.ajax({
+        method: 'post',
+        url: '/uclm_scholarship/utilities/generate/pdf/summary',
+        data: params,
+        success: res => {
+            let printer = window.open('','_blank');
+            printer.document.write(res);
+            setTimeout(function(){
+                printer.print();
+            }, 500);
+        },
+        error: err => {
+
+        }
+    })
 }
