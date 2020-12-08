@@ -30,6 +30,10 @@ const getDtrDataWS = _=>{
             let $row = $('<tr>');
             let $data = $('<td>');
 
+            $table.css({
+                'width' : '100%'
+            });
+
             dtrJSONData = res;
 
             let $newHeaderRow = $row.clone();
@@ -52,7 +56,7 @@ const getDtrDataWS = _=>{
             if(wsRecords.length <= 0){
                 // fix the table's width to not compress its contents
                 $('div.table').css({
-                    'width' : "60%"
+                    'width' : 'calc(100% - 300px)',
                 })
                 $table.css({
                     'width' : "100%"
@@ -73,7 +77,7 @@ const getDtrDataWS = _=>{
             else {
                 // automatically adjust table width
                 $('div.table').css({
-                    'width' : "75%"
+                    'width' : 'calc(100% - 300px)',
                 })
                 $newHeaderRow = $row.clone();
                 $newHeaderDataBase = $data.clone();

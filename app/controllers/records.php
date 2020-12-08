@@ -133,12 +133,14 @@ class Records extends Controller {
     }
 
 
-
-
-
+    /**
+     * Controller method for WS Overtime view
+     */
     public function overtime(){
         session_start();
         $this->trap_no_user_session();
+
+        return $this->view('overtime');
     }
 
 

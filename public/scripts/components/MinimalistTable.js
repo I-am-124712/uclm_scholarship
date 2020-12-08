@@ -22,6 +22,13 @@ class MinimalistTable {
         this.$th.addClass('table-flat-header');
         this.$td.addClass('table-flat-data');
 
+        this.$th.css({
+            'width' : 'auto'
+        });
+        this.$td.css({
+            'width' : 'auto'
+        });
+
         // For insertion of new td rows
         this.$dataRowCollection = this.$div.clone();
         this.$lastDataRow = null;

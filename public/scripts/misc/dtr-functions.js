@@ -115,6 +115,8 @@ const getDtrData = _=>{
                 $newHeaderData.attr("id", "ws-info-header");
                 $newHeaderData.attr('colspan', 10);
                 $newHeaderData.css({
+                    'background-color': 'rgb(240,240,240)',
+                    'color': 'black',
                     'border-top-left-radius': '20px',
                     'border-top-right-radius': '20px',
                     'font-size' : '20px'
@@ -149,13 +151,13 @@ const getDtrData = _=>{
                 else{
                     // automatically adjust table width
                     $('div.table').css({
-                        'width' : "75%"
+                        'width' : 'calc(100% - 300px)',
                     })
                     $newHeaderRow = $row.clone();
                     $newHeaderDataBase = $data.clone();
                     $newHeaderDataBase.addClass('table-flat-data');
                     $newHeaderDataBase.css({
-                        'background-color' : 'rgb(40, 40, 40)',
+                        'background-color' : 'rgb(0, 162, 255)',
                         'font-weight' : 'bold',
                         // 'color' : 'rgb(255, 115, 0)',
                         'font-size' : '14px'

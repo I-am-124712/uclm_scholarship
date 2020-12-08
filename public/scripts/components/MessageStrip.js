@@ -132,6 +132,6 @@ class MessageStrip {
 
     getMessagesStrip = _=>{
         this.finalize();
-        return this.$strip;
+        return this.$strip.clone();
     }
 }

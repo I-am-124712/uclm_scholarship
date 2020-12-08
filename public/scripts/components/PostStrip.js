@@ -180,6 +180,6 @@ class PostStrip {
     }
 
     getPostStrip(){
-        return this.mainStrip;
+        return this.mainStrip.clone();
     }
 }

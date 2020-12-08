@@ -31,27 +31,22 @@ $(()=>{
     // styling for drawer
     let $drawer = $(".drawer"); 
     $drawer.css({
-        'background' : "rgb(0, 64, 184)",
+        'background' : "rgb(240,240,240)",
         'border-radius': '20px',
         'width' : "225px",
         'height': 'auto',
         'padding': '10px',
+        'box-shadow': '2px 2px  5px rgb(0,0,0,0.25)',
         'margin': '0px 20px 20px 0px',
         'float' : 'left',
         'display' : 'block',
-        // 'position' : 'fixed'
     });
     $drawer.children().css({
-        'color' : 'white',
+        'color' : 'black',
         'font-size': '14px'
     });
-    // styiling title
-    $('div#title').css({
-        'color' : 'rgb(255, 163, 88)',
-        "font-size" : '20px',
-        'font-weight' : 'bolder',
-        'text-align' : 'center',
-        'width' : '100%'
+    $drawer.children('label').css({
+        'font-weight' : 'bold'
     });
     $drawer.children('select').css({
         'border' : 'unset',
@@ -63,10 +58,6 @@ $(()=>{
         'background-color': 'white',
         'color': 'black'
     })
-    $('#btn-load').css({
-        'margin-top' : "15px",
-        'width' : '100%' 
-    });
     // initialize custom style for Save and PDF button
     $("button#btn-save").css({
         'width' : '100%',
@@ -76,14 +67,14 @@ $(()=>{
     });
 
     // styling for table
-    let $table = $(".table"); 
+    let $table = $("div.table"); 
     $table.css({
         'border-radius' : '20px',
-        // 'margin': '0px 20px',
-        'width' : 'auto',
+        'width' : 'calc(100% - 170px)',
         'height': 'auto',
         'float': 'left',
-        'position' : 'auto'
+        'position' : 'auto',
+        'box-shadow': '3px 3px 3px rgba(0,0,0,0.3)'
     });
 
 
@@ -96,19 +87,31 @@ $(()=>{
     });
     $("button#btn-pdf").mouseenter(function(){
         $(this).css({
-            'width' : '100%',
-            'margin-top': '10px',
-            'float' : 'left',
             'background-color' : 'rgb(90,150,255)'
         });
     }).mouseleave(function(){
         $(this).css({
-            'width' : '100%',
-            'margin-top': '10px',
-            'float' : 'left',
             'background-color' : 'inherit'
         });
     });
+
+    // For Load Button
+    $('#btn-load').css({
+        'background-color': 'rgb(43, 117, 255)',
+        'color': 'white',
+        'margin-top' : "15px",
+        'width' : '100%',
+    });
+    $("button#btn-load").mouseenter(function(){
+        $(this).css({
+            'background-color' : 'rgb(90, 175, 231)'
+        });
+    }).mouseleave(function(){
+        $(this).css({
+            'background-color' : 'rgb(43, 117, 255)'
+        });
+    });
+    
 
     // Fill the Months combo box...
     for(let i=0; i<months.length; ++i){

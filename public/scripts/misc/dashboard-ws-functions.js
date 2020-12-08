@@ -230,6 +230,11 @@ const submitAttendance = function(){
         method: 'post',
         dataType: 'JSON',
         success: res => {
+            if(res.timeInSuccess)
+                console.log("Time In successful");
+            if(res.timeOutSuccess)
+                console.log("Time Out successful");
+            
         },
         error: err => {
             console.log(err.responseText);

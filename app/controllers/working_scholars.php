@@ -570,19 +570,24 @@ class Working_scholars extends Controller{
                 ])
                 ->insert()
                 ->go();
+                echo json_encode([
+                    'timeInSuccess' => 'Successfully submitted Time-in'
+                ]);
             }
         }else if($type==='out'){
-            $this->model('Record')
+            $customSql = "UPDATE Record SET [timeOut] = ?, undertime = ?
+                WHERE idnumber = ? AND recorddate = ? and [timeOut] IS NULL;
+            ";
+            $bindParams = [ $timeNowString, $tardiness, $idnumber, $dateNow ];
+
+            $this->model('Finder')
             ->ready()
-            ->update([
-                'timeOut' => $timeNowString,
-                'undertime' => $tardiness
-            ])
-            ->where([
-                'idnumber' => $idnumber,
-                'recorddate' => $dateNow
-            ])
+            ->customSql($customSql)
+            ->setBindParams($bindParams)
             ->go();
+            echo json_encode([
+                'timeOutSuccess' => 'Successfully submitted Time-in'
+            ]);
         }
 
     }
