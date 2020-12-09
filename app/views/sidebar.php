@@ -24,14 +24,6 @@
             <div>
                 <button class="button-flashing" id="app-sidebar-btn" onclick="location.href=''">
                     <div class="icon-panel">
-                        <div class="icon" id="setting-icon"></div>
-                    </div>
-                    <div class="btn-label">Settings</div>
-                </button>
-            </div>
-            <div>
-                <button class="button-flashing" id="app-sidebar-btn" onclick="location.href=''">
-                    <div class="icon-panel">
                         <div class="icon" id="message-icon"></div>
                     </div>
                     <div class="btn-label">Messages</div>

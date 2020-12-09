@@ -501,7 +501,20 @@ class Working_scholars extends Controller{
     /**
      * Verify if this working scholar has submitted an attendance entry.
      */
-    public function hasAttendance($idnumber, $dateString){
+    public function hasAttendance($idnumber='', $dateString='', $jsonify = false){
+        if(!isset($_POST['req'])){
+            echo json_encode([
+                'err' => 'Invalid request'
+            ]);
+            return;
+        }
+        if(session_status() != PHP_SESSION_ACTIVE)
+            session_start();
+
+        if(isset($_POST['ajax'])){
+            $idnumber = str_replace("ws", "", $_SESSION['user_id']);
+            $dateString = date('m-d-Y');
+        }
 
         $customSql = "SELECT * FROM Record WHERE idnumber = ? AND recorddate = ?
             AND timeIn IS NOT NULL AND [timeOut] IS NULL;
@@ -515,6 +528,9 @@ class Working_scholars extends Controller{
         ->setBindParams($bindParams)
         ->result_set();
 
+        if($jsonify)
+            echo json_encode(['hasAttendance' => count($timeInRecord) > 0]);
+
         return count($timeInRecord) > 0;
     }
 
@@ -522,12 +538,15 @@ class Working_scholars extends Controller{
      * Submits a time-in entry for the current Working Scholar.
      */
     public function submitAttendance(){
-        if(!isset($_POST['req']))
+        if(!isset($_POST['req'])){
             echo json_encode([
                 'err' => 'Invalid request'
             ]);
-
+            return;
+        }
         session_start();
+
+        // We should set the timezone to our current country.
         date_default_timezone_set('Asia/Manila');
 
         $idnumber = str_replace("ws","",$_SESSION['user_id']);
@@ -535,28 +554,61 @@ class Working_scholars extends Controller{
         $timeNow = new DateTime();
         $timeNowString = date_format($timeNow, 'h:i a');
         $type = $_POST['attype'];
-        $totalHours = $_POST['totalHours'];
-        $schedule = explode(",", $_POST['schedule']);
+        $totalHours = explode(",", $_POST['totalHours']);
+        $scheduleIn = explode(",", $_POST['scheduleIn']);
+        $scheduleOut = explode(",", $_POST['scheduleOut']);
         $tardiness = 0;
+
+        $totalDutyHours = 0;
+
+        // integrate schedule in one array
+        $scheduleGrouped = [];
+        for($i=0; $i < count($totalHours); ++$i){
+            $scheduleGrouped[$i] = [];
+            $scheduleGrouped[$i]['schedIn'] = $scheduleIn[$i];
+            $scheduleGrouped[$i]['schedOut'] = $scheduleOut[$i];
+            $scheduleGrouped[$i]['totalHours'] = $totalHours[$i];
+
+            $totalDutyHours += $totalHours[$i];
+        }
         
-        if(count($schedule) >= 1){
-            foreach($schedule as $schedString){
-                $scheduleAsTime = date_create_from_format("h:i A",$schedString);
+        // store the schedule we will use for bases in trapping unnecessary time-in.
+        $timeInForChecking = null;
+
+        // We pre-compute our tardiness either lates or undertime first despite not being able
+        // to use it whenever attendance check fails.
+        if(count($scheduleGrouped) >= 1){
+            for($i = 0; $i < count($scheduleGrouped); ++$i){
+                // here's where we determine our time for checking. We will check if the current
+                // time is encompassed on the current schedule block.
+                if(!isset($timeInForChecking) && strtotime($timeNowString) <= strtotime($scheduleGrouped[$i]['schedOut']))
+                    $timeInForChecking = $scheduleGrouped[$i]['schedIn'];
+
+                // separate our schedule in, out and total hours
+                $scheduleInAsTime = date_create_from_format("h:i A",$scheduleGrouped[$i]['schedIn']);
+                $scheduleOutAsTime = date_create_from_format("h:i A",$scheduleGrouped[$i]['schedOut']);
+                $total = $scheduleGrouped[$i]['totalHours'];
+
                 if($type === 'in'){
-                    $computedTardiness = compute_tardiness($scheduleAsTime, $timeNow, $totalHours);
+                    $computedTardiness = compute_tardiness($scheduleInAsTime, $timeNow, $total);
                 }
                 else if($type === 'out'){
-                    $computedTardiness = compute_tardiness($timeNow, $scheduleAsTime, $totalHours);
+                    $computedTardiness = compute_tardiness($timeNow, $scheduleOutAsTime, $total);
                 }
                 $tardiness += $computedTardiness;
             }
         }
-        $tardiness = $tardiness >= $totalHours? $totalHours : $tardiness; 
 
         if($type === 'in'){
-            if($this->hasAttendance($idnumber, $dateNow)){
-                echo json_encode(['err'=>'Already submitted Time-in for today.']);
+            // now we trap our user to not log in 15 minutes earlier than their schedule.
+            if($timeInForChecking != null && strtotime($timeNowString) < strtotime($timeInForChecking) - (60 * 15)){
+                echo json_encode([
+                    'errTimeInEarly' => 'YOU CANNOT LOG YOUR TIME-IN EARLIER THAN 15 MINUTES FROM YOUR SCHEDULE'
+                ]);
                 return;
+            }
+            if($this->hasAttendance($idnumber, $dateNow)){
+                echo json_encode(['errTimeInSubmitted'=>'ALREADY LOGGED TIME-IN FOR TODAY']);
             }else{
                 $this->model('Record')
                 ->ready()
@@ -564,17 +616,21 @@ class Working_scholars extends Controller{
                     'idnumber' => $idnumber,
                     'recorddate' => $dateNow,
                     'timeIn' => $timeNowString,
-                    'dutyHours' => $totalHours,
+                    'dutyHours' => $totalDutyHours,
                     'late' => $tardiness,
                     'undertime' => 0,
                 ])
                 ->insert()
                 ->go();
                 echo json_encode([
-                    'timeInSuccess' => 'Successfully submitted Time-in'
+                    'timeInSuccess' => 'SUCCESSFULLY LOGGED TIME-IN'
                 ]);
             }
         }else if($type==='out'){
+            if(!$this->hasAttendance($idnumber, $dateNow)){
+                echo json_encode(['errTimeOutSubmitted'=>'NO NEWLY LOGGED TIME-IN FOUND']);
+                return;
+            }
             $customSql = "UPDATE Record SET [timeOut] = ?, undertime = ?
                 WHERE idnumber = ? AND recorddate = ? and [timeOut] IS NULL;
             ";
@@ -586,7 +642,7 @@ class Working_scholars extends Controller{
             ->setBindParams($bindParams)
             ->go();
             echo json_encode([
-                'timeOutSuccess' => 'Successfully submitted Time-in'
+                'timeOutSuccess' => 'SUCCESSFULLY LOGGED TIME-OUT'
             ]);
         }
 

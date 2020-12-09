@@ -140,6 +140,19 @@ class Records extends Controller {
         session_start();
         $this->trap_no_user_session();
 
+        if($_SESSION['user_privilege'] == 3){
+            header('location: /uclm_scholarship/records/my_overtime');
+        }
+        return $this->view('overtime');
+    }
+
+    public function my_overtime(){
+        session_start();
+        $this->trap_no_user_session();
+
+        if($_SESSION['user_privilege'] != 3){
+            header('location: /uclm_scholarship/records/overtime');
+        }
         return $this->view('overtime');
     }
 
@@ -499,7 +512,11 @@ class Records extends Controller {
 		        if(!empty($schedule)){
 
 		            $record_in = $dtr_entry['timeIn'];
-		            $record_out = $dtr_entry['timeOut'];
+                    $record_out = $dtr_entry['timeOut'];
+                    
+                    // Test to see our output calculations.
+                    $dtr_entry['boboTest'] = [];
+                    $dtr_entry['boboSpcTest'] = [];
 
 
 		            $lates_undertimes = [];
@@ -538,17 +555,16 @@ class Records extends Controller {
                                             $undertime,
                                             $total
                                         );
+
                                     }
 		                        }
 		                        break;
                             case 'SPC':
-                                $recorddate = date_format($record->get('recorddate'),'m/d/Y');
+                                
+                                $recorddate = strtotime($record->get('recorddate')->format('m/d/Y'));
+                                $schedDay = strtotime($sched->get('schedDay'));
 
-                                // echo "Entered SPC case...\n";
-                                // echo "Record Date: ".$recorddate."\n";
-                                // echo "Schedule Date: ".$sched->get('schedDay')."\n";
-
-                                if($sched->get('schedDay') === $recorddate){
+                                if($schedDay === $recorddate){
 
                                     array_push($spc_scheduleForRecord, [
                                         'schedule_id' => $sched->get('schedule_id'),
@@ -581,11 +597,6 @@ class Records extends Controller {
 		                }
 		            }
 		        }
-                else{
-                    $late = $undertime = $total = 0;
-                    $spc_late = $spc_undertime = $spc_total = 0;
-                    
-                }
 
                 $dtr_entry['late'] = empty($spc_scheduleForRecord) ? $late : $spc_late;
                 $dtr_entry['undertime'] = empty($spc_scheduleForRecord) ? $undertime : $spc_undertime;
@@ -626,10 +637,14 @@ class Records extends Controller {
         &$undertime,
         &$total
     ){
-        $late += ($recordIn==null)? $expectedHours : compute_tardiness($timeIn, $recordIn, $expectedHours);
-        $undertime += ($recordOut==null)? $expectedHours : compute_tardiness($recordOut, $timeOut, $expectedHours);
-        $total += $expectedHours - ($late + $undertime);
-        $total = $total <= 0 ? 0:$total;    // Normalize
+        
+        $computedLate = ($recordIn==null)? $expectedHours : compute_tardiness($timeIn, $recordIn, $expectedHours);
+        $computedUndertime = ($recordOut==null)? $expectedHours : compute_tardiness($recordOut, $timeOut, $expectedHours);
+
+        $late += $computedLate;
+        $undertime += $computedUndertime;
+        $total += $expectedHours - ($computedLate + $computedUndertime);
+        $total = $total <= 0 ? 0:$total;    // make sure we return a non-negative value.
     }
 
     /**
@@ -853,7 +868,8 @@ class Records extends Controller {
 
             $schedule['day'] = $days[$sched->get('schedDay')];
             $schedule['rawTimeInValue'] = [];
-            $schedule['rawTimeOutValue']= [];
+            $schedule['rawTimeOutValue'] = [];
+            $schedule['total'] = [];
 
             $timeIn = date_format($sched->get('tin'), "h:i A");
             $timeOut = date_format($sched->get('tout'), "h:i A");
@@ -864,8 +880,8 @@ class Records extends Controller {
             // append the time schedule of the current iteration's time schedule
             // with an HTML line break.
             if(isset($previousItem) && $previousItem['day'] === $days[$sched->get('schedDay')]){
-                $previousItem['time'] = $previousItem['time'] . "<br>" .$times;
-                $previousItem['total'] += $sched->get('totalHours');
+                $previousItem['time'] .= "<br>" .$times;
+                array_push($previousItem['total'], $sched->get('totalHours'));
 
                 array_push($previousItem['rawTimeInValue'], $timeIn);
                 array_push($previousItem['rawTimeOutValue'], $timeOut);
@@ -882,7 +898,7 @@ class Records extends Controller {
             array_push($schedule['rawTimeInValue'], $timeIn);
             array_push($schedule['rawTimeOutValue'], $timeOut);
 
-            $schedule['total'] = $sched->get('totalHours');
+            array_push($schedule['total'], $sched->get('totalHours'));
             array_push($res['schedule'], $schedule);
 
             $previousItem = &$res['schedule'][count($res['schedule'])-1];

@@ -7,6 +7,17 @@
                                     border-radius:20px;
                                     font-size:25px">
             <b>MY DAILY TIME RECORD</b>
+            <div style="width:18px; 
+                        height:18px; 
+                        cursor:default;
+                        font-family: 'Impact';
+                        color:rgb(0, 162, 255); 
+                        border: 2px solid rgb(0, 162, 255);
+                        border-radius:100%;
+                        margin:auto 5px;
+                        font-size:14px;
+                        text-align:center"
+                title="This Information is for reference ONLY and is not considered official.">!</div>
         </div>
         <div class="drawer">
             <!-- School Year -->
@@ -43,11 +54,12 @@
             <select name="month" id="month" class="textbox-transparent">
             </select>
             <button class="button-solid round" id="btn-load" onclick="getDtrDataWS()">Load Entries</button>
-            <button class="button-solid round" id="btn-pdf" onclick="generatePDFWS()">Generate PDF</button>
+            <button class="button-solid round" id="btn-transparent" onclick="generatePDFWS()">Generate PDF</button>
         </div>
         <div class="table"></div>
     </div>
 </div>
 
+<script src="/uclm_scholarship/public/scripts/misc/drawer-widget.js"></script>
 <script src="/uclm_scholarship/public/scripts/misc/dtr-misc.js"></script>
 <script src="/uclm_scholarship/public/scripts/misc/dtr-ws-functions.js"></script>

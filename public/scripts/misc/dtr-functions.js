@@ -133,7 +133,7 @@ const getDtrData = _=>{
                 if(wsRecords.length <= 0){
                     // fix the table's width to not compress its contents
                     $('div.table').css({
-                        'width' : "75%"
+                        'width' : 'calc(100% - 300px)',
                     })
 
                     $newHeaderRow = $row.clone();

@@ -388,6 +388,11 @@ div #user-name{
     background-color: rgb(83, 83, 83);
     cursor: pointer;
 }
+.button-flashing.round:hover{
+    background-color: rgb(90,150,255);
+    color: white;
+    cursor: pointer;
+}
 .button-flashing#back-button{
     color: black;
     float: left;

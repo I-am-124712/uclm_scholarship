@@ -98,23 +98,14 @@ let scheduleActualSmallStyle = {
     'color' : 'rgb(255, 81, 0)',
     'text-align': 'center',
 };
+let attendanceButtonStyle = {
+    'background-image' : 'url("/uclm_scholarship/public/sources/icons/iconFingerprint.png")',
+    'background-size' : '80px',
+    'background-repeat': 'no-repeat',
+    'background-position': 'left',
+};
 // END STYLES //
 
-
-$(()=>{
-    // Load them schedules
-    loadSchedules();
-
-    // load our JS coded styles
-    loadStyles();
-
-    // load our records
-    loadRecords();
-
-    // Functions for our Virtual Biometrics
-    $('button#btn-submit-in').click(submitAttendance);
-    $('button#btn-submit-out').click(submitAttendance);
-});
 
 
 /**
@@ -202,8 +193,13 @@ const loadStyles = ()=>{
     $('div#schedule-actual').css(scheduleActualStyle);
     $('div#schedule-actual-small').css(scheduleActualSmallStyle);
 
-
-
+    $('button.button-dashboard.block').css(attendanceButtonStyle);
+    $('button.button-dashboard.block').children('div.label-dash-btn').css({
+        'margin-left': '80px'
+    });
+    $('button.button-dashboard.block').children('div.sub-dash-btn').css({
+        'margin-left': '80px'
+    });
 }
 
 /**
@@ -215,14 +211,11 @@ const submitAttendance = function(){
     let scheduleOut = scheduleForToday.rawTimeOutValue;
     let totalHours = scheduleForToday.total;
 
-    let forPassing = "";
-    if(attype === 'in'){
-        forPassing = scheduleIn;
-    }else if(attype==="out"){
-        forPassing = scheduleOut;
-    }
-
-    let params = 'req&attype=' + attype + "&schedule=" + forPassing + "&totalHours=" + totalHours;
+    let params = 'req&attype=' + attype 
+        + "&scheduleIn=" + scheduleIn 
+        + "&scheduleOut=" + scheduleOut 
+        + "&totalHours=" + totalHours;
+    console.log(params);
 
     $.ajax({
         url: '/uclm_scholarship/working_scholars/submitAttendance',
@@ -230,11 +223,53 @@ const submitAttendance = function(){
         method: 'post',
         dataType: 'JSON',
         success: res => {
-            if(res.timeInSuccess)
-                console.log("Time In successful");
-            if(res.timeOutSuccess)
-                console.log("Time Out successful");
-            
+
+            console.log(res);
+            // Display the response messages according to what was sent.
+            $("div#message-prompt").show();
+
+            // SUCESSES
+            if(res.timeInSuccess){
+                $("div#message-prompt").css({
+                    'background-color': 'rgb(0,150,0)'
+                });
+                $("div#message-prompt").text(res.timeInSuccess);
+            }
+            if(res.timeOutSuccess){
+                $("div#message-prompt").css({
+                    'background-color': 'rgb(0,150,0)'
+                });
+                $("div#message-prompt").text(res.timeOutSuccess);
+            }
+            // ERRORS
+            if(res.errTimeInEarly){
+                $("div#message-prompt").css({
+                    'background-color': 'red'
+                });
+                $("div#message-prompt").text(res.errTimeInEarly);
+            }
+            if(res.errTimeInSubmitted){
+                $("div#message-prompt").css({
+                    'background-color': 'red'
+                });
+                $("div#message-prompt").text(res.errTimeInSubmitted);
+            }
+            if(res.errTimeOutSubmitted){
+                $("div#message-prompt").css({
+                    'background-color': 'red'
+                });
+                $("div#message-prompt").text(res.errTimeOutSubmitted);
+            }
+
+            // Fade out text after 3 seconds
+            setTimeout(()=>{
+                $("div#message-prompt").fadeOut(100, ()=>{
+                    $("div#message-prompt").text('');
+                });
+            },3000);
+
+            // We should refresh our attendance buttons accordingly.
+            checkIfHasAttendance();
         },
         error: err => {
             console.log(err.responseText);
@@ -244,6 +279,36 @@ const submitAttendance = function(){
     // Reload our records table to update
     loadRecords();
 }
+
+/**
+ * Check if WS User had submitted attendance (i.e Time-in). 
+ */
+const checkIfHasAttendance = ()=>{
+    $.ajax({
+        method: 'post',
+        url: '/uclm_scholarship/working_scholars/hasAttendance/a/b/true',
+        dataType: 'JSON',
+        data: 'req&ajax',
+        success: res => {
+            console.log(res);
+            // We only apply to Time-in button.
+            if(res.hasAttendance){
+                $("button#btn-submit-in").children('div.label-dash-btn').text("Attendance Logged");
+                $("button#btn-submit-in").css({
+                    'background-color': 'rgb(140,140,140)'
+                });
+            }else{
+                $("button#btn-submit-in").find('div.label-dash-btn').text("Log Attendance");
+                $("button#btn-submit-in").css({
+                    'background-color': ''
+                });
+            }
+        },
+        error: err => {
+            console.log(err.responseText);
+        }
+    })
+};
 
 const loadRecords = ()=>{
     // We will buffer the table rows so to prevent any flickering during update.
@@ -301,3 +366,23 @@ const loadRecords = ()=>{
     });
 }
 
+
+/* MAIN ENTRY POINT */
+
+$(()=>{
+    // Load them schedules
+    loadSchedules();
+
+    // load our JS coded styles
+    loadStyles();
+
+    // load our records
+    loadRecords();
+
+    // check if we have attendance loaded
+    checkIfHasAttendance();
+
+    // Functions for our Virtual Biometrics
+    $('button#btn-submit-in').click(submitAttendance);
+    $('button#btn-submit-out').click(submitAttendance);
+});

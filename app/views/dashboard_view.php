@@ -2,11 +2,23 @@
 
 <div class="app-dash-panel" id="dashboard-panel">
 
-    <div class="form-flat" style="width:inherit;
-                                  padding:20px;
-                                  border-radius:20px;
-                                  font-size:25px">
-        <b>DASHBOARD</b>
+    <div class="form-flat" style="width:auto;
+                                height:45px;
+                                padding:20px;
+                                padding-bottom:10px;
+                                display:block;
+                                border-radius:20px;
+                                font-size:25px">
+        <div style="float:left"><b>DASHBOARD</b></div>
+        <div style="float:right; 
+                    text-align:right; 
+                    color:white; 
+                    font-size:20px; 
+                    font-weight:bold; 
+                    background-color:red;
+                    padding:5px 20px;
+                    border-radius:20px;
+                    width:auto;" id="message-prompt" hidden></div>
     </div>
     <?php
         switch($_SESSION['user_privilege']){
@@ -20,7 +32,6 @@
             case 3:
             default:
                 require_once './app/views/dashboard-ws_view.php';
-                
         }
     ?>
 
