@@ -68,53 +68,6 @@
             scheduleId = $src.val();
             selectedScheduleId = scheduleId;
 
-            // we will create a function for formatting our time string
-            // to comply with the format required for the Time input fields.
-            // Note that this is not usable for general cases of formatted
-            // Time strings and only accepts Time strings with format "hh:mm am|pm".
-            // Put short, just for the purpose of this functionality.
-            //
-            // Here's a smiley 😂
-            const formatTime = (timeString)=>{
-                let timeParts = timeString.replace(" ",":").split(':');
-                let formattedString = '';
-                for(let i=0; i<2; ++i){
-                    timeParts[i] = parseInt(timeParts[i]);
-                }
-                let hour, minute;
-
-                switch(timeParts[2]){
-                    case "am":
-                    case "AM":
-                    case "aM":
-                    case "Am":
-                        hour = (timeParts[0] < 10) ? "0" + timeParts[0] : "" + timeParts[0];
-                        minute = (timeParts[1] < 10) ? "0" + timeParts[1] : "" + timeParts[1];
-                        break;
-                    case "pm":
-                    case "PM":
-                    case "pM":
-                    case "Pm":
-                        hour = timeParts[0]==12? "" + 12 : "" + (12 + timeParts[0]);
-                        minute = (timeParts[1] < 10) ? "0" + timeParts[1] : "" + timeParts[1];
-                        break;
-                }
-                formattedString = hour + ":" + minute + ":00";
-
-                return formattedString;
-            }
-            // Similar to the function above, we will make yet another local formatter
-            // this time for the Date string. Just to comply with the date format required
-            // by the HTML input element. Luckily this came out shorter than the time formatter.
-            // Again, another smiley 😅
-            const formatDate = dateString => {
-                let dateParts = dateString.split("/");
-                let month = (parseInt(dateParts[0]) < 10 ? "0"+dateParts[0]:dateParts[0]);
-                let day = (parseInt(dateParts[1]) < 10 ? "0"+dateParts[1]:dateParts[1]);
-                let year = dateParts[2];
-
-                return year + "-" + month + "-" + day;
-            }
 
             // we will then prepare our form for edit.
             // Start by extracting the Times-in and -out

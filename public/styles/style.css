@@ -46,6 +46,15 @@
     color: white; */
 }
 
+a {
+    color:rgb(30, 98, 223);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 center{
     background-color: inherit;
     color: inherit;
@@ -735,7 +744,7 @@ table, td, th, tr {
     padding: 8px 15px;
 }
 .table-title{
-    font-size: 20px;
+    font-size: 14px;
 }
 .tablePanel {
     /* border: 1px solid red; */
@@ -804,6 +813,13 @@ table, td, th, tr {
     background-color: inherit;
     border-bottom: 1px solid black;
     color: black;
+}
+
+.table-flat-data.round-bottom-left{
+    border-bottom-left-radius: 20px;
+}
+.table-flat-data.round-bottom-right{
+    border-bottom-right-radius: 20px;
 }
 
 
@@ -1003,18 +1019,20 @@ th#idnumber,#wsName,#wsDepartment{
     background-color: rgb(40,40,40);
     width: inherit;
     height: 200px;
-    padding: 20px;
+    padding: 20px 20px 30px 20px;
 }
 .user-icon{
     background-color: rgb(70,70,70);
+    border: 5px solid rgb(30, 98, 223);
     border-radius: 100%;
-    width: 100%;
+    margin-left: 0px;
+    width: 160px;
     height: 160px;
 }
 .user-photo{
     width: inherit;
     height: inherit;
-    position: relative;
+    /* position: relative; */
     border-radius: inherit;
     background-size: cover;
 }
@@ -1023,7 +1041,7 @@ th#idnumber,#wsName,#wsDepartment{
     text-align: center;
     width: inherit;
     height: fit-content;
-    padding-top: 10px;
+    padding: 10px 0px;
 }
 .user-side-buttons{
     position: relative;
@@ -1408,7 +1426,7 @@ th#idnumber,#wsName,#wsDepartment{
 }
 #label-deptname{
     color: rgb(255, 153, 0);;
-    font-size: 30px;
+    font-size: 26px;
     font-weight: bold;
     width: 100%;
     /* text-align: right; */
@@ -1540,6 +1558,7 @@ th#idnumber,#wsName,#wsDepartment{
        float: none;
        margin: 10px;
        padding: 20px;
+       transition-duration: 0.3s;
    }
 
 }

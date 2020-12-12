@@ -4,8 +4,6 @@ define('SALT', '7ba85c1ef9b655e2');
 
 class App {
 
-    public static $salt = '7ba85c1ef9b655e2';
-    
     protected $controller = 'home';
     protected $method = 'index';
     protected $params = [];

@@ -19,15 +19,23 @@
 ?>
 
 <div class="app-dash-panel" id="dashboard-panel">
+    <div class="form-flat" style="width:auto;
+                                height:30px;
+                                padding:20px;
+                                display:block;
+                                border-radius:20px;
+                                font-size:25px">
+    
+        <button class="button-solid round" id="back-button" 
+                style="float:left"
+                onclick="location.href='<?=isset($args['generalView'])? '/uclm_scholarship/dash':'/uclm_scholarship/dash/departments' ?>'">
+                <?=isset($args['generalView'])? 'Back to Dashboard':'Back to Previous'?>
+        </button>
+        <div style="float:left; padding-left:20px"><b>WORKING SCHOLARS</b></div>
+    </div>
     <div> 
-        <div>
-            <button class="button-solid round" id="back-button" 
-                    onclick="location.href='<?=isset($args['generalView'])? '/uclm_scholarship/dash':'/uclm_scholarship/dash/departments' ?>'">
-                    <?=isset($args['generalView'])? 'Back to Dashboard':'Back to Previous'?>
-            </button><br>
-        </div>
         <div class="form-flat" id="ws-table-panel" style="padding:20px; margin-top: 0; border-radius:20px">
-            <span class="table-title" id="dept-name-title" style="width:100%">
+            <span class="table-title" id="dept-name-title" style="width:100%;">
                 <b id="label-deptname">
                 <?php 
                 if(isset($args['depAssigned']))

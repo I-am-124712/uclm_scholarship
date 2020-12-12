@@ -65,6 +65,7 @@
      'margin-top': '10px',
      'float' : 'left',
      'font-size' : '14px',
+     'color' : 'black',
      'background-color' : 'inherit'
  });
  $("button#btn-transparent").mouseenter(function(){

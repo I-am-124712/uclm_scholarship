@@ -34,12 +34,7 @@ class MessageStrip {
             'background-repeat':'no-repeat',
         });
         this.$userLabel.css({
-            'color':'rgb(0, 81, 255)',
-            'cursor':'pointer',
-            'float':'left',
-            'font-size':'14px',
             'font-weight':'bolder',
-            'text-decoration':'none',
         });
         this.$message.css({
             'cursor':'default',
@@ -70,16 +65,6 @@ class MessageStrip {
         }, function(){
             $(this).css({
                 'background-color': 'inherit',
-            });
-        });
-
-        this.$userLabel.hover(function(){
-            $(this).css({
-                "text-decoration":"underline"
-            });
-        }, function(){
-            $(this).css({
-                "text-decoration":"none"
             });
         });
 

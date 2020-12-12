@@ -68,12 +68,8 @@ class PostStrip {
         });
 
         this.$profileLink.css({
-            'color':'rgb(0, 81, 255)',
-            'cursor':'pointer',
             'float':'left',
-            'font-size':'14px',
             'font-weight':'bolder',
-            'text-decoration':'none',
         })
 
         this.profilePic.css({

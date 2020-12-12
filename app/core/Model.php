@@ -273,6 +273,22 @@ class Model {
     }
 
     /**
+     * Executes a non-query statement without closing the connection and clearing the saved SQL command and parameter binds.
+     */
+    public final function executeNonQuery(){
+        
+        if($this->query_method === 'DML' || $this->query_method === 'Custom'){
+            // Perform a DML
+            if(sqlsrv_query($this->connectionResource, $this->query_string, $this->params)){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    }
+
+    /**
     *    Performs a normal Data Query Operation using this Model object (SQL SELECT).
     *    This will be the last method that should be chained when doing a select() or find()
     *    method chaining. (Note: Once you specify the 'index' argument, the ranged selection options 

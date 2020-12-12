@@ -143,21 +143,146 @@ class Records extends Controller {
         if($_SESSION['user_privilege'] == 3){
             header('location: /uclm_scholarship/records/my_overtime');
         }
-        return $this->view('overtime');
+        return $this->view('overtime', [
+            'finderObj' => $this->model('Finder')
+        ]);
     }
 
     public function my_overtime(){
         session_start();
         $this->trap_no_user_session();
 
-        if($_SESSION['user_privilege'] != 3){
+        if($_SESSION['user_privilege'] == 999 || $_SESSION['user_privilege'] == 1){
             header('location: /uclm_scholarship/records/overtime');
         }
-        return $this->view('overtime');
+        return $this->view('overtime-ws', [
+            'finderObj' => $this->model('Finder')
+        ]);
     }
 
+    /**
+     * Responds to a given Working Scholar Overtime Request.
+     */
+    public function overtimeRequestResponse(){
+        if(!isset($_POST['req']))
+            die();
+        session_start();
 
+        $data = json_decode($_POST['data'], true);
+        
+        $requestId = isset($data['request_id'])? $data['request_id']:'';
+        $response = isset($data['response'])? $data['response']:'';
+        $userId = $_SESSION['user_id'];
+        $feedbackMessage = $data['feedback'];
 
+        $sql = "UPDATE OvertimeRequest SET request_status = ? WHERE request_id = ?;
+            INSERT INTO OvertimeRequestFeedback VALUES(?, ?, ?, CURRENT_TIMESTAMP);
+        ";
+        $bindParams = [ $response, $requestId, $requestId, $userId, $feedbackMessage ];
+
+        $success = $this->model('Finder')
+        ->ready()
+        ->customSql($sql)
+        ->setBindParams($bindParams)
+        ->go();
+
+        // var_export([
+        //     'requestId' => $requestId,
+        //     'response' => $response,
+        //     'userId' => $userId,
+        //     'feedback' => $feedbackMessage 
+        // ]);
+
+        if($success)
+            echo json_encode([ 'success' => 'Successfully '.$response.' Overtime Request' ]);
+        else die('ERROR: Error processing request');
+    }
+
+    /**
+     * Submits an overtime request for admin approval/rejection.
+     */
+    public function submitOvertimeRequest() {
+        if(!isset($_POST['req']))
+            die('ERROR: Invalid request');
+        session_start();
+        // default our timezone to Philippines
+        date_default_timezone_set('Asia/Manila');
+
+        $otRequestObject = json_decode($_POST['requestObject'], true);
+
+        // Prepare everything for adding.
+        $sqlObject = $this->model('Finder'); // SQL builder object
+
+        $idnumber = str_replace('ws', '', $_SESSION['user_id']);
+        $requestMessage = $otRequestObject['requestMessage'];
+        $overtimeEntries = $otRequestObject['overtimeEntries'];
+
+        // We should not accept a request with no specified Overtime information (i.e no Overtime entry).
+        if(!isset($overtimeEntries) || count($overtimeEntries) <= 0)
+            die('ERROR: Missing required parameters/data');
+
+        // We first save the OvertimeRequest
+        $addOvertimeRequest = "INSERT INTO OvertimeRequest 
+            VALUES(?, ?, CURRENT_TIMESTAMP, 'PENDING');
+        ";
+        $bindParams = [ $idnumber, $requestMessage ];
+        $sqlObject->ready()->customSql($addOvertimeRequest)->setBindParams($bindParams)->go();
+
+        echo date('Y-m-d H:i:s');
+
+        // Next we'd save our overtime entries. We will simultaneously map
+        // them once they're added to our database. We should be declaring
+        // these variables below since we need their addresses for reference 
+        // passing.
+        $overtimeDate;
+        $overtimeStart;
+        $overtimeEnd;
+        $overtimeTotal;
+
+        // Get the most recent Request ID (i.e the ID assigned to this current request.)
+        $recentRequestId = $sqlObject
+        ->ready()
+        ->customSql("SELECT TOP 1 request_id FROM OvertimeRequest ORDER BY request_id DESC")
+        ->result_set()[0]
+        ->get('request_id');
+
+        // sql for adding our entries. We will bind by reference since there could be more than one OT entries provided.
+        $sqlForAddingEntries = 'INSERT INTO Overtime(idnumber, otdate, ottimestart, ottimeend, ottotal)
+            VALUES(?, ?, ?, ?, ?);';
+        $bindParamsForAdd = [ &$idnumber, &$overtimeDate, &$overtimeStart, &$overtimeEnd, &$overtimeTotal ];
+        $addEntryObj = $this->model('Finder')->ready()->customSql($sqlForAddingEntries)->setBindParams($bindParamsForAdd);
+
+        // sql for mapping the OT entries to the request.
+        $sqlForMappingEntries = 'INSERT INTO OvertimeRequestMapper 
+            SELECT ?, overtime_id FROM Overtime 
+            WHERE idnumber = ? AND otdate = ? AND ottimestart = ?
+            AND ottimeend = ? AND ottotal = ?';
+        $bindParamsForMapping = [ 
+            &$recentRequestId, 
+            &$idnumber,
+            &$overtimeDate, 
+            &$overtimeStart, 
+            &$overtimeEnd, 
+            &$overtimeTotal ];
+        $mapEntriesObj = $this->model('Finder')->ready()->customSql($sqlForMappingEntries)->setBindParams($bindParamsForMapping);
+
+        // loop through each overtime entries
+        foreach($overtimeEntries as $overtime){
+
+            $overtimeDate = $overtime['overtimeDate'];
+            $overtimeStart = $overtime['overtimeStart'];
+            $overtimeEnd = $overtime['overtimeEnd'];
+            $overtimeTotal = $overtime['overtimeTotal'];
+
+            // Add entry first...
+            $addEntryObj->executeNonQuery();
+
+            // before mapping them.
+            $mapEntriesObj->executeNonQuery();
+
+        }
+
+    }
 
 
     public function saveDtrData(){

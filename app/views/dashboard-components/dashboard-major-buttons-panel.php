@@ -14,7 +14,7 @@
         <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> Notifications</b></div>
     </button>
     <button class="button-dashboard flex">
-        <div class="label-dash-btn">Reports</div>
-        <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> Reports</b></div>
+        <div class="label-dash-btn">Reports & Printouts Released</div>
+        <div class="sub-dash-btn"><b><?=isset($args['ws_with_ot'])? $args['ws_with_ot']:''?> Released Items</b></div>
     </button>
 </div>

@@ -45,6 +45,85 @@ function httpRequestExternal(method='GET', url, targetTag = "", async=true,data=
     xml.send(data);
 }
 
+// Format DateTime Object to 12-hour format (hh:mm AM|PM)
+const format12HourTime = timeObj => {
+    let timeHour;
+    let timeMinute;
+    let stringHour;
+    let stringMinute;
+    let timeFullString;
+    if(timeObj == null)
+        return '';
+
+    timeHour = timeObj.getHours();
+    timeMinute = timeObj.getMinutes();
+
+    if(timeHour >= 12) {
+        stringHour = timeHour==12? 12 : ("" + ((modTimeHour= timeHour % 12) < 10 ? '0'+modTimeHour:modTimeHour));
+        stringMinute = timeMinute < 10? "0"+timeMinute:timeMinute; 
+        timeFullString = stringHour + ":" + stringMinute + " PM";
+    }
+    else{
+        stringHour = "" + (timeHour < 10? "0"+timeHour:timeHour);
+        stringMinute = timeMinute < 10? "0"+timeMinute:timeMinute; 
+        timeFullString = stringHour + ":" + stringMinute + " AM";
+    }
+
+    return timeFullString;
+};
+/**
+ * we will create a function for formatting our time string
+ * to comply with the format required for the Time input fields.
+ * Note that this is not usable for general cases of formatted
+ * Time strings and only accepts Time strings with format "hh:mm am|pm".
+ * Put short, just for the purpose of this functionality.
+ * 
+ * Here's a smiley 😂
+ */
+const formatTime = timeString =>{
+    let timeParts = timeString.replace(" ",":").split(':');
+    let formattedString = '';
+    for(let i=0; i<2; ++i){
+        timeParts[i] = parseInt(timeParts[i]);
+    }
+    let hour, minute;
+
+    switch(timeParts[2]){
+        case "am":
+        case "AM":
+        case "aM":
+        case "Am":
+            hour = (timeParts[0] < 10) ? "0" + timeParts[0] : "" + timeParts[0];
+            minute = (timeParts[1] < 10) ? "0" + timeParts[1] : "" + timeParts[1];
+            break;
+        case "pm":
+        case "PM":
+        case "pM":
+        case "Pm":
+            hour = timeParts[0]==12? "" + 12 : "" + (12 + timeParts[0]);
+            minute = (timeParts[1] < 10) ? "0" + timeParts[1] : "" + timeParts[1];
+            break;
+    }
+    formattedString = hour + ":" + minute + ":00";
+
+    return formattedString;
+}
+/**
+ * 
+ * Similar to the function above, we will make yet another local formatter
+ * this time for the Date string. Just to comply with the date format required
+ * by the HTML input element. Luckily this came out shorter than the time formatter.
+ * Again, another smiley 😅
+*/ 
+const formatDate = dateString => {
+    let dateParts = dateString.split("/");
+    let month = (parseInt(dateParts[0]) < 10 ? "0"+dateParts[0]:dateParts[0]);
+    let day = (parseInt(dateParts[1]) < 10 ? "0"+dateParts[1]:dateParts[1]);
+    let year = dateParts[2];
+
+    return year + "-" + month + "-" + day;
+}
+
 function clearTargetHTML(targetTag){
     if(targetTag !== "")
         document.getElementById(targetTag).innerHTML = '';
