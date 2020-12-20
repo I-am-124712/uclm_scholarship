@@ -126,10 +126,30 @@ class Records extends Controller {
 
         if($_SESSION['user_privilege'] != 3)
             header('Location: /uclm_scholarship/records/summary');
+        
+        $idnumber = str_replace("ws", '', $_SESSION['user_id']);
 
+        $sql = "SELECT * FROM AllowanceSummary WHERE ws_idnumber = ? ORDER BY school_year, dtr_month, dtr_period ASC";
+        $bind = [ $idnumber ];
 
+        $summaries = $this->model('Finder')
+        ->ready()
+        ->customSql($sql)
+        ->setBindParams($bind)
+        ->result_set();
 
-        return $this->view('summary-ws');
+        $recentSummary = $this->model('Finder')
+        ->ready()
+        ->customSql('SELECT * FROM AllowanceSummary where ws_idnumber = ? 
+            AND CURRENT_TIMESTAMP - update_timestamp <= (60*60*24*31)
+            AND allowance_status = \'RELEASED\'')
+        ->setBindParams([ $idnumber ])
+        ->result_set();
+
+        return $this->view('summary-ws', [
+            'summary' => $summaries,
+            'recent' => $recentSummary
+        ]);
     }
 
 
@@ -872,7 +892,8 @@ class Records extends Controller {
             'gross_duty_hours' => $grossHours,
             'total_late' => $lates,
             'total_undertime' => $undertimes,
-            'overall_total' => $hoursRendered
+            'overall_total' => $hoursRendered,
+            'update_timestamp'=> 'CURRENT_TIMESTAMP'
         ];
 
         // Before INSERTing, we check first all our Summary entries (if any) for any 

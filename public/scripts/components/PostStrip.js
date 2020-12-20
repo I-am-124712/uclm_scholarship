@@ -112,7 +112,7 @@ class PostStrip {
         this.$profileLink.html(this.profileNameText);
         this.profileName.html(this.$profileLink);
         this.dateTime.html(this.dateTimeText);
-        this.message.text(this.messageText);
+        this.message.html(this.messageText);
 
         // Start adding all components
         this.profileContainer.append(this.profilePic);

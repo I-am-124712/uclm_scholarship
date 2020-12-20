@@ -27,7 +27,7 @@
         isEditScheduleMode = false;
         src.siblings(".button-tab").removeClass("active");
         src.addClass("active");
-        $("#is-edit-mode").text("");
+        $("#is-edit-mode").hide();
         clearDaysToggleButtons();
     }
 
@@ -64,7 +64,7 @@
             if(!isEditScheduleMode){
                 isEditScheduleMode = true;
             }
-            $("#is-edit-mode").text("Edit Mode");
+            $("#is-edit-mode").show();
             scheduleId = $src.val();
             selectedScheduleId = scheduleId;
 
@@ -276,7 +276,7 @@
         $(".button-tab#sched-type").click(function(){
             if(!isEditScheduleMode){
                 schedTypeName = schedTypeNames[$(this).index()];
-                $("#is-edit-mode").text("");
+                $("#is-edit-mode").hide();
                 scheduleType();
                 loadSched();
             }
@@ -316,6 +316,7 @@
             $(this).delay(3000).fadeIn(500,function(){
                 $(this).text('Edit Information');
             });
+            $("#edit-status").show();
             $("#edit-status").delay(3000).fadeOut(500);
 
         });

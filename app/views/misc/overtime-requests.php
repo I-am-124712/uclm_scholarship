@@ -33,9 +33,18 @@
         $whereClause .= " AND OvertimeRequest.idnumber = " . str_replace('ws', '', $_SESSION['user_id']);
     }
 
+    // determines the number of records to load in the page
+    $loadOffset = isset($_POST['l_offset']) ? $_POST['l_offset']: 0;
+
+    // to make sure "no strings attached" 😏
+    if(gettype($loadOffset) != 'integer')
+        $loadOffset = 0;
+
+    // actual number of records to load.
+    $numberOfRecordsToLoad = 10 + (5 * $loadOffset);    
 
     // Overtime Request view query.
-    $sqlForOvertimeRequests = "SELECT TOP 10 request_id, ws.idnumber, ws.wsName, 
+    $sqlForOvertimeRequests = "SELECT TOP $numberOfRecordsToLoad request_id, ws.idnumber, ws.wsName, 
         request_message, [User].user_photo, request_timestamp, request_status
         FROM OvertimeRequest
         INNER JOIN WS on WS.idnumber = OvertimeRequest.idnumber
@@ -65,7 +74,7 @@
             $newWsName = $firstName . " " . $lastName;
 
 
-            $overtimeRecord['wsName'] = strtoupper($newWsName);
+            $overtimeRecord['wsName'] = $newWsName;
             $overtimeRecord['requestMessage'] = $otRequest->get('request_message');
             $overtimeRecord['requestStatus'] = $otRequest->get('request_status');
             $overtimeRecord['timestamp'] = $otRequest->get('request_timestamp');

@@ -72,7 +72,8 @@ const prepareTable = ()=>{
         overtime: "Overtimes",
         lates: "Lates",
         undertimes: "Undertimes",
-        totalHours: "Total Hours"
+        totalHours: "Total Hours",
+        toPeso: "To Peso"
     });
 };
 
@@ -154,7 +155,8 @@ const loadSummary = ()=>{
                     overtime : 0,
                     lates : res[idnumber].lates,
                     undertimes : res[idnumber].undertimes,
-                    hoursRendered : res[idnumber].hours_rendered
+                    hoursRendered : res[idnumber].hours_rendered,
+                    toPeso: "P " + (res[idnumber].hours_rendered * 10.00).toFixed(2)
                 }, idnumber);
             }
             showTable();
@@ -197,6 +199,7 @@ const saveSummary = () => {
             data: data,
             dataType: 'JSON',
             success: res => {
+                console.log(res);
                 $(this).children().css({
                     'background-color': 'rgb(0,100,0)',
                     'color' : 'white'

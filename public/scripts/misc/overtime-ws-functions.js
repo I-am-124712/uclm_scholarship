@@ -50,7 +50,7 @@ const addOvertimeEntry = ()=>{
         'width' : '40px',
         'height' : '40px',
     });
-    removeButton.text("-");
+    removeButton.text("⨉");
     removeButton.hover(()=>{
         removeButton.css({
             'background-color': 'red',

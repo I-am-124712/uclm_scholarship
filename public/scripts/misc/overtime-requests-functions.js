@@ -134,10 +134,10 @@ const showFeedbackPopup = (id, res)=>{
             'background-color':'rgb(255, 81, 0)',
         })
     });
-    submitFeedbackButton.text('Submit Feedback');
+    submitFeedbackButton.text('Send Feedback');
     submitFeedbackButton.attr('onclick', 'submitDecision(' + id + ",'" + res + "')");
 
-    title.text('SUBMIT FEEDBACK');
+    title.text('SEND FEEDBACK ON OVERTIME REQUEST');
 
     closeButton.attr('title','Close');
     closeButton.attr('onclick', "closeModalWindow()");

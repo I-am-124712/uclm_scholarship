@@ -11,8 +11,12 @@ class Dash extends Controller {
         {
             if($_SESSION['user_privilege'] !== 4){
                 $data = $this->load_dashboard_data();
+                $finder = $this->model('Finder');
                 
-                $dataPanel = $this->view('dashboard',$data);
+                $dataPanel = $this->view('dashboard',[
+                    'data' => $data,
+                    'finder' => $finder
+                ]);
                 return $dataPanel;
             }
                 

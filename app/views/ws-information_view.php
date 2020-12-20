@@ -34,9 +34,13 @@
         </div>
         <div class="form-flat" id="info-form">
             <div id="ws-information">
-                <div style="float:right;
-                            color: green;
-                            margin: 20px 20px 0px 0px"
+                <div hidden style="float:right;
+                            background-color: green;
+                            color: white;
+                            font-weight:bold;
+                            border-radius:20px;
+                            margin: 20px 20px 0px 0px;
+                            padding:5px 10px;"
                         id="edit-status">
                     <?=Messages::dump('edit-status')?>
                 </div>
@@ -55,7 +59,7 @@
                     </div>
                     <div class="info-panel">
                         <ul class="info-words">
-                            <li class="info-lines"><?=$args['ws']->get_fields()['idnumber']//"▮▮▮▮▮▮▮▮"?></li>
+                            <li class="info-lines"><?=$args['ws']->get_fields()['idnumber']?></li>
                             <li class="info-lines"><?=$lname.', '.$fname?></li>
                             <li class="info-lines"><?=$department_name?></li>
                         </ul>
@@ -76,26 +80,26 @@
                                 </span>
                             </label>
                             <input type="text" id="selected-id" name="selected-id" value=<?=$idnumber?> hidden>
-                            <input class="textbox-transparent" type="text" name="idnumber" value=<?=$idnumber//"▮▮▮▮▮▮▮▮"//?>>
+                            <input class="textbox" type="text" name="idnumber" value=<?=$idnumber?>>
                             <label id="form-label2" style="color:black">
                                 Last Name
                             </label>
-                            <input class="textbox-transparent" type="text" name="lname" value="<?=$lname?>">
+                            <input class="textbox" type="text" name="lname" value="<?=$lname?>">
                             <label id="form-label2" style="color:black">
                                 First Name
                             </label>
-                            <input class="textbox-transparent" type="text" name="fname" value="<?=$fname?>">
+                            <input class="textbox" type="text" name="fname" value="<?=$fname?>">
                             <label id="form-label2" style="color:black">
                                 Date of Hire
                                 <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">
                                     <?=Messages::dump('err_date')?>
                                 </span>
                             </label>
-                            <input class="textbox-transparent" type="date" name="date_of_hire" value=<?=$date_of_hire?>>
+                            <input class="textbox" type="date" name="date_of_hire" value=<?=$date_of_hire?>>
                             <label id="form-label2" style="color:black">
                                 Course
                             </label>
-                            <input class="textbox-transparent" type="text" name="course" value="<?=$course?>">
+                            <input class="textbox" type="text" name="course" value="<?=$course?>">
                             <?php if($_SESSION['user_privilege'] == 999 || $_SESSION['user_privilege'] == 1) { 
                                     if($department_name === "SCHOLARSHIP OFFICE"){
                                 ?>
@@ -111,7 +115,7 @@
                 </div>
             </div>
             <div style="margin:0px 0px 20px 0px;padding-top:0px;text-align:center">
-                <button id="save-edit" type="button" class="button-solid green">
+                <button id="save-edit" type="button" class="button-solid blue">
                     Edit Information
                 </button>
             </div>
@@ -126,13 +130,19 @@
                 <b>DUTY SCHEDULE</b>
                 <!-- For displaying a prompt saying user is currently in Edit Mode -->
                 <span id="is-edit-mode" 
-                    style="color:rgb(0,100,0);
+                    hidden
+                    style=" border-radius:20px;
+                            color:white;
+                            background-color:rgb(0,100,0);
                             float: right;
+                            font-weight:bold;
                             text-align: right;
                             width: auto;
                             height: auto;
                             margin-right: 10px;
+                            padding:5px 10px;
                             font-size: 15px">
+                            EDIT MODE
                 </span>
             </div>
             <div class="tab-panel" id="sched-type" style="margin:0px 0px 0px 15px">
@@ -148,12 +158,12 @@
                     <div class="form-flat" style="width: 100%">
                         <b><div id="day-label" style="margin-left:15px">SELECT DAYS</div></b>
                         <div class="form-flat" id="days-panel" style="box-shadow: none">
-                            <button class="button-solid round-toggle" id="day-of-week" name="m" value="M">M</button>
-                            <button class="button-solid round-toggle" id="day-of-week" name="tu" value="Tu">Tu</button>
-                            <button class="button-solid round-toggle" id="day-of-week" name="w" value="W">W</button>
-                            <button class="button-solid round-toggle" id="day-of-week" name="th" value="Th">Th</button>
-                            <button class="button-solid round-toggle" id="day-of-week" name="f" value="F">F</button>
-                            <button class="button-solid round-toggle" id="day-of-week" name="s" value="S">S</button>
+                            <button class="button-solid round-toggle" id="day-of-week" name="m" value="M"><b>M</b></button>
+                            <button class="button-solid round-toggle" id="day-of-week" name="tu" value="Tu"><b>Tu</b></button>
+                            <button class="button-solid round-toggle" id="day-of-week" name="w" value="W"><b>W</b></button>
+                            <button class="button-solid round-toggle" id="day-of-week" name="th" value="Th"><b>Th</b></button>
+                            <button class="button-solid round-toggle" id="day-of-week" name="f" value="F"><b>F</b></button>
+                            <button class="button-solid round-toggle" id="day-of-week" name="s" value="S"><b>S</b></button>
                         </div>
                         <div class="form-flat" id="days-panel" style="box-shadow: none; 
                                                                     display:auto; 
@@ -171,13 +181,13 @@
                     </div>
                     <form action="GET" style="width:450px;margin-top:0px;margin-left:auto;margin-right:auto">
                         <label for="tin" id="form-label2" style="color:black;width:80px">Time-In</label>
-                        <input type="time" name="tin" id="tin" class="textbox-transparent" 
+                        <input type="time" name="tin" id="tin" class="textbox" 
                         style="float:left;margin:5px;width:300px" value="08:00:00">
                         <label for="tout" id="form-label2" style="color:black;width:80px">Time-Out</label>
-                        <input type="time" name="tout" id="tout" class="textbox-transparent" 
+                        <input type="time" name="tout" id="tout" class="textbox" 
                         style="float:left;margin:5px;width:300px" value="09:00:00">
                     </form>
-                    <button class="button-solid green" id="save-sched">Save Schedule</button>
+                    <button class="button-solid blue" id="save-sched">Save Schedule</button>
                 </div>
             </div>
             <div class="form-flat" style="width:100%;height:30px;padding:5px;margin:0px">
@@ -185,7 +195,7 @@
                     <label for="semester">School Year</label>
                 </div>
                 <div style="margin:5px auto 5px auto; width:50%;">
-                    <select class="combo-dropbox" name="school-year" id="school-year">
+                    <select class="combo-dropbox" name="school-year" id="school-year" style="background-color:white">
                         <option value="2019-2020">2019-2020</option>
                         <option value="2020-2021">2020-2021</option>
                         <option value="2021-2022">2021-2022</option>

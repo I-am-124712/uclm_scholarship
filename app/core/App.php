@@ -2,6 +2,7 @@
 
 define('SALT', '7ba85c1ef9b655e2');
 
+
 class App {
 
     protected $controller = 'home';

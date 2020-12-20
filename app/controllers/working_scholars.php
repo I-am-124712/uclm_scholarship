@@ -51,6 +51,7 @@ class Working_scholars extends Controller{
             'wsName' => ($lname.', '.$fname),
             'depAssigned' => $deptAssigned+0,
             'dateOfHire' => $date_of_hire,
+            'user_id' => 'ws' . $idnumber,
             'course' => $course
         ];
 
@@ -99,14 +100,7 @@ class Working_scholars extends Controller{
         // We will now insert the data if no errors were found upon all validations.
         if($err_count < 1){
 
-            // we'll add them to the WS database...
-            $this->model('WS')
-            ->ready()
-            ->create($ws_data)
-            ->insert()
-            ->go();
-
-            // and register them as users as well.
+            // we'll register them as users first...
             $this->model('User')
             ->ready()
             ->create([
@@ -117,6 +111,13 @@ class Working_scholars extends Controller{
                 'user_fname' => $fname,
                 'user_privilege' => 3
             ])
+            ->insert()
+            ->go();
+
+            // then we'll add them to the WS database.
+            $this->model('WS')
+            ->ready()
+            ->create($ws_data)
             ->insert()
             ->go();
 

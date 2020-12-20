@@ -79,7 +79,12 @@ class Model {
                $key === 'distinct')
                 continue;
             $fields .= $key.',';
-            $value_binders .= '?,';
+            if($value === 'CURRENT_TIMESTAMP'){
+                $value_binders .= 'CURRENT_TIMESTAMP,';
+                continue;
+            }
+            else
+                $value_binders .= '?,';
             array_push($this->params,$value);
         }
         $fields = rtrim($fields,',').')';
@@ -217,8 +222,11 @@ class Model {
         foreach($args as $k => $v){
             if($this->check_null($v)){
                 $set .= '['.$k.'] = NULL,';
-            }else{
-                array_push($this->params,$v);
+            }else if($v === 'CURRENT_TIMESTAMP'){
+                $set .= '[' . $k . '] = CURRENT_TIMESTAMP,';
+            }
+            else{
+                array_push($this->params, $v);
                 $set .= '['.$k.'] = ?,';
             }
         }
