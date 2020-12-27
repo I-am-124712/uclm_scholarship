@@ -45,7 +45,7 @@ class MessageStrip {
             'white-space': 'nowrap',
             'overflow': 'hidden',
             'text-overflow': 'ellipsis',
-            'font-size':'14px',
+            'font-size':'clamp(14px,1vw,16px)',
             'color':'black'
         });
         this.$timeStrip.css({

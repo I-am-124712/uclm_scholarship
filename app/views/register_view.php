@@ -20,6 +20,7 @@
             <option value="2">WS In-Charge</option>
             <option value="3">Working Scholar</option>
             <option value="4">Guest</option>
+            <option value="85">Departmental Account</option>
         </select>
     <div>
         <label for="user_lname">Last Name</label>

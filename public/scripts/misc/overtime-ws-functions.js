@@ -1,6 +1,8 @@
 idForUpdate = 'for-requests';
 paramsForUpdate = 'my';
 
+addForPerform(reloadPage, {id: idForUpdate, params: paramsForUpdate});
+
 /**
  * Inserts a new row into our Overtime Entries table.
  */

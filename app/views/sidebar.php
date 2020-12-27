@@ -9,6 +9,22 @@
         </div>
     </div>
     <div class="user-side-buttons">
+        <div>
+            <button class="button-flashing" id="app-sidebar-btn" onclick="window.location.href=''">
+                <div class="icon-panel">
+                    <div class="icon" id="profile-icon"></div>
+                </div>
+                <div class="btn-label">My Profile</div>
+            </button>
+        </div>
+        <div>
+            <button class="button-flashing" id="app-sidebar-btn" onclick="window.location.href='/uclm_scholarship/dash'">
+                <div class="icon-panel">
+                    <div class="icon" id="dash-icon"></div>
+                </div>
+                <div class="btn-label">Dashboard</div>
+            </button>
+        </div>
         <?php switch($_SESSION['user_privilege']) {
                     case 999:
                     case 1:

@@ -1,8 +1,6 @@
 <?php
 class Register extends Controller {
 
-    // private $salt = '7ba85c1ef9b655e2';
-
     public function index(){
         if(isset($_POST['register']) && $_POST['register'] === 'true'){
             $user_id = isset($_POST['user_id']) ? $_POST['user_id']:'';

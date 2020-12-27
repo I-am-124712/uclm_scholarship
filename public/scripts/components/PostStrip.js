@@ -176,6 +176,7 @@ class PostStrip {
     }
 
     getPostStrip(){
+        this.finalize();
         return this.mainStrip.clone();
     }
 }

@@ -1,4 +1,5 @@
 <?php
+require './app/core/UtilFunctions.php';
 
 class Dash extends Controller {
 
@@ -80,24 +81,35 @@ class Dash extends Controller {
         return $this->view('departments',$department_details);
     }
 
-    public function ws($generalView = null){
+    public function ws($args = null){
         session_start();
         $this->trap_no_user_session();
 
         // We should remove the generalView session token first just to make sure.
         unset($_SESSION['generalView']);    
         
-        // Block Users with User Privilege = 3 (WS)
-        if($_SESSION['user_privilege']==3){
+        // Block Users with User Privilege = 3 (WS), 85 (Departmental Account)
+        if($_SESSION['user_privilege']==3 || $_SESSION['user_privilege']==85){
             header('Location: /uclm_scholarship/home');
         }
 
-        $_SESSION['generalView'] = $generalView; 
+        if($args === 'requests'){
+            $this->wsRequest();
+        }
 
-        if($_SESSION['generalView'])
-            $this->wsViewGeneral();
-        else
-            $this->wsViewGrouped();
+        switch($args){
+            case 'requests':
+                $this->wsRequest();
+                break;
+            case 'general':
+                $_SESSION['generalView'] = $args; 
+                if($_SESSION['generalView'])
+                    $this->wsViewGeneral();
+                break;
+            default:
+                $this->wsViewGrouped();
+        }
+
     }
 
 
@@ -122,14 +134,17 @@ class Dash extends Controller {
     } 
 
 
-
     public function wsViewGrouped(){
         if(session_status() !== PHP_SESSION_ACTIVE)
             session_start();
 
 
-        $deptId = isset($_GET['department'])? $_GET['department']:
-                            (isset($_SESSION['department'])? $_SESSION['department']:0);
+        // Three-way search if we have a department ID passed either through
+        // URL or post, or if we stored it in session. Lol this is sh*t
+        $deptId = isset($_GET['department'])? $_GET['department']:(
+                    isset($_GET['selected-department'])? $_GET['selected-department']:(
+                        isset($_SESSION['department'])? $_SESSION['department']:0));
+                            
         $_SESSION['department'] = $deptId;
 
         $working_scholars = $this->model('WS')
@@ -150,13 +165,17 @@ class Dash extends Controller {
         ]);
     }
 
+    private function wsRequest(){
+        return $this->view('ws-request');
+    }
+
     public function ws_information($idnumber = ''){
 
         session_start();
         $this->trap_no_user_session();
         
-        // Block Users with User Privilege = 3 (WS)
-        if($_SESSION['user_privilege']==3){
+        // Block Users with User Privilege = 3 (WS), 85 (Departmental Account)
+        if($_SESSION['user_privilege']== 3 || $_SESSION['user_privilege']== 85){
             header('Location: /uclm_scholarship/home');
         }
 
@@ -190,11 +209,18 @@ class Dash extends Controller {
         ])
         ->go()[0];
 
+        // We will then query all departments for the selectionbox
+        $departmentsList = $this->model('Departments')
+        ->ready()
+        ->find()
+        ->result_set();
+
         return $this->view('ws-information',[
             'ws' => $selected_ws, 
             'user' => $ws_user,
             'department' => $dept_assigned, 
-            'success' => false
+            'success' => false,
+            'departmentsList' => $departmentsList
         ]);
     }
 
@@ -232,4 +258,44 @@ class Dash extends Controller {
         ];
 
     }
+
+    /**
+     * Returns a JSON array of the posts made by the System/Department Admin.
+     * 
+     * @return string json encoded array of messages
+     */
+    public function retrieveAdminPosts(){
+        if(!isset($_POST['req_id']))
+            return;
+        $sql = "SELECT [User].user_fname, [User].user_lname, [User].user_id, [User].user_photo,
+            Posts.post_content, Posts.post_timestamp from [User]
+            INNER JOIN Posts ON Posts.post_sender_user_id = [User].user_id
+            ORDER BY Posts.post_timestamp DESC";
+
+        $result = $this->model('Finder')
+        ->ready()
+        ->customSql($sql)
+        ->result_set();
+
+        $arrayResult = [];
+
+        foreach($result as $post){
+            $userFullName = $post->get('user_fname'). " ". $post->get('user_lname');
+            $userId = $post->get('user_id');
+            $userPhoto = $post->get('user_photo');
+            $postText = $post->get('post_content');
+            $postTimestamp = time_elapsed_string($post->get('post_timestamp')->format("Y-m-d H:i:s"));
+
+            array_push($arrayResult, [
+                'userFullName' => $userFullName,
+                'userId'=> $userId,
+                'userPhoto'=>$userPhoto,
+                'postText'=> $postText,
+                'postTimestamp'=> $postTimestamp
+            ]);
+        }
+
+        echo json_encode($arrayResult);
+    }
+
 }

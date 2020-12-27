@@ -7,12 +7,12 @@ else
 
 <div class="form-flat">
     <div class="chart-div">
-        <div class="title">Messages</div>
+        <div class="chart-title">Messages</div>
         <div id="message-panel" style="height:250px; overflow-y: scroll"></div>
     </div>
     <div class="chart-div">
-        <div class="title">
-            <span style="float:left">Announcements</span>
+        <div class="chart-title">
+            <span style="float:left">Posts from Scholarship Office</span>
         <?php if($hasHighPrivilege) { // Show a create announcement button if user has high Admin privilege?>
             <style>
                 #create-post{
@@ -38,8 +38,11 @@ else
         <?php } ?>    
         </div>
         <div id="posts-panel" style="height:calc(100% - 40px); overflow-y: auto">
-            
+            <div style="padding-top:10%; color:gray; width:100%; height:auto; text-align:center">
+                Loading Posts...
+            </div>
         </div>
     </div>
 </div>
 <script src="/uclm_scholarship/public/scripts/misc/dashboard-index.js"></script>
+<script src="/uclm_scholarship/public/scripts/misc/posts-updates.js"></script>

@@ -26,7 +26,7 @@ $count = count($recent);
                     float:left;
                     font-size: 20px;
                     color:rgb(30, 98, 223);">
-                    NEWLY RELEASED ALLOWANCE SUMMARIES
+                    NEWLY RELEASED ALLOWANCE
         </div>
         <div class="notif-count-icon"><?= $count ?></div>
         <?php if($count > 0){?>
@@ -36,7 +36,7 @@ $count = count($recent);
                     <th class="table-flat-header round-top-left">School Year</th>
                     <th class="table-flat-header">Period</th>
                     <th class="table-flat-header">Month</th>
-                    <th class="table-flat-header">Duty Hours</th>
+                    <th class="table-flat-header">Gross Hours</th>
                     <th class="table-flat-header">Lates</th>
                     <th class="table-flat-header">Undertime</th>
                     <th class="table-flat-header">Total Hours</th>

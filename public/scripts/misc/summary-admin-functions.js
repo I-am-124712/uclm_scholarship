@@ -68,7 +68,7 @@ var table = null;
 const prepareTable = ()=>{
     tableMaker.addHeader({
         wsName : "WS Name",
-        grossHours: "Duty Hours",
+        grossHours: "Gross Hours",
         overtime: "Overtimes",
         lates: "Lates",
         undertimes: "Undertimes",

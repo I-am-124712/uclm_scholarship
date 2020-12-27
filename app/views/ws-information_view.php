@@ -20,6 +20,7 @@
     $department_id = isset($args['department'])? $args['department']->get_fields()['deptId']:'';
     $department_name = strtoupper($args['department']->get_fields()['departmentName']);
     $user_privilege = $args['user']->get_fields()['user_privilege']+0;
+    $user_photo = $args['user']->get('user_photo');
 ?>
 
 
@@ -30,6 +31,13 @@
                                     padding:20px;
                                     border-radius:20px;
                                     font-size:25px">
+            <form id="back-to-previous" action="<?=isset($_SESSION['generalView'])? '/uclm_scholarship/dash/ws/general?allow_edit' : '/uclm_scholarship/dash/ws?allow_edit'?>" method="get">
+                <input hidden type="text" name="department" value=<?=$department_id?>>
+                <input hidden type="text" name="allow_edit" value="true">
+                <button class="button-solid round" id="back-button" type="submit" style="margin-right:15px">
+                    Back to WS List
+                </button>
+            </form>
             <b>WORKING SCHOLAR INFORMATION</b>
         </div>
         <div class="form-flat" id="info-form">
@@ -45,17 +53,8 @@
                     <?=Messages::dump('edit-status')?>
                 </div>
                 <div style="margin:10px">
-                    <form action="<?=isset($_SESSION['generalView'])? '/uclm_scholarship/dash/ws/general?allow_edit' : '/uclm_scholarship/dash/ws?allow_edit'?>" method="post">
-                        <input hidden type="text" name="department" 
-                                value=<?=$department_id?>>
-                        <button class="button-solid round" id="back-button" type="submit">
-                            Back to WS List
-                        </button><br>
-                    </form>
-                </div>
-                <div style="margin:10px">
                     <div class="photo-panel">
-                        <div id="ws-photo" style="background-image: url('/uclm_scholarship/public/sources/users/user_default.png')"></div>
+                        <div id="ws-photo" style="background-image: url('<?= $user_photo ?>')"></div>
                     </div>
                     <div class="info-panel">
                         <ul class="info-words">
@@ -71,8 +70,8 @@
                     </div>
                     <div class="form-panel2">
                         <form id="information" action="" method="">
-                            <input hidden type="text" name="department" 
-                                    value=<?=isset($args['department'])? $args['department']->get_fields()['deptId']:''?>>
+                            <input hidden type="text" name="department" id="department"
+                                    value=<?=$department_id?>>
                             <label id="form-label2" style="color:black">
                                 ID Number
                                 <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">
@@ -89,6 +88,24 @@
                                 First Name
                             </label>
                             <input class="textbox" type="text" name="fname" value="<?=$fname?>">
+                            <?php if($_SESSION['user_privilege'] == 999 || $_SESSION['user_privilege'] == 1) {?>
+                            <label id="form-label2" style="color:black">
+                                Department
+                            </label>
+                            <select name="dep-assigned" id="dep-assigned" class="textbox" style="text-align-last:center; color:black; font-size:18px; height:auto">
+                                <?php 
+                                foreach($args['departmentsList'] as $departments) { 
+                                    $deptId = $departments->get('deptId');
+                                    $departmentName = $departments->get('departmentName');
+                                    $selected = "";
+                                    if($deptId == $department_id)
+                                        $selected = "selected";
+                                ?>
+                                    <option value=<?= $deptId ?> <?= $selected ?>><?=$departmentName?></option>
+                                <?php 
+                                } ?>
+                            </select>
+                            <?php } ?>
                             <label id="form-label2" style="color:black">
                                 Date of Hire
                                 <span style="color:red; font-size:10px; text-align:right; margin:0px 0px 0px 10px">

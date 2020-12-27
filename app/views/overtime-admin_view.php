@@ -1,4 +1,15 @@
+<?php 
 
+$requestStatus = isset($_GET['request_status'])? $_GET['request_status']:'all';
+
+$status = [
+    'all' => 'All Requests',
+    'accepted' => 'Accepted',
+    'rejected' => 'Rejected',
+    'pending' => 'Pending'
+];
+
+?>
 <div class="app-dash-panel" id="dashboard-panel">
     <div style="width:100%; height:fit-content; margin: 0px auto">
         <div class="form-flat" style="width:auto;
@@ -16,10 +27,14 @@
                         style="border:none;
                             background-color:white;
                             box-shadow:3px 3px 3px rgba(0,0,0,0.1)">
-                    <option value="all">All Requests</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="pending">Pending</option>
+                    <?php
+                        foreach($status as $k => $v){
+                            $selected = $requestStatus === $k ? 'selected':'';
+                    ?>
+                    <option value=<?= $k ?> <?= $selected ?>><?= $v ?></option>
+                    <?php 
+                        }
+                    ?>
                 </select>
                 <button class="button-solid round" id="btn-load" type="submit">Load Entries</button>
             </form>
@@ -38,4 +53,7 @@
 <script src="/uclm_scholarship/public/scripts/misc/drawer-widget.js"></script>
 <script src="/uclm_scholarship/public/scripts/misc/realtime-update-util.js"></script>
 <script src="/uclm_scholarship/public/scripts/misc/overtime-layout.js"></script>
-<script> idForUpdate = 'for-contents'; </script>
+<script> 
+    idForUpdate = 'for-contents';
+    addForPerform(reloadPage, {id: idForUpdate, params: paramsForUpdate}); 
+</script>

@@ -8,16 +8,13 @@ $count = count($recent);
 
 <div class="app-dash-panel">
     <div style="width:100%; height:fit-content; margin: 0px auto" id="contents-panel">
-        <div class="form-flat" style="width:auto;
-                                    padding:20px;
-                                    border-radius:20px;
-                                    font-size:25px">
+        <div class="form-flat title">
             <b>MY SUMMARY REPORT</b>
         </div>
         <div class="form-flat">
             <div style="font-weight:bold; 
                         font-size: 20px;
-                        color:rgb(30, 98, 223);">NEWLY RELEASED ALLOWANCE SUMMARIES</div>
+                        color:rgb(30, 98, 223);">NEWLY RELEASED ALLOWANCE</div>
             <div class="notif-count-icon"><?= $count ?></div>
             <?php if($count > 0){?>
             <div class="form-flat" style="background:white; width:100%">
@@ -26,7 +23,7 @@ $count = count($recent);
                         <th class="table-flat-header round-top-left">School Year</th>
                         <th class="table-flat-header">Period</th>
                         <th class="table-flat-header">Month</th>
-                        <th class="table-flat-header">Duty Hours</th>
+                        <th class="table-flat-header">Gross Hours</th>
                         <th class="table-flat-header">Lates</th>
                         <th class="table-flat-header">Undertime</th>
                         <th class="table-flat-header">Total Hours</th>

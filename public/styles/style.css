@@ -603,6 +603,39 @@ div #user-name{
     display: flex;
     flex-flow: row wrap;
 }
+.form-flat.block{
+    float:left;
+    display: block;
+    flex-flow: none;
+    margin: 10px 5px;
+}
+.form-flat.title {
+     width:auto;
+     height:45px;
+     padding:20px;
+     padding-bottom:10px;
+     display:block;
+     border-radius:20px;
+     font-size:25px;
+}
+.form-flat.title-small {
+    width:auto;
+    height:45px;
+    padding:20px;
+    padding-bottom:10px;
+    display:block;
+    border-radius:20px;
+    font-size:18px;
+}
+.form-flat.title-medium {
+    width:auto;
+    height:auto;
+    padding:20px;
+    padding-bottom:10px;
+    display:block;
+    border-radius:20px;
+    font-size:20px;
+}
 
 .form-flat#sched-panel{
     width: 100%;
@@ -937,6 +970,7 @@ th#idnumber,#wsName,#wsDepartment{
     background-color: rgb(214, 214, 214);
     border-radius: 30px;
     padding-top: 3px;
+    text-align: center;
     padding-left: 5px;
     padding-bottom: 3px;
 }
@@ -1147,6 +1181,9 @@ th#idnumber,#wsName,#wsDepartment{
 }
 #ws-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconWS.png");
+}
+#ws-request-icon{
+    background-image: url("/uclm_scholarship/public/sources/icons/iconWSRequest.png");
 }
 #notif-icon{
     background-image: url("/uclm_scholarship/public/sources/icons/iconNotification.png");

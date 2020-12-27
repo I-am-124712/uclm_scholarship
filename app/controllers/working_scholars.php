@@ -168,7 +168,8 @@ class Working_scholars extends Controller{
         $err_count = 0;
         $success = false;
 
-        $department = isset($_POST['department']) ? $_POST['department']+0:1;
+        $previousDepartment = isset($_POST['department']) ? $_POST['department']+0:1;
+        $department = isset($_POST['dep-assigned']) ? $_POST['dep-assigned']+0:1;
         $previous_idnumber = isset($_POST['selected-id'])? $_POST['selected-id']:'NONE';
         $idnumber = isset($_POST['idnumber'])? $_POST['idnumber']:'NONE';
         $lname = utf8_decode(isset($_POST['lname'])? $_POST['lname']:'NONE');
@@ -250,6 +251,7 @@ class Working_scholars extends Controller{
                 'idnumber' => $idnumber,
                 'wsName' => $lname.', '.$fname,
                 'dateOfHire' => $date_of_hire,
+                'depAssigned' => $department,
                 'course' => $course
             ])
             ->where([
@@ -291,11 +293,17 @@ class Working_scholars extends Controller{
             Messages::push(['edit-status'=>'EDIT SUCCESSFUL']);
         }
         
+        $departmentsList = $this->model('Departments')
+        ->ready()
+        ->find()
+        ->result_set();
+
         return $this->view('ws-information',[
             'ws' => $ws_match, 
             'department' => $dept, 
             'user' => $match_user, 
-            'success' => $success
+            'success' => $success,
+            'departmentsList' => $departmentsList
         ]);
     }
 

@@ -2,14 +2,8 @@
 
 <div class="app-dash-panel" id="dashboard-panel">
 
-    <div class="form-flat" style="width:auto;
-                                height:45px;
-                                padding:20px;
-                                padding-bottom:10px;
-                                display:block;
-                                border-radius:20px;
-                                font-size:25px">
-        <div style="float:left"><b>DASHBOARD</b></div>
+    <div class="form-flat title">
+        <b>DASHBOARD</b>
         <div style="float:right; 
                     text-align:right; 
                     color:white; 
@@ -30,9 +24,13 @@
                 require_once './app/views/dashboard-in-charge_view.php';
                 break;
             case 3:
-            default:
                 require_once './app/views/dashboard-ws_view.php';
+                break;
+            case 85:
+                require_once './app/views/dashboard-departmental_view.php';
         }
+        
+        include 'dashboard-components/dashboard-message-announcements.php'; 
     ?>
 
 </div>

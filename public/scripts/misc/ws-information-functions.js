@@ -293,31 +293,41 @@
         $("#save-edit").click(function(){
             let args = $("#information").serialize();
 
+            console.log(args);
+
             // buffered page. we'll use this to query the edit form
             // and replace it in our current document without
             // reloading the page
 
-            response = $.post({
+            $.ajax({
                 url: "/uclm_scholarship/working_scholars/update",
                 data: args,
                 dataType: 'html',
-                async : false
-            }).responseText;
-            // console.log(response);
+                method: 'POST',
+                success : res => {
+                    formBody = $("" + res);
+                    infoForm = formBody.find("div#ws-information");        
+                    backButton = formBody.find("form#back-to-previous");
 
-            domObj = domParser.parseFromString(response,'text/html');
+                    newDepartment = $('select#dep-assigend').val();
 
-            infoForm = domObj.getElementById("ws-information");
+                    $('input#department').val(newDepartment);
+        
+                    $("div#ws-information").empty();
+                    $("div#ws-information").replaceWith(infoForm);
+        
+                    $("form#back-to-previous").empty();
+                    $("form#back-to-previous").replaceWith(backButton);
 
-
-            $("div#ws-information").empty();
-            $("div#ws-information").replaceWith(infoForm);
-            $(this).text('Saved');
-            $(this).delay(3000).fadeIn(500,function(){
-                $(this).text('Edit Information');
+                    $(this).text('Saved');
+                    $(this).delay(3000).fadeIn(500,function(){
+                        $(this).text('Edit Information');
+                    });
+                    $("#edit-status").show();
+                    $("#edit-status").delay(3000).fadeOut(500);
+                }
             });
-            $("#edit-status").show();
-            $("#edit-status").delay(3000).fadeOut(500);
+
 
         });
         $('button#save-sched').click(saveSched);
