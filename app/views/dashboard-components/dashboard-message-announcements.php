@@ -34,7 +34,8 @@ else
             </style>
             <button class="button-flashing" 
                     id="create-post" 
-                    title="Create Post"></button>
+                    title="Create Post"
+                    onclick="openCreatePostPopup()"></button>
         <?php } ?>    
         </div>
         <div id="posts-panel" style="height:calc(100% - 40px); overflow-y: auto">

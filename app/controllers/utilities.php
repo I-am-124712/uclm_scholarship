@@ -1,5 +1,6 @@
 <?php
 require $_SERVER['DOCUMENT_ROOT'] . "/uclm_scholarship/app/core/UtilFunctions.php";
+require $_SERVER['DOCUMENT_ROOT'] . "/uclm_scholarship/app/core/ConstantsAndVars.php";
 
 class Utilities extends Controller {
 
@@ -16,11 +17,26 @@ class Utilities extends Controller {
     }
 
     public function generate($format, $docName){
-        $data = isset($_POST["data"]) ? json_decode($_POST['data'], true):"";
-        $department = (isset($_POST["department"]) && $_POST["department"] !== "") ? 
-                    $_POST["department"]: "MY DAILY TIME RECORD";
+        session_start();
+
+        $data = $_SESSION['data'];
+        
+        $schoolYear = $_SESSION['schoolYear'];
+        $period = $_SESSION['period'];
+        $month = $_SESSION['month'];
+        $department = $_SESSION['department'];
+
+        // Destroy these things
+        unset($_SESSION['data']);
+        unset($_SESSION['schoolYear']);
+        unset($_SESSION['period']);
+        unset($_SESSION['month']);
+        unset($_SESSION['department']);
 
         $args = [
+            'schoolYear' => $schoolYear,
+            'period' => $period,
+            'month' => $month,
             'department' => $department,
             'data' => $data,
             'dbFinder' => $this->model('Finder')
@@ -83,6 +99,47 @@ class Utilities extends Controller {
         ]);
 
     }
+
+    public function hideSidebar(){
+
+        session_start();
+
+        if(isset($_POST['toggle-sidebar'])){
+            $toggle = $_POST['toggle-sidebar'];
+            echo "Toggled on backend";
+            switch($toggle){
+                case 'on':
+                    $_SESSION['sidebar-visible'] = true;
+                    break;
+                case 'off':
+                    $_SESSION['sidebar-visible'] = false;
+                    break;
+            }
+        }
+    }
+
+    public function sendPost(){
+        session_start();
+
+        $data = isset($_POST["data"]) ? json_decode($_POST['data'], true):"";
+        
+        $schoolYear = $_POST['schoolYear'];
+        $period = $_POST['period'];
+        $month = $_POST['month'];
+        $department = isset($_POST["department"]) ? 
+                    $_POST["department"]: "MY DAILY TIME RECORD";
+
+        $_SESSION['data'] = $data;
+        $_SESSION['period'] = $period;
+        $_SESSION['month'] = $month;
+        $_SESSION['schoolYear'] = $schoolYear;
+        $_SESSION['department'] = $department;
+
+        
+        $message = 'SUCCESS';
+        echo json_encode([ 'status' => $message ]);
+        die();
+    }
 }
 
 class DTR extends Controller {
@@ -96,7 +153,7 @@ class DTR extends Controller {
 
     public function getGeneratedPDF(){
         if(isset($this->args) && !empty($this->args))
-            return $this->view_custom("./app/views/pdfTemplates/dtr_linker.html", "/pdfTemplates/dtr-pdf-template", $this->args);     
+            return $this->view_custom("", "/pdfTemplates/dtr-pdf-template", $this->args);     
     }
 }
 class Summary extends Controller{
@@ -110,6 +167,6 @@ class Summary extends Controller{
 
     public function getGeneratedPDF(){
         if(isset($this->args) && !empty($this->args))
-            return $this->view_custom("./app/views/pdfTemplates/summary_linker.html", "/pdfTemplates/summary-pdf-template", $this->args);
+            return $this->view_custom("", "/pdfTemplates/summary-pdf-template", $this->args);
     }
 }

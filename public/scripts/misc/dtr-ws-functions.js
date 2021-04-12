@@ -274,7 +274,12 @@ const generatePDFWS = () => {
     let monthName = months[month];
     let schoolYear = month <= 5 ? schoolYears[1] : schoolYears[0];
 
-    let periodMonth = period.toUpperCase() + " OF " + monthName.toUpperCase() + " " + schoolYear;
+
+    let obj = {
+        period: period,
+        month: monthName,
+        schoolYear: schoolYear
+    }
     
-    generatePDF(periodMonth, data);
+    generatePDF(obj, data);
 };

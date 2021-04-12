@@ -89,22 +89,22 @@
                             </label>
                             <input class="textbox" type="text" name="fname" value="<?=$fname?>">
                             <?php if($_SESSION['user_privilege'] == 999 || $_SESSION['user_privilege'] == 1) {?>
-                            <label id="form-label2" style="color:black">
-                                Department
-                            </label>
-                            <select name="dep-assigned" id="dep-assigned" class="textbox" style="text-align-last:center; color:black; font-size:18px; height:auto">
-                                <?php 
-                                foreach($args['departmentsList'] as $departments) { 
-                                    $deptId = $departments->get('deptId');
-                                    $departmentName = $departments->get('departmentName');
-                                    $selected = "";
-                                    if($deptId == $department_id)
-                                        $selected = "selected";
-                                ?>
-                                    <option value=<?= $deptId ?> <?= $selected ?>><?=$departmentName?></option>
-                                <?php 
-                                } ?>
-                            </select>
+                                <label id="form-label2" style="color:black">
+                                    Department
+                                </label>
+                                <select name="dep-assigned" id="dep-assigned" class="textbox" style="text-align-last:center; color:black; font-size:18px; height:auto">
+                                    <?php 
+                                    foreach($args['departmentsList'] as $departments) { 
+                                        $deptId = $departments->get('deptId');
+                                        $departmentName = $departments->get('departmentName');
+                                        $selected = "";
+                                        if($deptId == $department_id)
+                                            $selected = "selected";
+                                    ?>
+                                        <option value=<?= $deptId ?> <?= $selected ?>><?=$departmentName?></option>
+                                    <?php 
+                                    } ?>
+                                </select>
                             <?php } ?>
                             <label id="form-label2" style="color:black">
                                 Date of Hire

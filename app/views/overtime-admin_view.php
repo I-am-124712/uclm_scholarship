@@ -4,7 +4,7 @@ $requestStatus = isset($_GET['request_status'])? $_GET['request_status']:'all';
 
 $status = [
     'all' => 'All Requests',
-    'accepted' => 'Accepted',
+    'approved' => 'Approved',
     'rejected' => 'Rejected',
     'pending' => 'Pending'
 ];
@@ -38,6 +38,9 @@ $status = [
                 </select>
                 <button class="button-solid round" id="btn-load" type="submit">Load Entries</button>
             </form>
+            <button class="button-solid round" id="btn-transparent" 
+                    onclick="window.location.href='/uclm_scholarship/records/overtime/encode'">Encode Overtime</button>
+
             <?php if($_SESSION['user_privilege'] === 2) {?>
             <button class="button-solid round" id="btn-transparent" 
                     onclick="window.location.href='/uclm_scholarship/records/my_overtime'">My Overtime Requests</button>

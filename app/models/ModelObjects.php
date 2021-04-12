@@ -97,9 +97,8 @@ final class Finder extends Model {
 
     public final function customSQL($sql = ''){
         $this->query_method = 'Custom';
-        if($sql === '')
-            return null;
-        $this->query_string = $sql;
+        if($sql != null || $sql !== '')
+            $this->query_string = $sql;
         return $this;
     }
 

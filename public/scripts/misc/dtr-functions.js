@@ -274,7 +274,10 @@ const getDtrData = _=>{
                         let timeOut = (tout = wsRecords[x].timeOut)? new Date(tout.date):null;
                         let hoursRendered = wsRecords[x].hoursRendered;
 
-                        dateString = months[recordDate.getMonth()] + " " + recordDate.getDate() + ", " + recordDate.getFullYear();
+                        dateString = months[recordDate.getMonth()] 
+                            + " " + recordDate.getDate() + ", " 
+                            + recordDate.getFullYear()
+                            + " - " + wsRecords[x].dayOfDate + "";
                         timeInString = format12HourTime(timeIn);
                         timeOutString = format12HourTime(timeOut);
                         
@@ -613,5 +616,17 @@ const saveDtrData = () => {
  */
 const generatePDFAdmin = () => {
 
-    generatePDF($('select#department option:selected').text(), dtrJSONData);
+    let schoolYear = $('select#school-year option:selected').text();
+    let period = $('select#period option:selected').text();
+    let month = $('select#month option:selected').text();
+    let department = $('select#department option:selected').text();
+
+    let argObj = {
+        schoolYear : schoolYear,
+        period : period,
+        month: month,
+        department: department
+    };
+
+    generatePDF(argObj, dtrJSONData);
 };

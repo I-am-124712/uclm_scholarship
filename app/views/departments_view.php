@@ -12,11 +12,11 @@
                 <b>SELECT A DEPARTMENT</b>
         </div>
         <div class="form-flat" id="for-list-container">
-            <div style="width:100%">
+            <!-- <div style="width:100%">
                 <span>Search</span>
                 <input class="textbox-transparent" type="text" name="search" id="search">
                 <button class="button-solid round" id="search-btn">Go</button>
-            </div>
+            </div> -->
             <div class="form-flat" id="for-list"></div>
         </div>
     </div>

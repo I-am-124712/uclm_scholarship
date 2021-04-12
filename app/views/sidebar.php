@@ -34,17 +34,20 @@
                     case 3:
                         require './app/views/html/sidebar_ws.html';
                         break;
+                    case 85:
+                        require './app/views/html/sidebar_departmental.html';
+                        break;
                     default:
                         break;
             }?>
-            <div>
+            <!-- <div>
                 <button class="button-flashing" id="app-sidebar-btn" onclick="location.href=''">
                     <div class="icon-panel">
                         <div class="icon" id="message-icon"></div>
                     </div>
                     <div class="btn-label">Messages</div>
                 </button>
-            </div>
+            </div> -->
             <div>
                 <button class="button-flashing" id="app-sidebar-btn" onclick="location.href='/uclm_scholarship/logout';">
                     <div class="icon-panel">

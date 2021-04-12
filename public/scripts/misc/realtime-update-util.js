@@ -51,5 +51,5 @@ setInterval(()=>{
         let args = actionToPerform[x].params;
         func(args);
     }
-}, 1000);
+}, 5000);
 

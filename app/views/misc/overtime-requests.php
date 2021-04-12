@@ -49,8 +49,7 @@
         FROM OvertimeRequest
         INNER JOIN WS on WS.idnumber = OvertimeRequest.idnumber
         INNER JOIN [User] on [User].user_id = WS.user_id 
-        " . $whereClause . "
-        ORDER BY OvertimeRequest.request_timestamp DESC;
+        $whereClause ORDER BY OvertimeRequest.request_timestamp DESC;
     ";
 
     $res = $finder

@@ -152,7 +152,7 @@ const loadSummary = ()=>{
                 tableMaker.addDataRow({
                     wsName : res[idnumber].wsName,
                     grossHours : res[idnumber].gross_hours,
-                    overtime : 0,
+                    overtime : res[idnumber].overtimes,
                     lates : res[idnumber].lates,
                     undertimes : res[idnumber].undertimes,
                     hoursRendered : res[idnumber].hours_rendered,
@@ -181,6 +181,7 @@ const saveSummary = () => {
         let period = $('select#period').serialize();
         let month = $('select#month').serialize();
         let grossHours = "grossHours=" + $(this).find('td#grossHours').text();
+        let overtime = "overtime=" + $(this).find('td#overtime').text();
         let lates = "lates=" + $(this).find('td#lates').text();
         let undertimes = "undertimes=" + $(this).find('td#undertimes').text();
         let hoursRendered = "hoursRendered=" + $(this).find('td#hoursRendered').text();
@@ -190,6 +191,7 @@ const saveSummary = () => {
                 + period + "&"
                 + month + "&"
                 + grossHours + "&"
+                + overtime + "&"
                 + lates + "&"
                 + undertimes + "&"
                 + hoursRendered;
@@ -199,7 +201,6 @@ const saveSummary = () => {
             data: data,
             dataType: 'JSON',
             success: res => {
-                console.log(res);
                 $(this).children().css({
                     'background-color': 'rgb(0,100,0)',
                     'color' : 'white'
@@ -259,24 +260,24 @@ const generateSummaryPDF = ()=>{
     let month = $('select#month').val();
 
     let dataObj = {
-        schoolYear : schoolYear,
         departmentId : department,
-        period : period,
-        month: month,
     };
 
-    let params = "department=" + departmentName + "&data=" + JSON.stringify(dataObj);
+    // let params = "department=" + departmentName + "&data=" + JSON.stringify(dataObj);
 
+    let params = `department=${departmentName}&schoolYear=${schoolYear}
+                &period=${period}&month=${month}&data=${JSON.stringify(dataObj)}`;
+    console.log(params);
+    
     $.ajax({
         method: 'post',
-        url: '/uclm_scholarship/utilities/generate/pdf/summary',
+        url: '/uclm_scholarship/utilities/sendPost',
+        dataType: 'json',
         data: params,
         success: res => {
-            let printer = window.open('','_blank');
-            printer.document.write(res);
-            setTimeout(function(){
-                printer.print();
-            }, 500);
+            if(res.status === 'SUCCESS') {
+                window.open('/uclm_scholarship/utilities/generate/pdf/summary', '_blank');
+            }
         },
         error: err => {
 

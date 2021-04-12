@@ -11,6 +11,7 @@
         <!-- For Notifications -->
         <div class="wrapper" style="float:right; padding-right: 20px">
             <div class="notif-wrapper">
+                <?php if(false) { ?>
                 <!-- Messages Icon -->
                 <div class="navbar-icon">
                     <div class="icon-container" id="message-icon"></div>
@@ -20,11 +21,6 @@
                 <div class="navbar-icon">
                     <div class="icon-container" id="notif-icon"></div>
                     <div class="tooltip-text">Notifications</div>
-                </div>
-                <!-- User Icon -->
-                <div class="navbar-panel">
-                    <div class="icon-container" style="background-image:url('<?=$_SESSION['user_photo']?>')"></div>
-                    <div id="user-name"><?=$_SESSION['username']?></div>
                 </div>
 
                 <!-- Dropdown for Messages and Notifications -->
@@ -42,9 +38,19 @@
                         </div>
                     </div>
                 </div>
+                <?php } ?>
+                <!-- User Icon -->
+                <div class="navbar-panel">
+                    <div class="icon-container" style="background-image:url('<?=$_SESSION['user_photo']?>')"></div>
+                    <div id="user-name"><?=$_SESSION['username']?></div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="app-sidebar-panel" id="sidebar"><?php require 'sidebar.php'; ?></div>
+    <div class="app-sidebar-panel" id="sidebar" 
+    <?php 
+    if(isset($_SESSION['sidebar-visible'])) {
+        echo $_SESSION['sidebar-visible']? "" : 'style="display:none"';
+    } ?> ><?php require 'sidebar.php'; ?></div>
 
 <script src="/uclm_scholarship/public/scripts/misc/navbar-functions.js"></script>

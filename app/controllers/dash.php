@@ -89,12 +89,8 @@ class Dash extends Controller {
         unset($_SESSION['generalView']);    
         
         // Block Users with User Privilege = 3 (WS), 85 (Departmental Account)
-        if($_SESSION['user_privilege']==3 || $_SESSION['user_privilege']==85){
+        if($_SESSION['user_privilege']==3){
             header('Location: /uclm_scholarship/home');
-        }
-
-        if($args === 'requests'){
-            $this->wsRequest();
         }
 
         switch($args){
@@ -128,6 +124,7 @@ class Dash extends Controller {
 
         return $this->view('ws',[
             'ws' => $working_scholars,
+            'depAssigned' => null,
             'allow_edit' => isset($_GET['allow_edit']),
             'generalView' => true
         ]);
@@ -166,7 +163,52 @@ class Dash extends Controller {
     }
 
     private function wsRequest(){
-        return $this->view('ws-request');
+
+        $requestStatus = isset($_GET['request_status'])? $_GET['request_status']:'all';
+        
+        $status = [
+            'all' => 'All Requests',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+            'pending' => 'Pending'
+        ];
+        $labels = [
+            'all' => '',
+            'approved' => 'Approved ',
+            'rejected' => 'Rejected ',
+            'pending' => 'Pending '
+        ];
+
+        $whereClause = '';
+        switch($requestStatus){
+            case 'approved':
+                $whereClause = "AND request_status = 'APPROVED'";
+                break;
+            case 'rejected':
+                $whereClause = "AND request_status = 'REJECTED'";
+                break;
+            case 'pending':
+                $whereClause = "AND request_status = 'PENDING'";
+                break;
+        }
+        
+        $sql = "SELECT TOP 10 request_id, request_source_user_id, user_lname, user_fname, request_message, request_timestamp, request_status, user_photo 
+                FROM WSTransfer, [User] where WSTransfer.request_source_user_id = [User].user_id 
+                " . $whereClause;
+
+        $result = $this->model('Finder')
+        ->ready()
+        ->customSql($sql)
+        ->result_set();
+        
+        
+        return $this->view('ws-transfer-request', [
+            'finder' => $this->model('Finder'),
+            'status' => $status,
+            'labels' => $labels,
+            'requestStatus' => $requestStatus,
+            'result' => $result
+        ]);
     }
 
     public function ws_information($idnumber = ''){
@@ -298,4 +340,29 @@ class Dash extends Controller {
         echo json_encode($arrayResult);
     }
 
+    public function createPost(){
+        session_start();
+        $this->trap_no_user_session();
+
+        if(!isset($_POST['req']))
+            header('location: /uclm_scholarship/dash/');
+
+        $user_id = $_SESSION['user_id'];
+        $message = isset($_POST['post'])? $_POST['post']:'';
+        if($message === '')
+            die('Unable to post due to empty message.');
+
+        $sql = "INSERT INTO Posts(post_sender_user_id, post_content) values(?, ?)";
+        $bindParams = [ $user_id, $message ];
+
+        $success = $this->model('Finder')
+        ->ready()
+        ->customSql($sql)
+        ->setBindParams($bindParams)
+        ->go();
+
+        if($success)
+            echo json_encode(['success'=>'Successfully posted']);
+        else die('Unable to process request');
+    }
 }

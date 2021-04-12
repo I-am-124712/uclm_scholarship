@@ -25,20 +25,97 @@ class Records extends Controller {
         $this->trap_no_user_session();
     }
     
-    public function dtr(){
+    public function dtr($action = ''){
         session_start();
         $this->trap_no_user_session();
+
+
 
         // This method will return a specific view for users
         // with privilege = 3 (Working Scholars)
         if($_SESSION['user_privilege'] == 3)
             header('Location: /uclm_scholarship/records/my_dtr');
 
+        // We make sure only authorized users could access the Upload
+        // feature.
+        if($action === 'upload'){
+            $args = [];
+
+            if(isset($_GET['uploadSuccess']))
+                $args['uploadSuccess'] = true;
+
+            return $this->view('dtr-upload', $args);
+        }
+
         if(isset($_POST['req'])){
             $this->get_dtr_info();
         }
         else{
             return $this->view('dtr');
+        }
+    }
+
+    public function uploadRaw(){
+        if(isset($_POST['submit'])) {
+
+            echo "UPLOADING...<br>";
+            $file_dest = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
+            $file_create = $file_dest . 'attlog_read.dat';
+
+            if(file_exists($file_create)){
+                echo "File Already Exists! ";
+            }
+            else{
+                move_uploaded_file($_FILES['dat-file']['tmp_name'], $file_create);
+                echo "UPLOADED! ";
+            }
+            
+            echo "READING...<br>";
+
+            $forSql = $this->model('Finder');
+            $delete = 'DELETE FROM Record';
+
+            // Delete everything first
+            $forSql->ready()->customSql($delete)->go();
+
+            // Then read uploaded file
+            $datFile = file($file_create);
+
+            
+            foreach($datFile as $val) {
+                $data = explode("\t", $val);
+
+                $idnumber = $data[0];
+                $timeStamp = explode(" ", $data[1]);
+
+                $date = $timeStamp[0];
+                $time = $timeStamp[1];
+
+                $attype = $data[3];
+
+                switch($attype){
+                    // code 0 = Check-in
+                    // Code 4 = Overtime-in
+                    // Both are treated as "in".
+                    case 0:
+                    case 4:
+                        $sqlString = 'INSERT INTO Record(idnumber, recorddate, timeIn) VALUES(?,?,?)';
+                        $bindParams = [ $idnumber, $date, $time ];
+                        break;
+                    // code 1 = Check-out
+                    // Code 5 = Overtime-out
+                    // Both are treated as "out".
+                    case 1:
+                    case 5:
+                        $sqlString = 'UPDATE Record SET [timeOut] = ? WHERE idnumber = ? AND recorddate = ?';
+                        $bindParams = [ $time, $idnumber, $date ];
+                }
+
+                $forSql->ready()->customSql($sqlString)->setBindParams($bindParams)->go();
+            }
+
+            header('location: /uclm_scholarship/records/dtr/upload?uploadSuccess=true');           
+
         }
     }
 
@@ -141,7 +218,7 @@ class Records extends Controller {
         $recentSummary = $this->model('Finder')
         ->ready()
         ->customSql('SELECT * FROM AllowanceSummary where ws_idnumber = ? 
-            AND CURRENT_TIMESTAMP - update_timestamp <= (60*60*24*31)
+            AND CAST(CURRENT_TIMESTAMP - update_timestamp AS INT) <= (31)
             AND allowance_status = \'RELEASED\'')
         ->setBindParams([ $idnumber ])
         ->result_set();
@@ -156,13 +233,77 @@ class Records extends Controller {
     /**
      * Controller method for WS Overtime view
      */
-    public function overtime(){
+    public function overtime($args = ''){
         session_start();
         $this->trap_no_user_session();
-
+        
         if($_SESSION['user_privilege'] == 3){
             header('location: /uclm_scholarship/records/my_overtime');
         }
+
+        if(isset($args) && $args === 'encode') {
+            if(isset($_GET['department'])){
+                $selectedDepartment = $_GET['department'];
+                $wsQuery = "SELECT * FROM WS WHERE depAssigned = ? ORDER BY wsName ASC";
+                $wsBindParams = [ $selectedDepartment ];
+
+                $working_scholars = $this->model('Finder')
+                ->ready()
+                ->customSql($wsQuery)
+                ->setBindParams($wsBindParams)
+                ->result_set();
+            }
+            else{
+                $selectedDepartment = $working_scholars = null;
+            }
+            if(isset($_GET['working-scholar'])){
+                $selectedID = $_GET['working-scholar'];
+
+                $sql = "SELECT Overtime.overtime_id, WS.idnumber, 
+                        WS.wsName, Overtime.otdate, 
+                        Overtime.ottimestart, Overtime.ottimeend,
+                        Overtime.ottotal
+                        from WS INNER JOIN OVERTIME on WS.idnumber = Overtime.idnumber
+                        WHERE WS.idnumber = ?";
+                $bindParams = [ $selectedID ];
+                if($selectedID !== 'none') 
+                    $wsInfo = $this->model('WS')
+                    ->ready()
+                    ->find()
+                    ->where([
+                        'idnumber' => $selectedID
+                    ])
+                    ->result_set()[0];
+                
+                else
+                    $wsInfo = null;
+                $savedOvertime = $this->model('Finder')
+                ->ready()
+                ->customSql($sql)
+                ->setBindParams($bindParams)
+                ->result_set();
+
+
+            }
+            else{
+                $selectedID = $wsInfo = $savedOvertime = null;
+            }
+
+            $departments = $this->model('Departments')
+            ->ready()
+            ->find()
+            ->result_set();
+
+            return $this->view('overtime-encode', [ 
+                'departments' => $departments,
+                'ws' => $working_scholars,
+                'ws-info' => $wsInfo,
+                'savedOvertime' => $savedOvertime,
+                'selectedDepartment' => $selectedDepartment,
+                'selectedID' => $selectedID
+            ]);
+        }
+
         return $this->view('overtime', [
             'finderObj' => $this->model('Finder')
         ]);
@@ -304,27 +445,58 @@ class Records extends Controller {
 
     }
 
+    public function saveOvertime() {
+        // session_start();
+        // $this->trap_no_user_session();
+
+        if(isset($_POST['req'])) {
+            $overtimeData = json_decode($_POST['overtime-data'], true);
+
+            $idnumber = $overtimeData['idnumber'];
+            if(!empty($overtimeData['overtimeEntries'])) {
+                foreach($overtimeData['overtimeEntries'] as $ot) {
+                    $otdate = date('m-d-Y',strtotime($ot['overtimeDate']));
+                    $ottimestart = $ot['overtimeStart'];
+                    $ottimeend = $ot['overtimeEnd'];
+                    $ottotal = $ot['overtimeTotal'];
+
+
+                    $sql = "INSERT INTO Overtime(idnumber, otdate, ottimestart, ottimeend, ottotal)
+                        VALUES(?,?,?,?,?);";
+                    $bindParams = [ $idnumber, $otdate, $ottimestart, $ottimeend, $ottotal ];
+
+                    $this->model('Finder')
+                    ->ready()
+                    ->customSql($sql)
+                    ->setBindParams($bindParams)
+                    ->executeNonQuery();
+                }
+
+                echo json_encode(['success' => 'Success!']);
+            }
+            else {
+                header("HTTP/1.0 404 Not Found");
+            }
+        }
+    }
+
 
     public function saveDtrData(){
 
-        $record_id = isset($_POST['id'])? $_POST['id']:'';
+        $record_id = isset($_POST['id'])? $_POST['id']:die;
         $late = isset($_POST['late'])? $_POST['late']:'';
         $undertime = isset($_POST['undertime'])? $_POST['undertime']:'';
         $total_data = isset($_POST['totalData'])? $_POST['totalData']:'';
 
         // save calculated lates, undertime and total of DTR entry to
         // our database. 
-        $this->record_obj
-        ->ready()
-        ->update([
-            'late' => $late,
-            'undertime' => $undertime,
-            'hoursRendered' => $total_data
-        ])
-        ->where([
-            'record_id' => $record_id
-        ])
-        ->go();
+
+        $sql = "UPDATE Record SET late = ?, undertime = ?, hoursRendered = ?
+        WHERE record_id = ?";
+
+        $bindParams = [ $late, $undertime, $total_data, $record_id ];
+
+        $this->finder_obj->ready()->customSql($sql)->setBindParams($bindParams)->executeNonQuery();
         
         // Notify save! Tada
         echo json_encode(array("save_success" => "Saved"));
@@ -382,7 +554,7 @@ class Records extends Controller {
         ->order_by([
             'wsName' => 'ASC'
         ])
-        ->go();
+        ->result_set();
 
         
         if(!empty($working_scholars)){
@@ -405,12 +577,15 @@ class Records extends Controller {
                 $dateStart = $period_bounds['dateStart'];
                 $dateEnd = $period_bounds['dateEnd'];
 
+                // Query won't work if ID Number isn't Integer when bound. Idk why
+                $idnumber = ($working->get()['idnumber'] + 0);
+
 
                 // Retrieve DTR entries...
-                $result_dtr = $this->retrieve_dtr($working, $dateStart, $dateEnd, $hide);
+                $result_dtr = $this->retrieve_dtr($idnumber, $dateStart, $dateEnd, $hide);
 
                 // Retrieve the schedules for the working Scholar
-                $schedule = $this->retrieve_schedule($working, $school_year, $semester);     
+                $schedule = $this->retrieve_schedule($idnumber, $school_year, $semester);     
 
                 // We will retrieve all the WS's schedule for
                 // the manual adding of schedule for every
@@ -514,7 +689,7 @@ class Records extends Controller {
     *    on a given period bound $date_start and $date_end. 
     *
     *    Params:
-    *    - $ws - A WS Model Object for basis using its 'idnumber'
+    *    - $idnumber - Integer WS ID Number
     *    - $date_start - An SQL DateFromPart() method String for the starting inclusive date to retrieve.
     *    - $date_end - An SQL DateFromPart() method String for the closing inclusive date to retrieve.
     *    - $hide_nulls - Hide Record entries having NULL for times-in or times-out.
@@ -522,58 +697,21 @@ class Records extends Controller {
     *    Returns:
     *    - $result_dtr - An Array of Record Model objects.
     */
-    private function retrieve_dtr($ws, $date_start, $date_end, $hide_nulls){
+    private function retrieve_dtr($idnumber, $date_start, $date_end, $hide_nulls){
 
-        if($hide_nulls){
-            $result_dtr = $this->record_obj
-            ->ready()
-            ->find([
-                'columns' => [
-                    'record_id',
-                    'recorddate',
-                    'timeIn',
-                    'timeOut',
-                    'hoursRendered'
-                ]
-            ])
-            ->where([
-                'idnumber' => $ws->get('idnumber'),
-                'between' => [
-                    'column' => 'recorddate',
-                    'arg1' => $date_start,
-                    'arg2' => $date_end
-                ],
-                'NOT NULL' => [
-                    'logic' => 'AND',
-                    'timeIn',
-                    'timeOut'
-                ]
-            ])
-            ->result_set();
-        }
-        else{
-            $result_dtr = $this->record_obj
-            ->ready()
-            ->find([
-                'columns' => [
-                    'record_id',
-                    'recorddate',
-                    'timeIn',
-                    'timeOut',
-                    'hoursRendered'
-                ]
-            ])
-            ->where([
-                'idnumber' => $ws->get('idnumber'),
-                'between' => [
-                    'column' => 'recorddate',
-                    'arg1' => $date_start,
-                    'arg2' => $date_end
-                ],
-            ])
-            ->result_set();
-        }
-        return $result_dtr;
+        $hideNullsString = $hide_nulls? "AND timeIn IS NOT NULL
+        AND [timeOut] IS NOT NULL;" : "";
+
+        
+        $sql = "SELECT record_id, recorddate, timeIn, [timeOut], hoursRendered
+                FROM Record WHERE idnumber = ? AND recorddate between $date_start AND $date_end 
+                $hideNullsString";
+
+        $bindParams = [ $idnumber, $date_start, $date_end ];
+
+        // var_export($bindParams);
+
+        return $this->finder_obj->ready()->customSql($sql)->setBindParams($bindParams)->result_set();
     }
 
 
@@ -582,7 +720,7 @@ class Records extends Controller {
      *   during a given Semester on the given School Year.
      *
      *   Params:
-     *   - $ws - A WS Model object 
+     *   - $idnumber - Integer WS ID Number
      *   - $school_year - A string that represents the school year (must be two 4-digit year strings)
      *     separated by a dash with no whitespaces (eg. "2015-2016")
      *   - $semester - An integer representing the semester of the schedule to be loaded.
@@ -590,28 +728,24 @@ class Records extends Controller {
      *   Returns:
      *   - $schedule - An Array of Schedule Model object retrieved from the performed query.
     */
-    private function retrieve_schedule($ws, $school_year, $semester){
+    private function retrieve_schedule($idnumber, $school_year, $semester){
+        $sql = "SELECT schedule_id, scheduleType, schedDay, tin, tout, totalHours from schedule where idnumber = ?
+        and semester = ?
+        and schoolYear = ?
+        order by tin, tout asc,
+        (CASE schedDay 
+                    WHEN 'M' THEN 1 
+                    WHEN 'Tu' THEN 2 
+                    WHEN 'W' THEN 3 
+                    WHEN 'Th' THEN 4 
+                    WHEN 'F' THEN 5 
+                    WHEN 'S' THEN 6 
+                    END)";
 
-        $schedule = $this->schedule_obj
-        ->ready()
-        ->find([
-            'columns' => [
-                'schedule_id',
-                'scheduleType',
-                'schedDay',
-                'tin', 'tout',
-                'totalHours'
-            ]
-        ])
-        ->where([
-            'idnumber' => $ws->get('idnumber'),
-            'schoolYear' => $school_year,
-            'semester' => $semester
-        ])
-        ->result_set();
+        $bindParams = [ $idnumber, $semester, $school_year ];
 
              
-        return $schedule;
+        return $this->finder_obj->ready()->customSql($sql)->setBindParams($bindParams)->result_set();
     }
 
     /** 
@@ -658,10 +792,6 @@ class Records extends Controller {
 
 		            $record_in = $dtr_entry['timeIn'];
                     $record_out = $dtr_entry['timeOut'];
-                    
-                    // Test to see our output calculations.
-                    $dtr_entry['boboTest'] = [];
-                    $dtr_entry['boboSpcTest'] = [];
 
 
 		            $lates_undertimes = [];
@@ -743,6 +873,7 @@ class Records extends Controller {
 		            }
 		        }
 
+                $dtr_entry['dayOfDate'] = $day[$recordWeekDay];
                 $dtr_entry['late'] = empty($spc_scheduleForRecord) ? $late : $spc_late;
                 $dtr_entry['undertime'] = empty($spc_scheduleForRecord) ? $undertime : $spc_undertime;
                 $dtr_entry['hoursRendered'] = empty($spc_scheduleForRecord) ? $total : $spc_total;
@@ -813,19 +944,23 @@ class Records extends Controller {
         $result = [];
 
         // We will have a custom SQL statement for this feature 
-        // since we cannot achieve this with our "API" kuno.
-        $sql = "SELECT WS.idnumber, WS.wsName,"
-                . "sum(hoursRendered) + sum(late) + sum(undertime) AS 'gross_hours',"
-                . "sum(late) AS 'lates',"
-                . "sum(undertime) AS 'undertimes',"
-                . "sum(hoursRendered) AS 'hours_rendered' "
-                . "FROM Record INNER JOIN WS ON WS.idnumber = Record.idnumber "
-                . "WHERE WS.depAssigned = ? AND Record.recorddate BETWEEN "
-                . $dateStart . " AND " . $dateEnd . " "
-                . " AND Record.timeIn IS NOT NULL "
-                . " AND Record.[timeOut] IS NOT NULL "
-                . "GROUP BY WS.idnumber, WS.wsName "
-                . "ORDER BY WS.wsName ASC";
+
+        $sql = "SELECT WS.idnumber, WS.wsName,
+            sum(hoursRendered) + sum(late) + sum(undertime) AS 'gross_hours',
+            sum(late) as 'lates',
+            sum(undertime) as 'undertimes',
+            sum(hoursRendered) AS 'hours_rendered'
+            FROM Record INNER JOIN WS ON WS.idnumber = Record.idnumber
+            WHERE WS.depAssigned = ? AND Record.recorddate BETWEEN 
+            $dateStart AND $dateEnd 
+            AND Record.timeIn IS NOT NULL
+            AND Record.[timeOut] IS NOT NULL
+            GROUP BY WS.idnumber, WS.wsName 
+            ORDER BY WS.wsName ASC";
+
+        $overtimeSql = "SELECT idnumber, sum(ottotal) as 'total_overtime' FROM Overtime
+        WHERE otdate between $dateStart and $dateEnd
+        GROUP BY idnumber";
 
         $params = [
             $department
@@ -838,6 +973,13 @@ class Records extends Controller {
         ->customSQL($sql)
         ->setBindParams($params)
         ->result_set();
+
+        // We will select our Overtime for each Working Scholars.
+        $otRes = [];
+
+        foreach(($res = $this->finder_obj->ready()->customSql($overtimeSql)->result_set()) as $ot) {
+            $otRes[$ot->get("idnumber")] = $ot->get("total_overtime") + 0;
+        }
 
 
         foreach($summary_temp as $summ){
@@ -857,6 +999,15 @@ class Records extends Controller {
             $fields['schoolYear'] = $school_year;
             $fields['period'] = $period;
             $fields['month'] = $month;
+
+            // We will add our overtime on top of the existing number of hours.
+            if(!empty($otRes) && isset($otRes[$idnumber])){
+                $overtime = $otRes[$idnumber];
+                $fields['overtimes'] = $overtime;
+                $fields['hours_rendered'] += $overtime; 
+            }
+            else
+                $fields['overtimes'] = 0;
 
             // Save all in reult under index using the WS's ID Number. 
             $result[$idnumber] = $fields;
@@ -879,6 +1030,7 @@ class Records extends Controller {
         $month = isset($_POST['month'])? $_POST['month'] + 0:'';
 
         $grossHours = isset($_POST['grossHours'])? $_POST['grossHours'] + 0: 0.0;
+        $overtime = isset($_POST['overtime'])? $_POST['overtime'] + 0: 0.0;
         $lates = isset($_POST['lates'])? $_POST['lates'] + 0: 0.0;
         $undertimes = isset($_POST['undertimes'])? $_POST['undertimes'] + 0: 0.0;
         $hoursRendered = isset($_POST['hoursRendered'])? $_POST['hoursRendered'] + 0: 0.0;
@@ -890,6 +1042,7 @@ class Records extends Controller {
             'dtr_period' => $period,
             'dtr_month' => $month,
             'gross_duty_hours' => $grossHours,
+            'total_overtime' => $overtime,
             'total_late' => $lates,
             'total_undertime' => $undertimes,
             'overall_total' => $hoursRendered,
@@ -952,7 +1105,7 @@ class Records extends Controller {
             $semesterWord = "FIRST SEMESTER";
         }
         // Second Semester
-        else if($month >= 10 && ($month <= 12 || $month < 3)){
+        else if($month >= 10 && $month <= 12 || $month < 3){
             $semester = 2;
             $semesterWord = "SECOND SEMESTER";
         }

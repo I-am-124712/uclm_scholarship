@@ -1,6 +1,4 @@
 
-
-
 $(()=>{
     // styling for table
     let $table = $("div.table"); 
@@ -26,7 +24,7 @@ $(()=>{
 /**
  * Sends a request to generate a pdf and opens it in a new tab.
  */
-const generatePDF = (departmentName, dtrJSONData) => {
+const generatePDF = (obj, dtrJSONData) => {
 
     // This object array will hold the data that we will be sending to our
     // post request.
@@ -34,28 +32,44 @@ const generatePDF = (departmentName, dtrJSONData) => {
 
     // Let us filter out what we will be sending to our request.
 
-    dataObj.push
     for(x in data = dtrJSONData){
         dataObj.push({
             wsName: data[x].wsName,
             wsRecords : data[x].wsRecords
         });
     }
-    let param = 'department="' + departmentName + '"&' +
-            "data=" + JSON.stringify(dataObj);
-    console.log(param);
+
+    let schoolYear = obj.schoolYear? `schoolYear=${obj.schoolYear}`:'';
+    let period = obj.period? `&period=${obj.period}`:'';
+    let month = obj.month? `&month=${obj.month}`:'';
+    let department = obj.department? `&department=${obj.department}`:'';
+
+    let param = `${schoolYear}
+        ${period}
+        ${month}
+        ${department}
+        &data=${JSON.stringify(dataObj)}`;
+
 
     $.ajax({
-        url: '/uclm_scholarship/utilities/generate/pdf/dtr',
+        url: '/uclm_scholarship/utilities/sendPost',
         type: 'post',
-        dataType: "html",
+        dataType: "json",
         data: param,
         success: res => {
-            let printer = window.open('','_blank');
-            printer.document.write(res);
-            setTimeout(function(){
-                printer.print();
-            }, 500);
+            console.log(res);
+
+            if(!res.status){
+                console.log("ERROR: POST failed");
+                return;
+            }
+            if(res.status !== 'SUCCESS'){
+                console.log(res.status);
+                return;
+            }
+
+            console.log('SUCCESS. Opening...');
+            window.open('/uclm_scholarship/utilities/generate/pdf/dtr', '_blank');
         }
     })
 };

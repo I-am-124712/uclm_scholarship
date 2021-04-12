@@ -15,32 +15,81 @@
         'DECEMBER'
     ];
 
+    $maxDays = [31,29,31,30,31,30,31,31,30,31,30,31];
+
+
     $userId = $_SESSION['user_id'];
 
-    $sql = "SELECT WS.idnumber, WS.wsName,
-        WS.dateOfHire, [User].user_photo,
-        sum(late) as 'lates', 
-        sum(undertime) as 'undertime', 
-        sum(case when timein is null or [timeOut] is null then 1 else 0 end) as 'incomplete' from Record
-        inner join WS on WS.idnumber = Record.idnumber
-        inner join [User] on [User].user_id = WS.user_id
-        where WS.depAssigned = (SELECT deptId FROM Departments where departmental_user_id = ?)
-        and recorddate between '11-01-2019' and '11-30-2019'
-        group by WS.idnumber, WS.wsName, WS.dateOfHire, [User].user_photo
-        order by sum(hoursRendered) DESC";
-
-    $bindParams = [ $userId ];
-    
-    $month = $months[(new DateTime())->format('m') + -1];
+    $monthNum = (new DateTime())->format('m') + 0;
+    $month = $months[$monthNum - 1];
+    $maxDay = $maxDays[$monthNum - 1];
     $year = (new DateTime())->format('Y');
     $date = implode(" ", [$month, $year]);
 
-    $res = $finder->ready()->customSql($sql)->setBindParams($bindParams)->result_set();
+    $dateStart = implode("-",[$monthNum, '01', $year ]);
+    $dateEnd = implode("-",[$monthNum, $maxDay, $year ]);
+
+    // Get our Working Scholar for the Department first
+    $working = $finder->ready()
+    ->customSql("SELECT WS.idnumber, WS.wsName, WS.dateOfHire,
+        [User].user_photo FROM WS, [User] 
+        where WS.user_id = [User].user_id
+        AND depAssigned = (SELECT deptId from Departments where departmental_user_id = ?)")
+    ->setBindParams([ $userId ])
+    ->result_set();
+    
+    $res = [];
+
+    foreach($working as $ws){
+        $index = $ws->get('idnumber');
+        $name = ($ws->get('wsName'));
+        $userPhoto = $ws->get('user_photo');
+        $dateHired = $ws->get('dateOfHire')->format('M d, Y');
+
+        $res[$index] = [
+            'wsName' => $name,
+            'userPhoto' => $userPhoto,
+            'dateHired' => $dateHired,
+            'lates' => 0,
+            'undertime' => 0,
+            'incomplete' => 0
+        ];
+    }
+
+    // We have to map their record summary to themselves since we would also want to see the
+    // other working scholars that were assigned to the department.
+    $summaryQuery = "SELECT sum(late) as 'lates',
+        sum(undertime) as 'undertime',
+        sum(case when timeIn is null or [timeOut] is null then 1 else 0 end) as 'incomplete'
+        FROM Record WHERE idnumber = ? and recorddate between '$dateStart' and '$dateEnd'";
+
+    foreach($res as $key => $value) {
+        $idnumber = $key;
+        $bindParam = [ $idnumber ];
+
+
+        $res2 = $finder->ready()->customSql($summaryQuery)->setBindParams($bindParam)->result_set();
+
+        if($res2 != null){
+            $res2 = $res2[0];
+            $lates = ($m = $res2->get('lates')) == null? 0 : $m; 
+            $undertime = ($n = $res2->get('undertime')) == null? 0 : $n; 
+            $incomplete = ($o = $res2->get('incomplete')) == null? 0 : $o; 
+        }
+        else{
+            $lates = 0;
+            $undertime = 0;
+            $incomplete = 0;
+        }
+        $res[$key]['lates'] = $lates;
+        $res[$key]['undertime'] = $undertime;
+        $res[$key]['incomplete'] = $incomplete;
+    }
 ?>
 
 
 <div class="form-flat title-medium">
-    <b>WORKING SCHOLARS PERFORMANCE SUMMARY: <span style="color:rgb(30, 98, 223)"><?= $date ?></span></b><br>
+    <b>WORKING SCHOLARS' CURRENT PERFORMANCE SUMMARY: <span style="color:rgb(30, 98, 223)"><?= $date ?></span></b><br>
     <div class="form-flat" style="display:block; 
                                     flex-flow:none; 
                                     background:white; 
@@ -51,14 +100,14 @@
                                     padding:15px;">
         <div style="width:max-content; height:100%;">
             <?php 
-                foreach($res as $ws) {
-                    $idnumber = $ws->get('idnumber');
-                    $wsName = utf8_encode($ws->get('wsName'));
-                    $dateHired = $ws->get('dateOfHire')->format('M d, Y');
-                    $lates = $ws->get('lates');
-                    $undertime = $ws->get('undertime');
-                    $incomplete = $ws->get('incomplete');
-                    $user_photo = $ws->get('user_photo');
+                foreach($res as $key => $value) {
+                    $idnumber = $key;
+                    $wsName = utf8_encode($value['wsName']);
+                    $dateHired = $value['dateHired'];
+                    $lates = $value['lates'];
+                    $undertime = $value['undertime'];
+                    $incomplete = $value['incomplete'];
+                    $user_photo = $value['userPhoto'];
             ?>
             <!-- WS Information stub -->
             <div class="form-flat block" style="width:400px; height:175px;">

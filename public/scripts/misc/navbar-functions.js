@@ -2,7 +2,23 @@
 $(()=>{
     $("#hamburger1").click(function(){
 
-        $(".app-sidebar-panel").toggle();
+        let sidebarVisible = $(".app-sidebar-panel").is(":visible")? 
+            _=>{
+                $(".app-sidebar-panel").hide();
+                return 'off';
+            } : 
+            _=> {
+                $(".app-sidebar-panel").show()
+                return 'on';
+            } ;
+
+        $.ajax({
+            method: 'post',
+            data: "toggle-sidebar=" + sidebarVisible(),
+            url: "/uclm_scholarship/utilities/hideSidebar",
+            success: res => { console.log(res); },
+            error: err => { console.log(err.message); }
+        })
 
     });
 

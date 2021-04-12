@@ -2,9 +2,9 @@
 
 class Model {
 
-    protected $server = 'RAVINSLENOVO\\RAVIN_LOUIS_0X45';
+    protected $server = 'DESKTOP-LINBKQD\\UCLM_USO';
     protected $connectionInfo = array(
-        "Database" => "DTRDB",
+        "Database" => "DTRDB2"
     );
     protected $connectionResource;
     protected $fields = [];
@@ -21,8 +21,17 @@ class Model {
         // query string should be refreshed
         $this->query_string = '';
 
-        if($this->connectionResource === null)
-            $this->connectionResource = sqlsrv_connect($this->server,$this->connectionInfo);
+        if($this->connectionResource === null){
+            $this->connectionResource = sqlsrv_connect($this->server, $this->connectionInfo);
+            $errors = sqlsrv_errors();
+            // if($errors)
+            //     foreach ($errors as $err) {
+            //         # code...
+            //         echo $err["message"] . " <br>";
+            //     }
+        }
+
+        // echo $this->connectionResource == null? "Failed" : "Success";     
         return $this;
     }
 

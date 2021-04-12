@@ -1,6 +1,9 @@
 
     const addWorkingScholars = (departmentId)=>{
+        if(departmentId == undefined)
+            departmentId = 'general';
         url = "/uclm_scholarship/working_scholars/add_ws/"+departmentId;
+        
         $("#for-popups").load(url+" .modal-overlay");
         $("#for-popups").removeAttr("hidden");
     }
@@ -8,7 +11,7 @@
         $("#for-popups").text("");
     };
 
-    const save = ()=>{
+    const save = generalView =>{
         url = "/uclm_scholarship/working_scholars/add";
         params = $('form').serialize();
         console.log(params);
@@ -20,10 +23,12 @@
             $("#err-msg-fname").text(data.err_fname);
             $("#err-msg-course").text(data.err_course);
 
+            general = generalView? '/general' : '';
+
             if(data.success){
                 closeModal();
                 setTimeout(() => {
-                    location.href = '/uclm_scholarship/dash/ws?allow_edit';
+                    location.href = '/uclm_scholarship/dash/ws' + general + '?allow_edit';
                 }, 100);
             }
         };

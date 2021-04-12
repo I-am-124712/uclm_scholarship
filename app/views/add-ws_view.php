@@ -4,15 +4,29 @@
         <h1 class="modal-header"><b>Add Working Scholar</b></h1>
         <div id="form-panel" style="padding-left:30px;padding-right:30px;padding-bottom:10px;padding-top:20px">
             <form action="/uclm_scholarship/working_scholars/add" method="post">
+                <?php if(isset($args['department'])) { 
+                            $department = $args['department'];
+                ?>
                 <p>
                     <center class="label" id="dep-assigned">
                         Department : 
                         <uli class="label" id="label-deptname" style="font-size:20px">
-                            <b><?=isset($args)? $args->get_fields()['departmentName']:''?></b>
+                            <b><?=isset($args)? $department->get_fields()['departmentName']:''?></b>
                         </uli>
                     </center>
                 </p>
-                <input hidden id="deptId" name="deptId" type="text" value="<?=$args->get_fields()['deptId']?>">
+                <input hidden id="deptId" name="deptId" type="text" value="<?=$department->get_fields()['deptId']?>">
+                <?php } else {
+                            $departmentList = $args['allDepartments'];
+                ?>
+                <label id="form-label" style="padding-bottom:5px; color:white">Department
+                    <select class="textbox" name="deptId" id="deptId" style="height:35px;">
+                        <?php foreach($departmentList as $dept) { ?>
+                            <option value=<?= $dept->get('deptId') ?>><?= $dept->get('departmentName') ?></option>
+                        <?php } ?>
+                    </select>
+                </label>
+                <?php } ?>
                 <label id="form-label" style="padding-bottom:5px; color:white">ID Number 
                     <div id="err-msg-idnum" 
                          style="float:right;
@@ -61,7 +75,7 @@
                 <button class="button-solid round" 
                         id="form-button" 
                         style="height:40px"
-                        onclick="save()">
+                        onclick="save(<?= $args['general'] ?>)">
                     Save
                 </button>
                 <button class="button-flashing round" 

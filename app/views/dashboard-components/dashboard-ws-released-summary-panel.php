@@ -5,10 +5,10 @@ $finder = $args['finder'];
 
 $idnumber = str_replace('ws', '', $_SESSION['user_id']);
 
-$sql = 'SELECT * FROM AllowanceSummary where ws_idnumber = ? 
-AND CURRENT_TIMESTAMP - update_timestamp <= (60*60*24*31)
-AND allowance_status = \'RELEASED\'';
-
+$sql = "SELECT * FROM AllowanceSummary WHERE ws_idnumber LIKE ? 
+    AND (CURRENT_TIMESTAMP - update_timestamp) <= (31)
+    AND allowance_status = 'RELEASED'";
+    
 $bindParam = [ $idnumber ];
 
 

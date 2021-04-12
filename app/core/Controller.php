@@ -16,7 +16,8 @@ class Controller {
     public function view_custom($header, $view, $args=[]){
         // include './index.html';
         // require_once './app/views/html/footer.html'; 
-        require_once $header;
+        if($header !== "")
+            require_once $header;
         require_once './app/views/'.$view.'_view.php';
     }
 

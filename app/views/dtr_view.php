@@ -60,7 +60,7 @@
                 </label>
             </form>
             <button class="button-solid round" id="btn-load" onclick="getDtrData()">Load Entries</button>
-            <button class="button-solid round" id="btn-transparent" onclick="">Upload .dat / .csv File</button>
+            <button class="button-solid round" id="btn-transparent" onclick="window.location.href='/uclm_scholarship/records/dtr/upload'">Upload Raw DTR File</button>
             <button class="button-solid round" id="btn-transparent" onclick="saveDtrData()">Save Changes</button>
             <button class="button-solid round" id="btn-transparent" onclick="generatePDFAdmin()">Generate PDF</button>
         </div>

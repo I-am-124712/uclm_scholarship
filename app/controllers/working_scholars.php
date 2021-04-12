@@ -10,9 +10,11 @@ class Working_scholars extends Controller{
         session_start();
         $this->trap_no_user_session();
 
-        if($deptId == 0){
+        if($deptId <= 0 || $deptId == null || !isset($deptId)){
             echo json_encode(['errSelectDepartment'=>'No Department selected.']);
         }
+        $generalView = $deptId == 'general';
+
         $matched_department = $this->model('Departments')
         ->ready()
         ->find()
@@ -21,7 +23,16 @@ class Working_scholars extends Controller{
         ])
         ->go()[0];
 
-        return $this->view('add-ws',$matched_department);
+        $allDepartments = $this->model('Departments')
+        ->ready()
+        ->find()
+        ->result_set();
+
+        return $this->view('add-ws',[
+            'department' => $matched_department,
+            'allDepartments' => $allDepartments,
+            'general' => $generalView? 'true':'false'
+        ]);
     }
 
     public function add(){
@@ -169,7 +180,7 @@ class Working_scholars extends Controller{
         $success = false;
 
         $previousDepartment = isset($_POST['department']) ? $_POST['department']+0:1;
-        $department = isset($_POST['dep-assigned']) ? $_POST['dep-assigned']+0:1;
+        $department = isset($_POST['dep-assigned']) ? $_POST['dep-assigned']+0:$previousDepartment;
         $previous_idnumber = isset($_POST['selected-id'])? $_POST['selected-id']:'NONE';
         $idnumber = isset($_POST['idnumber'])? $_POST['idnumber']:'NONE';
         $lname = utf8_decode(isset($_POST['lname'])? $_POST['lname']:'NONE');
@@ -713,5 +724,78 @@ class Working_scholars extends Controller{
             'dateEnd' => $dateEnd,
             'records' => $res
         ]);
+    }
+
+    public function createTransferRequest(){
+        session_start();
+        $this->trap_no_user_session();
+
+        if($_SESSION['user_privilege'] != 85)
+            header('location: /uclm_scholarship/dash');
+            
+        if(!isset($_POST['req']))
+            header('location: /uclm_scholarship/dash');
+
+        $messageText = isset($_POST['request_text'])? $_POST['request_text']:'';
+
+        if($messageText === '')
+            die('Unable to process request');
+
+        $deptId = $_SESSION['user_id'];
+
+        $sql = "INSERT INTO WSTransfer(request_source_user_id, request_message)
+            VALUES(?, ?)";
+        
+        $bindParams = [ $deptId, $messageText ];
+        
+        $res = $this->model('Finder')
+        ->ready()
+        ->customSql($sql)
+        ->setBindParams($bindParams)
+        ->go();
+        
+        if($res)
+            echo "Successfully Added Request";
+
+    }
+
+    public function transferRequestFeedback(){
+
+        session_start();
+        $this->trap_no_user_session();
+
+        if(!isset($_POST['req']))
+            header('location: /uclm_scholarship/dash');
+        
+        if($_SESSION['user_privilege'] != 1)
+            header('location: /uclm_scholarship/dash');
+
+            
+        $res = json_decode($_POST['data'], true);
+
+        $userId = $_SESSION['user_id'];
+
+        $request_id = $res['request_id'];
+        $response = $res['response'];
+        $feedback = $res['feedback'];
+
+        $sql = "UPDATE WSTransfer SET request_status = ? where request_id = ?;
+        INSERT INTO WSTransferFeedback(request_id, feedback_user_id, feedback_message) VALUES(?, ?, ?)";
+
+        $bindParams = [
+            $response,
+            $request_id,
+            $request_id,
+            $userId,
+            $feedback
+        ];
+
+        $this->model('Finder')
+        ->ready()
+        ->customSql($sql)
+        ->setBindParams($bindParams)
+        ->go();
+
+        echo json_encode(['success'=>'Successfully updated.']);
     }
 }

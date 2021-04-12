@@ -30,6 +30,9 @@ class Login extends Controller {
                 }
         
                 if(($username === '' || $password === '')){
+                    Messages::push([
+                        'prompt' => 'Please fill all empty fields'
+                    ]);
                     return $this->view('login');
                 }
         
@@ -37,14 +40,16 @@ class Login extends Controller {
                 ->ready()
                 ->find()
                 ->where([
-                    'username' => $username,
-                    'password' => md5(SALT.$password)
+                    'username' => $username
                 ])
                 ->result_set([
                     'index' => 0
                 ]);
                 
-                if($matched_user){
+                $storedPassword = $matched_user->get('password');
+                $isMatch = password_verify($password, $storedPassword);
+                
+                if($isMatch){
                     // Log user session to our database.
                     $this->model('UserLogbook')
                     ->ready()
@@ -60,6 +65,7 @@ class Login extends Controller {
                     $_SESSION['username'] = $matched_user->get('user_fname').' '.$matched_user->get('user_lname');
                     $_SESSION['user_privilege'] = $matched_user->get('user_privilege');
                     $_SESSION['user_photo'] = $matched_user->get('user_photo');
+                    $_SESSION['sidebar-visible'] = true;
 
                     header('Location: /uclm_scholarship/home',false);
                 }
@@ -84,6 +90,42 @@ class Login extends Controller {
         session_start();
         $_SESSION['guest_login'] = true;
         header('Location: /uclm_scholarship/home');
+    }
+
+    private function updatePasswords(){
+
+        $custom = "SELECT * from [User] where user_id in('0x04569', '8256876')";
+        
+        $result = $this->model('Finder')
+        ->ready()
+        ->customSql($custom)
+        ->result_set();
+
+        $forQuery = [];
+
+        foreach($result as $res) {
+            $userId = $res->get('user_id');
+            $newPass = str_replace(" ", "", utf8_encode($res->get("user_lname")));
+            $hashed = password_hash($newPass, PASSWORD_DEFAULT);
+
+            echo $userId . "<br>";
+            echo $newPass . "<br>";
+            echo $hashed. "<br>";
+
+            $item = [ $hashed,$userId ];
+
+            $sql = "UPDATE [User] SET password = ? where user_id = ?";
+            $bindParams = $item;
+
+            $this->model('Finder')
+            ->ready()
+            ->customSql($sql)
+            ->setBindParams($bindParams)
+            ->go();
+
+            echo "<br>";
+        }
+
     }
 
 }

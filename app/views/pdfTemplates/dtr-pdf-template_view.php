@@ -1,17 +1,37 @@
-<?php require "dtr_linker.html"; 
-    $department = str_replace('"', '', $args["department"]);
+<?php
+    $department = ltrim(rtrim($args["department"]));
+
+    $period = $args['period'];
+    $month = $args['month'];
+    $schoolYear = $args['schoolYear'];
+
+    $filename = "DTR $period of $month $schoolYear - $department";
 ?>
 
-<body>
-    <div class="sheet"> 
-        <table class="table" align="center" > 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/uclm_scholarship/public/styles/style_dtr.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $filename ?></title>
+</head>
+
+
+<body onload="window.print()">
+    <div id="dtr-sheet"> 
+        <table class="table" style="margin:auto"> 
             <tr class="tableHeader" > 
                 <th id="dep" colspan ="10" ><?=strtoupper($department)?></th>
             </tr>
             <?php 
                 if(isset($args['data'])){
                     foreach($args['data'] as $ws){
-                        $wsName = strtoupper($ws['wsName']);
+
+                        if(empty($ws['wsRecords']))
+                            continue;
+
+                        $wsName = str_replace("ñ", 'Ñ', strtoupper($ws['wsName']));
 
                         $totalGrossHours = 0;
                         $totalLates = 0;
@@ -43,6 +63,7 @@
                         
                         foreach($ws['wsRecords'] as $record){
                             $recordDate = date_format(date_create($record['recorddate']['date']),"M d, Y");
+                            $dayOfDate = $record['dayOfDate'];
                             $scheduleIn = $scheduleOut = "";
                             $grossHours = 0;
 
@@ -70,7 +91,7 @@
                         ?>
 
                         <tr>
-                            <td><?= $recordDate ?></td>
+                            <td><?= "$recordDate ($dayOfDate)" ?></td>
                             <td><?= $scheduleIn ?></td>
                             <td><?= $scheduleOut ?></td>
                             <td><?= $recordIn ?></td>
@@ -85,10 +106,10 @@
                         echo '
                         <tr>
                             <td colspan="5" style="text-align: right; padding-right:10px"><b>TOTALS</b></td>
-                            <td>'. $totalGrossHours .'</td>
-                            <td>'. $totalLates .'</td>
-                            <td>' . $totalUndertimes . '</td>
-                            <td>' . $overallTotal . '</td>
+                            <td><b>'. $totalGrossHours .'</b></td>
+                            <td><b>'. $totalLates .'</b></td>
+                            <td><b>' . $totalUndertimes . '</b></td>
+                            <td><b>' . $overallTotal . '</b></td>
                         </tr>';
                     }
                 }

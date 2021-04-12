@@ -609,6 +609,12 @@ div #user-name{
     flex-flow: none;
     margin: 10px 5px;
 }
+.form-flat.block.auto{
+    width: auto;
+}
+.form-flat.block.full{
+    width: 100%;
+}
 .form-flat.title {
      width:auto;
      height:45px;
@@ -1271,7 +1277,7 @@ th#idnumber,#wsName,#wsDepartment{
     border-radius:100%;
     margin: 0px;
     padding: 0px;
-    background-color: rgb(0, 255, 0);
+    background-color: rgb(0, 128, 0);
     background-image:url('/uclm_scholarship/public/sources/icons/iconCheck.png');
     background-position: center;
     background-size:25px;
@@ -1519,7 +1525,7 @@ th#idnumber,#wsName,#wsDepartment{
 }
 #panel-login{
     width: 450px;
-    height: 450px;
+    height: 400px;
     background-color: rgb(0, 64, 184);
 }
 #searchButton{
